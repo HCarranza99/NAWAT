@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import useGameStore from '../store/useGameStore'
+import Torogoz from '../components/ui/Torogoz'
 
 export default function ResultScreen() {
   const { state } = useLocation()
@@ -19,6 +20,11 @@ export default function ResultScreen() {
   return (
     <div className="screen result-screen">
       <div className="result-content">
+        {/* Mascota */}
+        <div className="torogoz-wrap">
+          <Torogoz emotion={passed ? 'celebrate' : 'sad'} size={110} />
+        </div>
+
         {/* Stars */}
         <div className="result-stars">
           {Array.from({ length: 3 }, (_, i) => (
