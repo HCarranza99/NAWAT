@@ -1471,93 +1471,68 @@ button {
    ═══════════════════════════════════════════════════════════ */
 
 /* ── Keyframes ── */
-@keyframes toro-idle-body {
+@keyframes toro-float {
   0%, 100% { transform: translateY(0);    }
-  50%       { transform: translateY(-5px); }
+  50%       { transform: translateY(-6px); }
 }
-@keyframes toro-idle-tail {
-  0%, 100% { transform: rotate(0deg);    }
-  50%       { transform: rotate(12deg);  }
+@keyframes toro-tail-idle {
+  0%, 100% { transform: rotate(0deg);   }
+  50%       { transform: rotate(8deg);  }
 }
-@keyframes toro-celebrate-body {
-  0%, 100% { transform: translateY(0) scale(1);      }
-  30%       { transform: translateY(-18px) scale(1.05); }
-  60%       { transform: translateY(-8px) scale(1);  }
+@keyframes toro-celebrate {
+  0%,100% { transform: translateY(0)    rotate(0deg);   }
+  25%      { transform: translateY(-14px) rotate(-4deg); }
+  50%      { transform: translateY(-6px)  rotate(3deg);  }
+  75%      { transform: translateY(-10px) rotate(-2deg); }
 }
-@keyframes toro-celebrate-wings {
-  0%, 100% { transform: rotate(0deg);    }
-  30%       { transform: rotate(-30deg); }
-  60%       { transform: rotate(-10deg); }
+@keyframes toro-tail-celebrate {
+  0%, 100% { transform: rotate(0deg);   }
+  40%      { transform: rotate(-18deg); }
+  80%      { transform: rotate(10deg);  }
 }
-@keyframes toro-sad-body {
-  0%, 100% { transform: translateY(0);   }
-  50%       { transform: translateY(4px); }
-}
-@keyframes toro-sad-eyes {
-  0%, 100% { transform: scaleY(1);    }
-  50%       { transform: scaleY(0.6); }
+@keyframes toro-sad {
+  0%, 100% { transform: rotate(0deg) translateY(0);    }
+  50%       { transform: rotate(-5deg) translateY(4px); }
 }
 @keyframes toro-enter {
-  from { opacity: 0; transform: scale(0.6) translateY(10px); }
-  to   { opacity: 1; transform: scale(1)   translateY(0);    }
+  from { opacity: 0; transform: scale(0.7) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0);   }
 }
 
 /* ── Base ── */
 .torogoz {
-  animation: toro-enter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   display: block;
+  overflow: visible;
 }
 
-/* ── IDLE ── */
-.torogoz-idle .torogoz-body {
-  animation: toro-idle-body 2.4s ease-in-out infinite;
+/* ── IDLE: el pájaro flota suavemente, la cola oscila ── */
+.torogoz-idle {
+  animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+             toro-float 3s ease-in-out 0.4s infinite;
   transform-origin: center bottom;
 }
-.torogoz-idle .torogoz-tail-left,
-.torogoz-idle .torogoz-tail-right {
-  animation: toro-idle-tail 2.4s ease-in-out infinite;
-  transform-origin: 50% 0%;
-}
-.torogoz-idle .torogoz-tail-right {
-  animation-direction: alternate-reverse;
+.torogoz-idle .torogoz-tail {
+  animation: toro-tail-idle 3s ease-in-out infinite;
+  transform-origin: 150px 115px; /* pivot = conexión cola-cuerpo */
 }
 
-/* ── CELEBRATE ── */
-.torogoz-celebrate .torogoz-body {
-  animation: toro-celebrate-body 0.6s ease-in-out 2;
+/* ── CELEBRATE: salta y la cola agita ── */
+.torogoz-celebrate {
+  animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+             toro-celebrate 0.55s ease-in-out 0.4s 3;
   transform-origin: center bottom;
 }
-.torogoz-celebrate .torogoz-wing-left {
-  animation: toro-celebrate-wings 0.6s ease-in-out 2;
-  transform-origin: right center;
-}
-.torogoz-celebrate .torogoz-wing-right {
-  animation: toro-celebrate-wings 0.6s ease-in-out 2;
-  transform-origin: left center;
-  animation-direction: reverse;
-}
-.torogoz-celebrate .torogoz-tail-left,
-.torogoz-celebrate .torogoz-tail-right {
-  animation: toro-idle-tail 0.3s ease-in-out infinite alternate;
-  transform-origin: 50% 0%;
+.torogoz-celebrate .torogoz-tail {
+  animation: toro-tail-celebrate 0.55s ease-in-out 0.4s 3;
+  transform-origin: 150px 115px;
 }
 
-/* ── SAD ── */
-.torogoz-sad .torogoz-body {
-  animation: toro-sad-body 1.8s ease-in-out infinite;
-  transform-origin: center;
-}
-.torogoz-sad .torogoz-eyes {
-  animation: toro-sad-eyes 1.8s ease-in-out infinite;
-  transform-origin: center;
-}
-.torogoz-sad .torogoz-wing-left {
-  transform: rotate(20deg);
-  transform-origin: right center;
-}
-.torogoz-sad .torogoz-wing-right {
-  transform: rotate(-20deg);
-  transform-origin: left center;
+/* ── SAD: inclina el cuerpo lentamente ── */
+.torogoz-sad {
+  animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+             toro-sad 2s ease-in-out 0.4s infinite;
+  transform-origin: center bottom;
 }
 
 /* ── Contenedor centrado ── */
@@ -1566,4 +1541,14 @@ button {
   justify-content: center;
   align-items: center;
   margin: 8px 0;
+}
+
+/* ── HomeScreen hero ── */
+.home-torogoz {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 4px 0 0;
+  pointer-events: none;
+  user-select: none;
 }

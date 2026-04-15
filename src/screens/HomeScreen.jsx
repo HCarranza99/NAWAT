@@ -3,6 +3,7 @@ import lessons from '../data/lessons'
 import useGameStore from '../store/useGameStore'
 import { GAME_CONFIG } from '../data/gameConfig'
 import { useLivesRecharge } from '../hooks/useLivesRecharge'
+import Torogoz from '../components/ui/Torogoz'
 
 export default function HomeScreen() {
   const navigate = useNavigate()
@@ -55,6 +56,11 @@ export default function HomeScreen() {
           </button>
         </div>
       )}
+
+      {/* ── MASCOTA ── */}
+      <div className="home-torogoz">
+        <Torogoz emotion="idle" size={180} />
+      </div>
 
       {/* ── LESSON MAP ── */}
       <main className="lesson-map">
