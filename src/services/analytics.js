@@ -7,6 +7,7 @@
  */
 
 import { supabase } from '../lib/supabase'
+import { logError } from '../lib/logger'
 
 // ── Participantes ────────────────────────────────────────────────
 
@@ -24,7 +25,8 @@ export async function createParticipant(firstName, lastName) {
 
     if (error) throw error
     return data.id
-  } catch {
+  } catch (e) {
+    logError('createParticipant', e)
     // Fallback: UUID local si Supabase no está configurado o falla
     return crypto.randomUUID()
   }
@@ -45,7 +47,8 @@ export async function startSession(participantId) {
 
     if (error) throw error
     return data.id
-  } catch {
+  } catch (e) {
+    logError('startSession', e)
     return null
   }
 }
@@ -70,8 +73,8 @@ export async function endSession(sessionId, startedAtMs) {
       .from('sessions')
       .update({ ended_at: endedAt, duration_seconds: durationSeconds })
       .eq('id', sessionId)
-  } catch {
-    // silencioso
+  } catch (e) {
+    logError('endSession', e)
   }
 }
 
@@ -99,7 +102,8 @@ export async function startLessonAttempt(participantId, sessionId, lesson) {
 
     if (error) throw error
     return data.id
-  } catch {
+  } catch (e) {
+    logError('startLessonAttempt', e)
     return null
   }
 }
@@ -129,8 +133,8 @@ export async function completeLessonAttempt(attemptId, startedAtMs, score, stars
         passed: score >= 0.7,
       })
       .eq('id', attemptId)
-  } catch {
-    // silencioso
+  } catch (e) {
+    logError('completeLessonAttempt', e)
   }
 }
 
@@ -167,23 +171,22 @@ export async function logExerciseResponse(
       is_correct: isCorrect,
       response_time_sec: responseTimeSec,
     })
-  } catch {
-    // silencioso
+  } catch (e) {
+    logError('logExerciseResponse', e)
   }
 }
 
 // ── Consentimiento ───────────────────────────────────────────────
 
 /**
- * Hash simple (no criptográfico) del texto de consentimiento — sirve para
- * demostrar que el participante aceptó esta versión específica del texto.
+ * Hash de auditoría con SHA-256.
  */
-function hashText(text) {
-  let h = 0
-  for (let i = 0; i < text.length; i++) {
-    h = ((h << 5) - h + text.charCodeAt(i)) | 0
-  }
-  return (h >>> 0).toString(16)
+async function hashText(text) {
+  const buf = new TextEncoder().encode(text)
+  const digest = await crypto.subtle.digest('SHA-256', buf)
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
 }
 
 /**
@@ -194,13 +197,14 @@ function hashText(text) {
  */
 export async function saveConsent(participantId, consentVersion, consentText) {
   try {
+    const hashedText = await hashText(consentText)
     await supabase.from('consent_records').insert({
       participant_id: participantId,
       consent_version: consentVersion,
-      consent_text_hash: hashText(consentText),
+      consent_text_hash: hashedText,
     })
-  } catch {
-    // silencioso
+  } catch (e) {
+    logError('saveConsent', e)
   }
 }
 
@@ -239,8 +243,8 @@ export async function saveQuestionnaireResponse(
       },
       { onConflict: 'participant_id,phase,item_code' }
     )
-  } catch {
-    // silencioso
+  } catch (e) {
+    logError('saveQuestionnaireResponse', e)
   }
 }
 
@@ -255,8 +259,8 @@ async function upsertTimeline(participantId, patch) {
       { participant_id: participantId, ...patch },
       { onConflict: 'participant_id' }
     )
-  } catch {
-    // silencioso
+  } catch (e) {
+    logError('upsertTimeline', e)
   }
 }
 

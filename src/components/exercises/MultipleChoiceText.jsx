@@ -4,7 +4,7 @@ import WordHint from '../ui/WordHint'
 
 export default function MultipleChoiceText({ item, onCorrect, onWrong }) {
   const [selected, setSelected] = useState(null)
-  const { speak, isSpeaking, isSupported } = useTextToSpeech(item.nahuat_word)
+  const { speak, isSpeaking, isSupported } = useTextToSpeech(item.pronunciationText || item.nahuat_word)
 
   const handleSelect = (option) => {
     if (selected) return
@@ -26,7 +26,7 @@ export default function MultipleChoiceText({ item, onCorrect, onWrong }) {
 
   return (
     <div className="mc-exercise">
-      <p className="exercise-instruction">¿Qué significa en español?</p>
+      <p className="exercise-instruction">{item.instruction || '¿Qué significa en español?'}</p>
 
       <div className="word-display">
         <div className="word-with-speaker">

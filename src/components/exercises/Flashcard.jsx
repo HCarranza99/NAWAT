@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useTextToSpeech } from '../../hooks/useTextToSpeech'
 
-function SpeakButton({ text, light = false }) {
-  const { speak, isSpeaking, isSupported } = useTextToSpeech(text)
+function SpeakButton({ text, pronunciationText, light = false }) {
+  // Use pronunciationText for TTS if available (closer to real pronunciation)
+  const { speak, isSpeaking, isSupported } = useTextToSpeech(pronunciationText || text)
   if (!isSupported) return null
 
   return (
@@ -40,7 +41,7 @@ export default function Flashcard({ item, onKnew, onDidntKnow }) {
             )}
             <div className="word-with-speaker">
               <h2 className="word-nahuat">{item.nahuat_word}</h2>
-              <SpeakButton text={item.nahuat_word} light />
+              <SpeakButton text={item.nahuat_word} pronunciationText={item.pronunciationText} light />
             </div>
             <p className="tap-hint">Toca la tarjeta para ver</p>
           </div>
@@ -49,7 +50,7 @@ export default function Flashcard({ item, onKnew, onDidntKnow }) {
           <div className="flashcard-back">
             <div className="word-with-speaker">
               <h2 className="word-nahuat">{item.nahuat_word}</h2>
-              <SpeakButton text={item.nahuat_word} />
+              <SpeakButton text={item.nahuat_word} pronunciationText={item.pronunciationText} />
             </div>
             <div className="card-divider" />
             <p className="word-spanish">{item.spanish_translation}</p>

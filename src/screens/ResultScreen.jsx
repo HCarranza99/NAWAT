@@ -12,7 +12,7 @@ export default function ResultScreen() {
     return null
   }
 
-  const { lessonId, lessonTitle, lessonIcon, score, xpEarned, totalItems } = state
+  const { lessonId, lessonTitle, lessonIcon, score, xpEarned, isBoss, sectionId, returnTo } = state
   const pct = Math.round(score * 100)
   const stars = score >= 0.9 ? 3 : score >= 0.7 ? 2 : 1
   const passed = score >= 0.5
@@ -44,7 +44,9 @@ export default function ResultScreen() {
         </div>
 
         <h1 className="result-title">
-          {passed ? '¡Lección completada!' : '¡Sigue intentándolo!'}
+          {passed
+            ? (isBoss ? '¡Sección completada!' : '¡Lección completada!')
+            : '¡Sigue intentándolo!'}
         </h1>
         <p className="result-subtitle">
           {passed
@@ -81,7 +83,21 @@ export default function ResultScreen() {
 
       {/* Actions */}
       <div className="result-actions">
-        {!passed && (
+        {!passed && sectionId && (
+          <button
+            className="btn btn-secondary"
+            onClick={() => {
+              if (isBoss) {
+                navigate(`/section/${sectionId}/boss`)
+              } else {
+                navigate(`/section/${sectionId}/lesson/${lessonId}`)
+              }
+            }}
+          >
+            Intentar de nuevo
+          </button>
+        )}
+        {!passed && !sectionId && (
           <button
             className="btn btn-secondary"
             onClick={() => navigate(`/lesson/${lessonId}`)}
@@ -89,8 +105,8 @@ export default function ResultScreen() {
             Intentar de nuevo
           </button>
         )}
-        <button className="btn btn-primary" onClick={() => navigate('/')}>
-          Volver al inicio
+        <button className="btn btn-primary" onClick={() => navigate(returnTo || '/')}>
+          {returnTo === '/sections' ? 'Ver secciones' : 'Volver al inicio'}
         </button>
       </div>
     </div>

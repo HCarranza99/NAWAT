@@ -286,5 +286,5 @@ export const PRACTICE_ITEM = {
 }
 
 // ── Duración de la intervención ─────────────────────────────────────────────
-export const INTERVENTION_MINUTES = 1
+export const INTERVENTION_MINUTES = 15
 export const INTERVENTION_MS = INTERVENTION_MINUTES * 60 * 1000

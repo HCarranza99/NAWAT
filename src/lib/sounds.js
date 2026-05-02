@@ -27,7 +27,9 @@ export const playCorrect = () => {
     tone(523.25, t, 0.12)           // C5
     tone(659.25, t + 0.08, 0.14)   // E5
     tone(783.99, t + 0.16, 0.18)   // G5
-  } catch (_) {}
+  } catch {
+    // Ignore error
+  }
 }
 
 export const playWrong = () => {
@@ -36,7 +38,9 @@ export const playWrong = () => {
     const t = ac.currentTime
     tone(311.13, t, 0.18, 0.22, 'sawtooth')       // Eb4
     tone(220.00, t + 0.15, 0.22, 0.18, 'sawtooth') // A3
-  } catch (_) {}
+  } catch {
+    // Ignore error
+  }
 }
 
 export const playComplete = () => {
@@ -45,5 +49,7 @@ export const playComplete = () => {
     const t = ac.currentTime
     const notes = [523.25, 659.25, 783.99, 1046.5] // C5 E5 G5 C6
     notes.forEach((freq, i) => tone(freq, t + i * 0.1, 0.22))
-  } catch (_) {}
+  } catch {
+    // Ignore error
+  }
 }

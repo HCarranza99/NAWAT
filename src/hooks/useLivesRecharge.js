@@ -8,34 +8,36 @@ import { GAME_CONFIG } from '../data/gameConfig'
  * Observa el timestamp livesLastLostAt y, cuando han pasado
  * GAME_CONFIG.lives.rechargeMinutes, llama a resetLives() automáticamente.
  *
- * Retorna { minutesLeft } — null cuando las vidas están llenas.
+ * Retorna { timeLeftStr } — null cuando las vidas están llenas.
  */
 export function useLivesRecharge() {
   const { lives, livesLastLostAt, resetLives } = useGameStore()
-  const [minutesLeft, setMinutesLeft] = useState(null)
+  const [timeLeftStr, setTimeLeftStr] = useState(null)
 
   useEffect(() => {
     if (lives > 0 || !livesLastLostAt) {
-      setMinutesLeft(null)
+      setTimeLeftStr(null)
       return
     }
 
     const tick = () => {
-      const elapsedMin = (Date.now() - new Date(livesLastLostAt).getTime()) / 60_000
-      const remaining = GAME_CONFIG.lives.rechargeMinutes - elapsedMin
+      const elapsedMs = Date.now() - new Date(livesLastLostAt).getTime()
+      const remainingMs = GAME_CONFIG.lives.rechargeMinutes * 60_000 - elapsedMs
 
-      if (remaining <= 0) {
+      if (remainingMs <= 0) {
         resetLives()
-        setMinutesLeft(null)
+        setTimeLeftStr(null)
       } else {
-        setMinutesLeft(Math.ceil(remaining))
+        const m = Math.floor(remainingMs / 60000)
+        const s = Math.floor((remainingMs % 60000) / 1000)
+        setTimeLeftStr(`${m}:${String(s).padStart(2, '0')}`)
       }
     }
 
     tick()
-    const id = setInterval(tick, 30_000) // re-evalúa cada 30 segundos
+    const id = setInterval(tick, 1000) // re-evalúa cada 1 segundo
     return () => clearInterval(id)
   }, [lives, livesLastLostAt, resetLives])
 
-  return { minutesLeft }
+  return { timeLeftStr }
 }

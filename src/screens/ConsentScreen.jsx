@@ -2,8 +2,10 @@ import { useState } from 'react'
 import useGameStore from '../store/useGameStore'
 import { createParticipant, saveConsent } from '../services/analytics'
 import { CONSENT_TEXT, CONSENT_VERSION } from '../data/questionnaires'
+import LoginScreen from './LoginScreen'
 
 export default function ConsentScreen() {
+  const [showLogin, setShowLogin] = useState(false)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [accepted, setAccepted] = useState(false)
@@ -41,6 +43,8 @@ export default function ConsentScreen() {
 
   return (
     <div className="screen consent-screen">
+      {showLogin && <LoginScreen onBack={() => setShowLogin(false)} />}
+      {!showLogin && (
       <div className="consent-body">
         <div className="onboarding-slide">
           <span className="onboarding-icon">🌿</span>
@@ -48,6 +52,12 @@ export default function ConsentScreen() {
           <p className="onboarding-text">
             Antes de comenzar, necesitamos tu consentimiento y algunos datos básicos.
           </p>
+          <button
+            className="consent-login-link"
+            onClick={() => setShowLogin(true)}
+          >
+            ¿Ya tienes cuenta? Iniciar sesión
+          </button>
         </div>
 
         <form className="profile-form" onSubmit={handleSubmit} noValidate>
@@ -108,6 +118,7 @@ export default function ConsentScreen() {
           </button>
         </form>
       </div>
+      )}
     </div>
   )
 }
