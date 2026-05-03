@@ -45,24 +45,9 @@ button {
 }
 
 /* ── APP SHELL ───────────────────────────────────────────── */
+/* .app-shell y .screen migrados a src/styles/tailwind.css (Fase 1).
+   #root sigue aquí porque no es una primitiva del catálogo. */
 #root { display: flex; justify-content: center; background: #e8e0d8; min-height: 100svh; }
-
-.app-shell {
-  width: 100%;
-  max-width: 480px;
-  min-height: 100svh;
-  background: var(--bg);
-  position: relative;
-  overflow-x: hidden;
-  box-shadow: 0 0 40px rgba(0,0,0,0.15);
-}
-
-/* ── SCREEN ──────────────────────────────────────────────── */
-.screen {
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-}
 
 /* ═══════════════════════════════════════════════════════════
    HOME SCREEN
@@ -911,33 +896,9 @@ button {
 
 /* ═══════════════════════════════════════════════════════════
    BUTTONS
+   .btn, .btn-primary, .btn-secondary migrados a tailwind.css
+   (Fase 1). El resto sigue aquí hasta Fase 3+.
    ═══════════════════════════════════════════════════════════ */
-
-.btn {
-  padding: 16px 24px;
-  border-radius: var(--radius-sm);
-  font-size: 1rem;
-  font-weight: 700;
-  text-align: center;
-  transition: all var(--transition);
-  letter-spacing: 0.2px;
-}
-
-.btn:active { transform: scale(0.97); }
-.btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-
-.btn-primary {
-  background: var(--green);
-  color: white;
-  box-shadow: 0 3px 0 #1a4a35;
-}
-.btn-primary:active { box-shadow: none; }
-
-.btn-secondary {
-  background: var(--card);
-  color: var(--green);
-  border: 2px solid var(--green);
-}
 
 .btn-correct-outline {
   flex: 1;

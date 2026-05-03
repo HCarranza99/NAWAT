@@ -138,3 +138,39 @@
 
   --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 1 — Primitivas globales reescritas con Tailwind.
+   Mantienen el mismo nombre de clase para no romper los 22
+   componentes que aún las consumen; en fases 2-5 cada uno
+   irá adoptando shadcn <Button>/<Card> directamente.
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  .app-shell {
+    @apply relative w-full max-w-[480px] min-h-[100svh] overflow-x-hidden bg-background;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .screen {
+    @apply flex min-h-[100svh] flex-col;
+  }
+
+  .btn {
+    @apply rounded-sm px-6 py-4 text-base font-bold text-center;
+    letter-spacing: 0.2px;
+    transition: all 0.2s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground;
+    /* Sombra inferior fija (#1a4a35 = verde más oscuro que --primary) */
+    box-shadow: 0 3px 0 #1a4a35;
+  }
+  .btn-primary:active { box-shadow: none; }
+
+  .btn-secondary {
+    @apply bg-card text-primary border-2 border-primary;
+  }
+}
