@@ -260,3 +260,79 @@
   --animate-feedback-slide-up: feedback-slide-up 0.28s cubic-bezier(0.34, 1.4, 0.64, 1) both;
   --animate-hint-pop: hint-pop 0.15s ease both;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 3 — Animaciones de ejercicios.
+   bounce-in: feedback de respuesta correcta
+   shake: feedback de respuesta incorrecta (5 paradas, ±8/5px)
+   pulse-speak: pulso del botón TTS mientras habla
+   ───────────────────────────────────────────────────────────── */
+@keyframes bounce-in {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.08); }
+  70%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-5px); }
+  80%      { transform: translateX(5px); }
+}
+@keyframes pulse-speak {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%      { transform: scale(1.25); opacity: 0.7; }
+}
+
+@theme inline {
+  --animate-bounce-in: bounce-in 0.4s ease both;
+  --animate-shake: shake 0.4s ease both;
+  --animate-pulse-speak: pulse-speak 0.75s ease-in-out infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 3 — Primitivas compartidas entre los 4 ejercicios.
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  .exercise-instruction {
+    @apply text-[0.85rem] font-semibold uppercase tracking-[0.6px] text-muted-foreground mb-5;
+  }
+
+  .word-with-speaker {
+    @apply flex items-center justify-center gap-2.5;
+  }
+
+  .word-nahuat {
+    @apply text-[2.2rem] font-extrabold text-foreground tracking-[-1px] leading-[1.1];
+  }
+
+  .word-pronunciation {
+    @apply block text-[0.8rem] text-muted-foreground mt-1 italic;
+  }
+
+  /* Botón TTS — usado en MultipleChoiceText y Flashcard.
+     hover:not(:disabled) y disabled gestionados a continuación. */
+  .speak-btn {
+    @apply inline-flex items-center justify-center text-[1.25rem] py-1.5 px-2 rounded-sm bg-black/[0.06] cursor-pointer transition-all shrink-0 leading-none;
+  }
+  .speak-btn:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.12);
+    transform: scale(1.1);
+  }
+  .speak-btn:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+  .speak-btn.speaking {
+    animation: pulse-speak 0.75s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* Variante clara — usada sobre el frente verde de Flashcard */
+  .speak-btn-light {
+    @apply bg-white/20;
+  }
+  .speak-btn-light:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.35);
+  }
+}

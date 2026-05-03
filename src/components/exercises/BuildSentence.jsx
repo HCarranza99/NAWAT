@@ -4,21 +4,29 @@ function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
 }
 
+const tokenBase =
+  'py-2 px-3.5 rounded-lg text-[0.9rem] font-semibold border-2 transition-all active:translate-y-0.5 active:shadow-none'
+
 function BankToken({ token, hint, onAdd }) {
   const [showHint, setShowHint] = useState(false)
 
   return (
-    <div className="bank-token-wrap">
+    <div className="relative flex flex-col items-center">
       {showHint && hint && (
-        <span className="bank-hint-bubble">{hint}</span>
+        <span className="absolute bottom-[calc(100%+6px)] left-1/2 -translate-x-1/2 bg-foreground text-card px-2.5 py-[5px] rounded-lg text-[0.8rem] font-semibold whitespace-nowrap z-20 pointer-events-none animate-hint-pop after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-[5px] after:border-transparent after:border-t-foreground">
+          {hint}
+        </span>
       )}
-      <div className="bank-token-row">
-        <button className="word-token" onClick={() => onAdd(token)}>
+      <div className="flex items-center gap-0.5">
+        <button
+          className={`${tokenBase} bg-card text-foreground border-border shadow-[0_2px_0_var(--border)]`}
+          onClick={() => onAdd(token)}
+        >
           {token.w}
         </button>
         {hint && (
           <button
-            className="bank-hint-btn"
+            className="w-[18px] h-[18px] rounded-full border-[1.5px] border-primary bg-transparent text-primary text-[0.65rem] font-extrabold leading-none cursor-pointer shrink-0 flex items-center justify-center [-webkit-tap-highlight-color:transparent]"
             onClick={() => setShowHint((v) => !v)}
             aria-label={`Pista: ${hint}`}
           >
@@ -63,23 +71,29 @@ export default function BuildSentence({ item, hints = {}, onCorrect, onWrong }) 
     }
   }
 
-  const sentenceAreaClass = `sentence-area${
-    verified ? (isCorrect ? ' area-correct' : ' area-wrong') : ''
-  }`
+  const areaTone = !verified
+    ? 'border-border bg-card'
+    : isCorrect
+      ? 'border-nahuat-correct bg-nahuat-correct-bg animate-bounce-in'
+      : 'border-destructive bg-nahuat-wrong-bg animate-shake'
 
   return (
-    <div className="build-exercise">
+    <div className="flex flex-col gap-[18px]">
       <p className="exercise-instruction">{item.instruction}</p>
-      <p className="build-target">"{item.spanish_translation}"</p>
+      <p className="text-center text-base text-muted-foreground italic">"{item.spanish_translation}"</p>
 
-      <div className={sentenceAreaClass}>
+      <div
+        className={`min-h-[72px] border-2 border-dashed rounded-sm p-3 flex flex-wrap gap-2 items-center transition-colors ${areaTone}`}
+      >
         {sentence.length === 0 ? (
-          <span className="sentence-placeholder">Toca las palabras para ordenarlas</span>
+          <span className="text-muted-foreground text-[0.85rem] w-full text-center">
+            Toca las palabras para ordenarlas
+          </span>
         ) : (
           sentence.map((token) => (
             <button
               key={token.key}
-              className="word-token word-placed"
+              className={`${tokenBase} bg-secondary text-primary border-primary shadow-[0_2px_0_var(--primary)]`}
               onClick={() => removeWord(token)}
             >
               {token.w}
@@ -88,7 +102,7 @@ export default function BuildSentence({ item, hints = {}, onCorrect, onWrong }) 
         )}
       </div>
 
-      <div className="word-bank">
+      <div className="flex flex-wrap gap-2 min-h-[48px]">
         {bank.map((token) => (
           <BankToken
             key={token.key}

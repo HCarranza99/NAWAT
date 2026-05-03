@@ -73,9 +73,9 @@ beforeEach(() => {
 async function clickNavTab(label) {
   // Wait for BottomNav to render (App is gated on async useAuth)
   await waitFor(() => {
-    expect(document.querySelector('.bottom-nav')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Navegación principal')).toBeInTheDocument()
   })
-  const nav = document.querySelector('.bottom-nav')
+  const nav = screen.queryByLabelText('Navegación principal')
   const btn = within(nav).getByLabelText(label)
   fireEvent.click(btn)
 }
@@ -92,9 +92,9 @@ describe('Navigation — Home Screen', () => {
   it('shows BottomNav with 3 tabs', async () => {
     render(<App />)
     await waitFor(() => {
-      expect(document.querySelector('.bottom-nav')).toBeInTheDocument()
+      expect(screen.queryByLabelText('Navegación principal')).toBeInTheDocument()
     })
-    const nav = document.querySelector('.bottom-nav')
+    const nav = screen.queryByLabelText('Navegación principal')
     expect(within(nav).getByLabelText('Secciones')).toBeInTheDocument()
     expect(within(nav).getByLabelText('Inicio')).toBeInTheDocument()
     expect(within(nav).getByLabelText('Perfil')).toBeInTheDocument()
@@ -153,13 +153,13 @@ describe('Study flow — Phase gating', () => {
     useGameStore.setState({ studyPhase: PHASES.CONSENT })
     render(<App />)
     // ConsentScreen should NOT have the BottomNav
-    expect(document.querySelector('.bottom-nav')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Navegación principal')).not.toBeInTheDocument()
   })
 
   it('does NOT show BottomNav during posttest', () => {
     useGameStore.setState({ studyPhase: PHASES.POSTTEST })
     render(<App />)
-    expect(document.querySelector('.bottom-nav')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Navegación principal')).not.toBeInTheDocument()
   })
 })
 

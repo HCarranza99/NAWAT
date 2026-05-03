@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { useTextToSpeech } from '../../hooks/useTextToSpeech'
 import WordHint from '../ui/WordHint'
 
+const optionBase =
+  'rounded-sm px-3 py-4 text-[0.9rem] font-semibold border-2 min-h-[68px] leading-[1.3] transition-all active:translate-y-0.5 active:shadow-none disabled:active:translate-y-0 disabled:active:shadow-[0_2px_0_var(--border)]'
+
 export default function MultipleChoiceText({ item, onCorrect, onWrong }) {
   const [selected, setSelected] = useState(null)
   const { speak, isSpeaking, isSupported } = useTextToSpeech(item.pronunciationText || item.nahuat_word)
@@ -17,18 +20,23 @@ export default function MultipleChoiceText({ item, onCorrect, onWrong }) {
   }
 
   const getOptionClass = (option) => {
-    const base = 'option-btn'
-    if (!selected) return base
-    if (option.correct) return `${base} option-correct`
-    if (option.id === selected.id) return `${base} option-wrong`
-    return `${base} option-disabled`
+    if (!selected) {
+      return `${optionBase} bg-card text-foreground border-border shadow-[0_2px_0_var(--border)]`
+    }
+    if (option.correct) {
+      return `${optionBase} bg-nahuat-correct-bg text-primary border-nahuat-correct shadow-[0_2px_0_var(--nahuat-correct)] animate-bounce-in`
+    }
+    if (option.id === selected.id) {
+      return `${optionBase} bg-nahuat-wrong-bg text-destructive border-destructive shadow-[0_2px_0_var(--destructive)] animate-shake`
+    }
+    return `${optionBase} bg-card text-foreground border-border shadow-[0_2px_0_var(--border)] opacity-45`
   }
 
   return (
-    <div className="mc-exercise">
+    <div className="flex flex-col">
       <p className="exercise-instruction">{item.instruction || '¿Qué significa en español?'}</p>
 
-      <div className="word-display">
+      <div className="text-center mb-7">
         <div className="word-with-speaker">
           <h2 className="word-nahuat">
             <WordHint word={item.nahuat_word} translation={item.spanish_translation} />
@@ -50,7 +58,7 @@ export default function MultipleChoiceText({ item, onCorrect, onWrong }) {
         )}
       </div>
 
-      <div className="options-grid">
+      <div className="grid grid-cols-2 gap-3">
         {item.options.map((option) => (
           <button
             key={option.id}
