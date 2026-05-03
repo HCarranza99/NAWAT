@@ -174,3 +174,89 @@
     @apply bg-card text-primary border-2 border-primary;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 2 — Animaciones de Torogoz (mascota).
+   El SVG en components/ui/Torogoz.jsx aplica torogoz +
+   torogoz-{emotion} y los <g class="torogoz-tail">; estas reglas
+   deben quedar globales para que las animaciones funcionen.
+   ───────────────────────────────────────────────────────────── */
+@keyframes toro-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes toro-tail-idle {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(8deg); }
+}
+@keyframes toro-celebrate {
+  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  25%      { transform: translateY(-14px) rotate(-4deg); }
+  50%      { transform: translateY(-6px)  rotate(3deg); }
+  75%      { transform: translateY(-10px) rotate(-2deg); }
+}
+@keyframes toro-tail-celebrate {
+  0%, 100% { transform: rotate(0deg); }
+  40%      { transform: rotate(-18deg); }
+  80%      { transform: rotate(10deg); }
+}
+@keyframes toro-sad {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50%      { transform: rotate(-5deg) translateY(4px); }
+}
+@keyframes toro-enter {
+  from { opacity: 0; transform: scale(0.7) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+@layer components {
+  .torogoz {
+    animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    display: block;
+    overflow: visible;
+  }
+
+  .torogoz-idle {
+    animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+               toro-float 3s ease-in-out 0.4s infinite;
+    transform-origin: center bottom;
+  }
+  .torogoz-idle .torogoz-tail {
+    animation: toro-tail-idle 3s ease-in-out infinite;
+    transform-origin: 150px 115px;
+  }
+
+  .torogoz-celebrate {
+    animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+               toro-celebrate 0.55s ease-in-out 0.4s 3;
+    transform-origin: center bottom;
+  }
+  .torogoz-celebrate .torogoz-tail {
+    animation: toro-tail-celebrate 0.55s ease-in-out 0.4s 3;
+    transform-origin: 150px 115px;
+  }
+
+  .torogoz-sad {
+    animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+               toro-sad 2s ease-in-out 0.4s infinite;
+    transform-origin: center bottom;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 2 — Animaciones de feedback / hint (consumidas por
+   FeedbackModal y WordHint, ya migrados a Tailwind).
+   ───────────────────────────────────────────────────────────── */
+@keyframes feedback-slide-up {
+  from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+}
+@keyframes hint-pop {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px) scale(0.9); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0)   scale(1);   }
+}
+
+@theme inline {
+  --animate-feedback-slide-up: feedback-slide-up 0.28s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  --animate-hint-pop: hint-pop 0.15s ease both;
+}

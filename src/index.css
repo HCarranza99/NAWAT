@@ -97,22 +97,7 @@ button {
   gap: 14px;
 }
 
-.torogoz-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
-  border-radius: 50%;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18), inset 0 0 0 3px rgba(255, 255, 255, 0.35);
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.torogoz-badge .torogoz {
-  width: 100%;
-  height: auto;
-  transform: translate(-4%, 6%) scale(1.1);
-}
+/* .torogoz-badge migrado a Tailwind en components/ui/TorogozBadge.jsx (Fase 2) */
 
 .logo-title {
   font-size: 1.6rem;
@@ -469,30 +454,7 @@ button {
   opacity: 0.45;
 }
 
-/* ── PROGRESS BAR ────────────────────────────────────────── */
-.progress-bar {
-  flex: 1;
-  height: 10px;
-  background: var(--border);
-  border-radius: 20px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--green);
-  border-radius: 20px;
-  transition: width 0.4s ease;
-}
-
-/* ── LIVES ───────────────────────────────────────────────── */
-.lives-bar {
-  display: flex;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.heart { font-size: 1rem; }
+/* ProgressBar y LivesBar migrados a Tailwind (Fase 2) */
 
 /* ═══════════════════════════════════════════════════════════
    SHARED EXERCISE STYLES
@@ -918,67 +880,8 @@ button {
 }
 .btn-wrong-outline:active { box-shadow: none; }
 
-.btn-continue {
-  width: 100%;
-  background: white;
-  color: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: var(--radius-sm);
-  padding: 14px;
-  margin-top: 14px;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   FEEDBACK BAR
-   ═══════════════════════════════════════════════════════════ */
-
-.feedback-bar {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 480px;
-  padding: 20px 20px 28px;
-  border-radius: 20px 20px 0 0;
-  z-index: 50;
-}
-
-.feedback-correct {
-  background: var(--correct-bg);
-  border-top: 3px solid var(--correct);
-  color: var(--green);
-}
-
-.feedback-wrong {
-  background: var(--wrong-bg);
-  border-top: 3px solid var(--wrong);
-  color: var(--wrong);
-}
-
-.feedback-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 4px;
-}
-
-.feedback-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
-
-.feedback-headline {
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.feedback-answer {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-top: 3px;
-}
-
-.feedback-correct .btn-continue { background: var(--correct); color: white; }
-.feedback-wrong  .btn-continue { background: var(--wrong);   color: white; }
+/* .btn-continue y FEEDBACK BAR migrados a Tailwind en
+   components/ui/FeedbackModal.jsx (Fase 2) */
 
 /* ═══════════════════════════════════════════════════════════
    RESULT SCREEN
@@ -1482,10 +1385,7 @@ button {
    ANIMATIONS
    ═══════════════════════════════════════════════════════════ */
 
-@keyframes feedback-slide-up {
-  from { transform: translateX(-50%) translateY(100%); opacity: 0; }
-  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
-}
+/* feedback-slide-up keyframe migrado a tailwind.css (Fase 2) */
 
 @keyframes bounce-in {
   0%   { transform: scale(1); }
@@ -1502,15 +1402,8 @@ button {
   80%     { transform: translateX(5px); }
 }
 
-@keyframes hint-pop {
-  from { opacity: 0; transform: translateX(-50%) translateY(4px) scale(0.9); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0)   scale(1);   }
-}
-
-/* Feedback bar slides up */
-.feedback-bar {
-  animation: feedback-slide-up 0.28s cubic-bezier(0.34, 1.4, 0.64, 1) both;
-}
+/* hint-pop keyframe migrado a tailwind.css (Fase 2)
+   .feedback-bar animation migrado a tailwind.css (Fase 2) */
 
 /* Multiple choice answer feedback */
 .option-correct { animation: bounce-in 0.4s ease both; }
@@ -1520,50 +1413,7 @@ button {
 .area-correct { animation: bounce-in 0.4s ease both; }
 .area-wrong   { animation: shake    0.4s ease both; }
 
-/* ── WORD HINT TOOLTIP ───────────────────────────────────── */
-
-.hint-wrapper {
-  position: relative;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.hint-trigger {
-  border-bottom: 2px dotted var(--green);
-  cursor: pointer;
-  padding-bottom: 2px;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-
-.hint-tooltip {
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--text);
-  color: var(--card);
-  padding: 7px 14px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  white-space: nowrap;
-  z-index: 20;
-  pointer-events: none;
-  animation: hint-pop 0.15s ease both;
-}
-
-/* Arrow under tooltip */
-.hint-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: var(--text);
-}
+/* WordHint migrado a Tailwind en components/ui/WordHint.jsx (Fase 2) */
 
 /* ── BUILD SENTENCE — hint badge ─────────────────────────── */
 
@@ -1625,76 +1475,9 @@ button {
   border-top-color: var(--text);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   TOROGOZ MASCOT
-   ═══════════════════════════════════════════════════════════ */
-
-/* ── Keyframes ── */
-@keyframes toro-float {
-  0%, 100% { transform: translateY(0);    }
-  50%       { transform: translateY(-6px); }
-}
-@keyframes toro-tail-idle {
-  0%, 100% { transform: rotate(0deg);   }
-  50%       { transform: rotate(8deg);  }
-}
-@keyframes toro-celebrate {
-  0%,100% { transform: translateY(0)    rotate(0deg);   }
-  25%      { transform: translateY(-14px) rotate(-4deg); }
-  50%      { transform: translateY(-6px)  rotate(3deg);  }
-  75%      { transform: translateY(-10px) rotate(-2deg); }
-}
-@keyframes toro-tail-celebrate {
-  0%, 100% { transform: rotate(0deg);   }
-  40%      { transform: rotate(-18deg); }
-  80%      { transform: rotate(10deg);  }
-}
-@keyframes toro-sad {
-  0%, 100% { transform: rotate(0deg) translateY(0);    }
-  50%       { transform: rotate(-5deg) translateY(4px); }
-}
-@keyframes toro-enter {
-  from { opacity: 0; transform: scale(0.7) translateY(8px); }
-  to   { opacity: 1; transform: scale(1)   translateY(0);   }
-}
-
-/* ── Base ── */
-.torogoz {
-  animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  display: block;
-  overflow: visible;
-}
-
-/* ── IDLE: el pájaro flota suavemente, la cola oscila ── */
-.torogoz-idle {
-  animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
-             toro-float 3s ease-in-out 0.4s infinite;
-  transform-origin: center bottom;
-}
-.torogoz-idle .torogoz-tail {
-  animation: toro-tail-idle 3s ease-in-out infinite;
-  transform-origin: 150px 115px; /* pivot = conexión cola-cuerpo */
-}
-
-/* ── CELEBRATE: salta y la cola agita ── */
-.torogoz-celebrate {
-  animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
-             toro-celebrate 0.55s ease-in-out 0.4s 3;
-  transform-origin: center bottom;
-}
-.torogoz-celebrate .torogoz-tail {
-  animation: toro-tail-celebrate 0.55s ease-in-out 0.4s 3;
-  transform-origin: 150px 115px;
-}
-
-/* ── SAD: inclina el cuerpo lentamente ── */
-.torogoz-sad {
-  animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
-             toro-sad 2s ease-in-out 0.4s infinite;
-  transform-origin: center bottom;
-}
-
-/* ── Contenedor centrado ── */
+/* TOROGOZ MASCOT — keyframes y .torogoz/.torogoz-idle/.torogoz-celebrate/
+   .torogoz-sad migrados a tailwind.css (Fase 2).
+   .torogoz-wrap se queda hasta Fase 5 porque ResultScreen aún la usa. */
 .torogoz-wrap {
   display: flex;
   justify-content: center;
@@ -2110,114 +1893,10 @@ button {
 
 /* ═══════════════════════════════════════════════════════════
    BOTTOM NAVIGATION BAR
+   .bottom-nav y sus tabs migrados a Tailwind en
+   components/ui/BottomNav.jsx (Fase 2).
+   .bottom-nav-spacer se queda hasta Fase 5 (3 screens lo usan).
    ═══════════════════════════════════════════════════════════ */
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  padding: 0 20px calc(12px + env(safe-area-inset-bottom, 0px));
-  background: var(--green);
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
-  z-index: 100;
-  box-shadow: 0 -4px 20px rgba(29, 73, 54, 0.25);
-  height: 68px;
-}
-
-.bottom-nav-tab {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 6px 12px;
-  transition: all 0.2s ease;
-  background: none;
-  border: none;
-  cursor: pointer;
-  min-width: 64px;
-  position: relative;
-  height: 100%;
-}
-
-.bottom-nav-tab:not(.tab-center):active {
-  transform: scale(0.92);
-}
-
-.tab-icon {
-  font-size: 1.3rem;
-  line-height: 1;
-  transition: transform 0.2s ease;
-  color: rgba(255,255,255,0.6);
-}
-
-.tab-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.6);
-  transition: color 0.2s ease;
-  letter-spacing: 0.3px;
-}
-
-.tab-active .tab-icon {
-  transform: scale(1.15);
-  color: white;
-}
-
-.tab-active .tab-label {
-  color: white;
-  font-weight: 700;
-}
-
-/* Center Elevated Button */
-.bottom-nav-tab.tab-center {
-  position: relative;
-  top: -24px;
-  height: auto;
-  padding: 0;
-}
-
-.tab-center-inner {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-  transition: transform 0.2s ease;
-  padding: 6px;
-}
-
-.tab-center-circle {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: var(--green);
-  border: 2px solid var(--gold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.8rem;
-}
-
-.tab-center:active .tab-center-inner {
-  transform: scale(0.94);
-}
-
-.tab-center.tab-active .tab-center-circle {
-  background: linear-gradient(135deg, var(--green) 0%, #3a8461 100%);
-  box-shadow: inset 0 0 0 2px var(--green-pale);
-}
 
 .bottom-nav-spacer {
   height: 90px;
