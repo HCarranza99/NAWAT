@@ -336,3 +336,21 @@
     background: rgba(255, 255, 255, 0.35);
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 4 — Input compartido (.profile-input).
+   Usado por ShortTextItem, LongTextItem, SingleChoiceItem (custom),
+   ConsentScreen y ProfileScreen — vive aquí como primitiva.
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  .profile-input {
+    @apply text-base px-4 py-3.5 border-2 border-border rounded-sm bg-card text-foreground outline-none transition-colors;
+    font-family: inherit;
+  }
+  .profile-input:focus {
+    @apply border-primary;
+  }
+  .profile-input:disabled {
+    @apply opacity-60 cursor-not-allowed;
+  }
+}
