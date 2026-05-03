@@ -1,0 +1,140 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────────────────────────
+   Tokens del Sistema Náhuat mapeados a variables shadcn/ui.
+   Mantienen los valores originales de src/index.css para que
+   el rediseño preserve la identidad visual del proyecto.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --radius: 1rem; /* 16px — equivalente a --radius original */
+
+  /* Náhuat raw tokens */
+  --nahuat-green: #2D6A4F;
+  --nahuat-green-light: #52B788;
+  --nahuat-green-pale: #D8F3DC;
+  --nahuat-terra: #E76F51;
+  --nahuat-gold: #F4A261;
+  --nahuat-bg: #FFF8F0;
+  --nahuat-card: #FFFFFF;
+  --nahuat-text: #1B1B1E;
+  --nahuat-text-muted: #6B7280;
+  --nahuat-border: #E5E7EB;
+  --nahuat-correct: #52B788;
+  --nahuat-correct-bg: #D8F3DC;
+  --nahuat-wrong: #E63946;
+  --nahuat-wrong-bg: #FFE0E3;
+
+  /* shadcn semantic tokens */
+  --background: var(--nahuat-bg);
+  --foreground: var(--nahuat-text);
+
+  --card: var(--nahuat-card);
+  --card-foreground: var(--nahuat-text);
+
+  --popover: var(--nahuat-card);
+  --popover-foreground: var(--nahuat-text);
+
+  --primary: var(--nahuat-green);
+  --primary-foreground: #FFFFFF;
+
+  --secondary: var(--nahuat-green-pale);
+  --secondary-foreground: var(--nahuat-green);
+
+  --muted: #F3F4F6;
+  --muted-foreground: var(--nahuat-text-muted);
+
+  --accent: var(--nahuat-gold);
+  --accent-foreground: var(--nahuat-text);
+
+  --destructive: var(--nahuat-wrong);
+  --destructive-foreground: #FFFFFF;
+
+  --border: var(--nahuat-border);
+  --input: var(--nahuat-border);
+  --ring: var(--nahuat-green);
+
+  /* Chart palette — derivada de los tokens Náhuat */
+  --chart-1: var(--nahuat-green);
+  --chart-2: var(--nahuat-green-light);
+  --chart-3: var(--nahuat-terra);
+  --chart-4: var(--nahuat-gold);
+  --chart-5: var(--nahuat-text-muted);
+
+  /* Sidebar (no se usa aún pero shadcn lo espera) */
+  --sidebar: var(--nahuat-card);
+  --sidebar-foreground: var(--nahuat-text);
+  --sidebar-primary: var(--nahuat-green);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--nahuat-green-pale);
+  --sidebar-accent-foreground: var(--nahuat-green);
+  --sidebar-border: var(--nahuat-border);
+  --sidebar-ring: var(--nahuat-green);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Exposición de tokens a Tailwind v4.
+   - Variables shadcn semánticas (bg-background, text-foreground, etc.)
+   - Variables Náhuat raw para clases como bg-terra, bg-gold, etc.
+   ───────────────────────────────────────────────────────────── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Náhuat raw: utilizables como bg-nahuat-green, text-nahuat-terra, etc. */
+  --color-nahuat-green: var(--nahuat-green);
+  --color-nahuat-green-light: var(--nahuat-green-light);
+  --color-nahuat-green-pale: var(--nahuat-green-pale);
+  --color-nahuat-terra: var(--nahuat-terra);
+  --color-nahuat-gold: var(--nahuat-gold);
+  --color-nahuat-bg: var(--nahuat-bg);
+  --color-nahuat-card: var(--nahuat-card);
+  --color-nahuat-text: var(--nahuat-text);
+  --color-nahuat-text-muted: var(--nahuat-text-muted);
+  --color-nahuat-border: var(--nahuat-border);
+  --color-nahuat-correct: var(--nahuat-correct);
+  --color-nahuat-correct-bg: var(--nahuat-correct-bg);
+  --color-nahuat-wrong: var(--nahuat-wrong);
+  --color-nahuat-wrong-bg: var(--nahuat-wrong-bg);
+
+  --radius-sm: calc(var(--radius) - 6px);   /* 10px */
+  --radius-md: calc(var(--radius) - 4px);   /* 12px */
+  --radius-lg: var(--radius);               /* 16px */
+  --radius-xl: calc(var(--radius) + 4px);   /* 20px */
+
+  --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
+}
