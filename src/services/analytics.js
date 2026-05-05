@@ -8,6 +8,7 @@
 
 import { supabase } from '../lib/supabase'
 import { logError } from '../lib/logger'
+import { DEMO_MODE } from '../store/useGameStore'
 
 // ── Participantes ────────────────────────────────────────────────
 
@@ -16,6 +17,7 @@ import { logError } from '../lib/logger'
  * Si falla, genera un UUID local para no bloquear el onboarding.
  */
 export async function createParticipant(firstName, lastName) {
+  if (DEMO_MODE) return 'demo-user'
   try {
     const { data, error } = await supabase
       .from('participants')
@@ -38,6 +40,7 @@ export async function createParticipant(firstName, lastName) {
  * Crea una sesión nueva y retorna su ID.
  */
 export async function startSession(participantId) {
+  if (DEMO_MODE) return null
   try {
     const { data, error } = await supabase
       .from('sessions')
@@ -62,7 +65,7 @@ export async function startSession(participantId) {
 const endedSessions = new Set()
 
 export async function endSession(sessionId, startedAtMs) {
-  if (!sessionId) return
+  if (!sessionId || DEMO_MODE) return
   if (endedSessions.has(sessionId)) return
   endedSessions.add(sessionId)
   try {
@@ -87,6 +90,7 @@ export async function endSession(sessionId, startedAtMs) {
  * @param {{ id: number, title: string }} lesson
  */
 export async function startLessonAttempt(participantId, sessionId, lesson) {
+  if (DEMO_MODE) return null
   try {
     const { data, error } = await supabase
       .from('lesson_attempts')
@@ -117,7 +121,7 @@ export async function startLessonAttempt(participantId, sessionId, lesson) {
  * @param {number} xpEarned
  */
 export async function completeLessonAttempt(attemptId, startedAtMs, score, stars, xpEarned) {
-  if (!attemptId) return
+  if (!attemptId || DEMO_MODE) return
   try {
     const completedAt = new Date().toISOString()
     const durationSeconds = Math.round((Date.now() - startedAtMs) / 1000)
@@ -157,6 +161,7 @@ export async function logExerciseResponse(
   isCorrect,
   exerciseStartedAtMs
 ) {
+  if (DEMO_MODE) return
   try {
     const responseTimeSec = parseFloat(
       ((Date.now() - exerciseStartedAtMs) / 1000).toFixed(2)
@@ -196,6 +201,7 @@ async function hashText(text) {
  * @param {string} consentText - texto mostrado, para calcular hash de auditoría
  */
 export async function saveConsent(participantId, consentVersion, consentText) {
+  if (DEMO_MODE) return
   try {
     const hashedText = await hashText(consentText)
     await supabase.from('consent_records').insert({
@@ -228,6 +234,7 @@ export async function saveQuestionnaireResponse(
   itemCode,
   { valueNumeric = null, valueText = null, valueOther = null, responseTimeMs = null } = {}
 ) {
+  if (DEMO_MODE) return
   try {
     await supabase.from('questionnaire_responses').upsert(
       {
@@ -254,6 +261,7 @@ export async function saveQuestionnaireResponse(
  * Upsert helper para intervention_timeline — un solo row por participante.
  */
 async function upsertTimeline(participantId, patch) {
+  if (DEMO_MODE) return
   try {
     await supabase.from('intervention_timeline').upsert(
       { participant_id: participantId, ...patch },

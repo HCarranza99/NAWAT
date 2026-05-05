@@ -11,7 +11,7 @@
  */
 
 import { useEffect, useState } from 'react'
-import useGameStore, { PHASES } from '../store/useGameStore'
+import useGameStore, { PHASES, DEMO_MODE } from '../store/useGameStore'
 import {
   onAuthStateChange,
   loadProgressFromCloud,
@@ -20,13 +20,14 @@ import {
 
 export function useAuth() {
   const [user, setUser] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(!DEMO_MODE)
 
   const setAuthUser = useGameStore((s) => s.setAuthUser)
   const mergeCloudProgress = useGameStore((s) => s.mergeCloudProgress)
   const goFree = useGameStore((s) => s.goFree)
 
   useEffect(() => {
+    if (DEMO_MODE) return
     let cancelled = false
     const unsubscribe = onAuthStateChange(async (authUser) => {
       if (cancelled) return
