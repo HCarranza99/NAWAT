@@ -102,34 +102,34 @@ export default function HomeScreen() {
   }
 
   return (
-    <div className="screen home-screen">
+    <div className="screen bg-background">
       {/* HEADER */}
-      <header className="home-header">
-        <div className="home-logo">
+      <header className="flex items-center justify-between px-5 pt-6 pb-12 bg-gradient-to-br from-[#1f4f3b] via-primary to-[#3a8461] text-white rounded-b-[32px] shadow-[0_8px_30px_rgba(29,73,54,0.3)] relative overflow-hidden before:content-[''] before:absolute before:-top-5 before:-right-[30px] before:w-[200px] before:h-[200px] before:bg-[radial-gradient(circle,rgba(255,255,255,0.08)_0%,transparent_60%)] before:rounded-full before:pointer-events-none after:content-[''] after:absolute after:-bottom-10 after:-left-5 after:w-[150px] after:h-[150px] after:bg-[radial-gradient(circle,rgba(255,255,255,0.06)_0%,transparent_60%)] after:rounded-full after:pointer-events-none">
+        <div className="flex items-center gap-3.5">
           <TorogozBadge size={52} />
           <div>
-            <h1 className="logo-title">Náhuat</h1>
-            <p className="logo-sub">Idioma del pueblo Pipil</p>
+            <h1 className="text-[1.6rem] font-extrabold text-white tracking-[-0.5px] leading-[1.05]">Náhuat</h1>
+            <p className="text-[0.76rem] text-white/80 mt-0.5">Idioma del pueblo Pipil</p>
           </div>
         </div>
 
-        <div className="home-header-right">
-          <div className="home-lives">
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex gap-[3px] text-[1.1rem] leading-none">
             {Array.from({ length: GAME_CONFIG.lives.max }, (_, i) => (
               <span key={i}>{i < lives ? '❤️' : '🖤'}</span>
             ))}
           </div>
-          <div className="home-badges">
+          <div className="flex items-center gap-2">
             {msLeft != null && (
-              <div className="timer-badge" aria-label="Tiempo restante del estudio">
-                <span className="xp-icon">⏱</span>
-                <span className="xp-count">{formatClock(msLeft)}</span>
+              <div className="flex items-center gap-1.5 bg-white/20 border-[1.5px] border-white/35 rounded-[20px] px-3 py-1.5 tabular-nums" aria-label="Tiempo restante del estudio">
+                <span className="text-base">⏱</span>
+                <span className="font-bold text-base text-white">{formatClock(msLeft)}</span>
               </div>
             )}
             {streak > 0 && (
-              <div className="streak-badge">
+              <div className="flex items-center gap-1 bg-white/20 border-[1.5px] border-white/35 rounded-[20px] px-3 py-1.5 text-[0.9rem]">
                 <span>🔥</span>
-                <span className="streak-count">{streak}</span>
+                <span className="font-bold text-base text-white">{streak}</span>
               </div>
             )}
           </div>
@@ -137,49 +137,49 @@ export default function HomeScreen() {
       </header>
 
       {/* LEVEL CARD */}
-      <div className="level-card">
-        <div className="level-card-top">
-          <div className="level-card-left">
-            <div className="streak-card-mini">
-              <span className="streak-card-mini-icon">🔥</span>
-              <span className="streak-card-mini-val">{streak}</span>
-              <span className="streak-card-mini-label">racha</span>
-              <span className="streak-card-mini-sub">¡Sigue así!</span>
+      <div className="relative -mt-8 mx-4 bg-card rounded-[24px] px-5 py-5 shadow-[0_12px_35px_rgba(0,0,0,0.06)] flex flex-col gap-4 z-[2]">
+        <div className="flex justify-between items-stretch">
+          <div className="flex flex-col justify-between gap-3">
+            <div className="flex flex-col items-center gap-1 px-3 py-3 bg-[#fff8f5] rounded-[18px] min-w-[80px]">
+              <span className="text-[2rem] leading-none">🔥</span>
+              <span className="text-[1.4rem] font-extrabold text-foreground leading-none">{streak}</span>
+              <span className="text-[0.7rem] font-bold uppercase tracking-[0.5px] text-nahuat-terra">racha</span>
+              <span className="text-[0.65rem] text-muted-foreground">¡Sigue así!</span>
             </div>
           </div>
           
-          <div className="level-card-divider" />
+          <div className="w-[1.5px] bg-border mx-4" />
           
-          <div className="level-card-right">
-            <div className="level-card-info">
-              <p className="level-card-label">XP total</p>
-              <p className="level-card-xp">{xp}</p>
+          <div className="flex-1 flex flex-col justify-center">
+            <div className="flex flex-col gap-0.5">
+              <p className="text-[0.72rem] font-bold uppercase tracking-[0.6px] text-muted-foreground">XP total</p>
+              <p className="text-[1.8rem] font-extrabold text-primary tracking-[-0.5px] leading-none tabular-nums">{xp}</p>
             </div>
-            <div className="level-progress" style={{ marginTop: '8px' }}>
-              <div className="level-progress-fill" style={{ width: `${levelPct}%` }} />
+            <div className="w-full h-2.5 rounded-md bg-border overflow-hidden mt-2">
+              <div className="h-full bg-primary rounded-md transition-[width] duration-400 ease-out" style={{ width: `${levelPct}%` }} />
             </div>
-            <p className="level-card-next" style={{ marginTop: '6px' }}>
-              <span style={{ fontWeight: 800 }}>{xpToNext} XP</span> para tu siguiente nivel
+            <p className="text-[0.78rem] font-semibold text-muted-foreground mt-1.5">
+              <span className="font-extrabold">{xpToNext} XP</span> para tu siguiente nivel
             </p>
           </div>
         </div>
         
         {/* Torogoz Decoration */}
-        <div style={{ position: 'absolute', right: '16px', top: '16px', width: '80px', pointerEvents: 'none', display: 'flex', justifyContent: 'flex-end' }}>
+        <div className="absolute right-4 top-4 w-[80px] pointer-events-none flex justify-end">
            <Torogoz emotion="idle" size={90} />
         </div>
       </div>
 
-      <main className="home-main">
+      <main className="flex-1 px-4 pt-6 pb-4 flex flex-col gap-4">
         {/* NO LIVES BANNER */}
         {lives === 0 && (
-          <div className="no-lives-banner-card">
-            <p className="no-lives-text">
+          <div className="flex items-center justify-between gap-3 bg-nahuat-wrong-bg border-[1.5px] border-nahuat-wrong rounded-lg px-5 py-3.5 shadow-[0_4px_12px_rgba(220,38,38,0.1)] mb-2">
+            <p className="text-[0.88rem] font-semibold text-nahuat-wrong">
               {timeLeftStr
                 ? `Sin vidas — recarga en ${timeLeftStr}`
                 : 'Sin vidas — recuperando...'}
             </p>
-            <button className="btn-recover" onClick={resetLives}>
+            <button className="shrink-0 px-3.5 py-2 bg-nahuat-wrong text-white rounded-sm text-[0.82rem] font-bold whitespace-nowrap" onClick={resetLives}>
               Recuperar
             </button>
           </div>
@@ -187,17 +187,16 @@ export default function HomeScreen() {
 
         {nextLesson ? (
           <>
-            <div className="home-greeting">
-              <div className="home-greeting-text">
-                <h2 className="home-greeting-title">¡Hola{firstName ? ` ${firstName}` : ''}! ¿Qué vamos a aprender hoy?</h2>
-                <p className="home-greeting-sub">Sigue tu camino, una palabra a la vez.</p>
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="flex-1">
+                <h2 className="text-[1.4rem] font-extrabold text-primary leading-[1.2] tracking-[-0.3px] mb-1">¡Hola{firstName ? ` ${firstName}` : ''}! ¿Qué vamos a aprender hoy?</h2>
+                <p className="text-[0.85rem] text-muted-foreground">Sigue tu camino, una palabra a la vez.</p>
               </div>
-              <div className="home-greeting-icon">☀️</div>
+              <div className="text-[2.5rem] leading-none animate-[float-slow_4s_ease-in-out_infinite]">☀️</div>
             </div>
 
             <button
-              className="btn btn-primary"
-              style={{ width: '100%', marginBottom: '8px', padding: '16px', fontSize: '1.1rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(45,106,79,0.3)' }}
+              className="btn btn-primary w-full mb-2 py-4 text-[1.1rem] rounded-lg shadow-[0_4px_12px_rgba(45,106,79,0.3)]"
               onClick={() => {
                 if (lives === 0) return
                 if (nextLesson.isBoss) {
@@ -211,9 +210,9 @@ export default function HomeScreen() {
               🚀 Iniciar Lección
             </button>
 
-            <p className="home-section-title">SECCIÓN: {nextLesson.section.title}</p>
+            <p className="text-[0.75rem] font-extrabold uppercase tracking-[1px] text-primary mt-2 -mb-1">SECCIÓN: {nextLesson.section.title}</p>
             
-            <div className="organic-lessons-list">
+            <div className="flex flex-col">
               {lessonsToShow.map((lesson) => {
                 const lessonIndex = nextLesson.section.lessons.findIndex(l => l.id === lesson.id)
                 const prog = sectionProgress[nextLesson.section.id]?.lessonsCompleted?.[lesson.id];
@@ -223,35 +222,35 @@ export default function HomeScreen() {
                 return (
                   <button
                     key={lesson.id}
-                    className="organic-lesson-card"
+                    className="flex items-stretch bg-card rounded-[20px] overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.05)] transition-all text-left border border-black/[0.03] mb-2 w-full active:enabled:scale-[0.98] active:enabled:shadow-[0_2px_8px_rgba(0,0,0,0.05)] disabled:opacity-65 disabled:cursor-not-allowed disabled:grayscale-50"
                     style={{ '--card-color': lesson.color || nextLesson.section.color }}
                     disabled={!unlocked || lives === 0}
                     onClick={() => navigate(`/section/${nextLesson.section.id}/lesson/${lesson.id}`)}
                   >
-                    <div className="organic-card-strip" />
-                    <div className="organic-card-img-wrap">
-                       <img src={`/assets/images/section${nextLesson.section.id}.png`} alt="" className="organic-card-img" />
+                    <div className="w-2 shrink-0" style={{ background: `var(--card-color, var(--nahuat-green))` }} />
+                    <div className="w-[90px] flex items-center justify-center p-3 bg-[#f8f9fa] shrink-0 relative overflow-hidden">
+                       <img src={`/assets/images/section${nextLesson.section.id}.png`} alt="" className="w-full h-auto rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] object-cover aspect-square" />
                     </div>
-                    <div className="organic-card-content">
-                      <div className="organic-card-info">
-                        <span className="organic-card-title">{lesson.title}</span>
-                        <span className="organic-card-desc">{lesson.description}</span>
+                    <div className="flex-1 px-3 py-4 pr-4 flex items-center justify-between gap-3">
+                      <div className="flex-1 flex flex-col">
+                        <span className="text-base font-bold text-foreground mb-1 leading-[1.2]">{lesson.title}</span>
+                        <span className="text-[0.75rem] text-muted-foreground leading-[1.4]">{lesson.description}</span>
                       </div>
-                      <div className="organic-card-action">
+                      <div className="flex flex-col items-center justify-center gap-1 min-w-[50px]">
                         {!unlocked ? (
                           <>
-                            <div className="organic-card-lock">🔒</div>
-                            <span className="organic-card-lock-label">Bloqueado</span>
+                            <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-base">🔒</div>
+                            <span className="text-[0.65rem] font-semibold text-muted-foreground">Bloqueado</span>
                           </>
                         ) : completed ? (
-                           <div className="organic-card-xp" style={{ color: 'var(--correct)' }}>✓</div>
+                           <div className="text-[1.1rem] font-extrabold text-nahuat-correct">✓</div>
                         ) : (
                           <>
-                            <span className="organic-card-xp">+{lesson.xpReward}</span>
-                            <span className="organic-card-xp-label">XP</span>
+                            <span className="text-[1.1rem] font-extrabold text-primary">+{lesson.xpReward}</span>
+                            <span className="text-[0.65rem] font-bold text-muted-foreground uppercase">XP</span>
                           </>
                         )}
-                        {unlocked && !completed && <span className="organic-card-arrow">›</span>}
+                        {unlocked && !completed && <span className="text-[1.2rem] text-primary font-extrabold">›</span>}
                       </div>
                     </div>
                   </button>
@@ -264,32 +263,32 @@ export default function HomeScreen() {
                  const bossDone = sectionProgress[nextLesson.section.id]?.bossCompleted;
                  return (
                     <button
-                      className="organic-lesson-card organic-boss-card"
+                      className="flex items-stretch bg-gradient-to-br from-[#fffcf5] to-[#fff6e0] rounded-[20px] overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.05)] transition-all text-left border border-[#ffe0b2] mb-2 w-full active:enabled:scale-[0.98] active:enabled:shadow-[0_2px_8px_rgba(0,0,0,0.05)] disabled:opacity-65 disabled:cursor-not-allowed disabled:grayscale-50"
                       disabled={!allLessonsDone || lives === 0}
                       onClick={() => navigate(`/section/${nextLesson.section.id}/boss`)}
                     >
-                      <div className="organic-card-strip" />
-                      <div className="organic-card-img-wrap">
-                         <img src={`/assets/images/section${nextLesson.section.id}.png`} alt="" className="organic-card-img" />
+                      <div className="w-2 shrink-0 bg-nahuat-gold" />
+                      <div className="w-[90px] flex items-center justify-center p-3 bg-[#f8f9fa] shrink-0 relative overflow-hidden">
+                         <img src={`/assets/images/section${nextLesson.section.id}.png`} alt="" className="w-full h-auto rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] object-cover aspect-square" />
                       </div>
-                      <div className="organic-card-content">
-                        <div className="organic-card-info">
-                          <span className="organic-card-title">{nextLesson.section.boss.title}</span>
-                          <span className="organic-card-desc">{nextLesson.section.boss.description}</span>
+                      <div className="flex-1 px-3 py-4 pr-4 flex items-center justify-between gap-3">
+                        <div className="flex-1 flex flex-col">
+                          <span className="text-base font-bold text-foreground mb-1 leading-[1.2]">{nextLesson.section.boss.title}</span>
+                          <span className="text-[0.75rem] text-muted-foreground leading-[1.4]">{nextLesson.section.boss.description}</span>
                         </div>
-                        <div className="organic-card-action">
+                        <div className="flex flex-col items-center justify-center gap-1 min-w-[50px]">
                           {!allLessonsDone ? (
                             <>
-                              <div className="organic-card-lock">🔒</div>
-                              <span className="organic-card-lock-label">Bloqueado</span>
+                              <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-base">🔒</div>
+                              <span className="text-[0.65rem] font-semibold text-muted-foreground">Bloqueado</span>
                             </>
                           ) : bossDone ? (
-                             <div className="organic-card-xp" style={{ color: 'var(--correct)' }}>✓</div>
+                             <div className="text-[1.1rem] font-extrabold text-nahuat-correct">✓</div>
                           ) : (
                             <>
-                              <span className="organic-card-xp">+{nextLesson.section.boss.xpReward}</span>
-                              <span className="organic-card-xp-label">XP</span>
-                              <span className="organic-card-arrow">›</span>
+                              <span className="text-[1.1rem] font-extrabold text-primary">+{nextLesson.section.boss.xpReward}</span>
+                              <span className="text-[0.65rem] font-bold text-muted-foreground uppercase">XP</span>
+                              <span className="text-[1.2rem] text-primary font-extrabold">›</span>
                             </>
                           )}
                         </div>
@@ -300,27 +299,27 @@ export default function HomeScreen() {
             </div>
           </>
         ) : (
-          <div className="home-all-done">
-            <span className="home-all-done-icon">🎉</span>
-            <h2>¡Felicidades!</h2>
-            <p>Has completado todas las lecciones disponibles.</p>
+          <div className="text-center px-5 py-10 flex flex-col items-center gap-2">
+            <span className="text-5xl">🎉</span>
+            <h2 className="text-[1.3rem] font-extrabold text-foreground">¡Felicidades!</h2>
+            <p className="text-[0.9rem] text-muted-foreground">Has completado todas las lecciones disponibles.</p>
           </div>
         )}
 
         <button
-          className="home-all-sections-banner"
+          className="bg-gradient-to-r from-primary to-[#1f4f3b] text-white px-5 py-4 rounded-[20px] flex items-center justify-between mt-3 shadow-[0_4px_16px_rgba(29,73,54,0.2)] transition-transform active:scale-[0.98] w-full"
           onClick={() => navigate('/sections')}
         >
-          <div className="banner-content">
-             <span className="banner-icon">📚</span>
-             <span className="banner-text">Ver todas las secciones</span>
+          <div className="flex items-center gap-3">
+             <span className="text-2xl">📚</span>
+             <span className="text-base font-bold">Ver todas las secciones</span>
           </div>
-          <span className="banner-arrow">→</span>
+          <span className="text-[1.2rem] font-extrabold">→</span>
         </button>
       </main>
 
       {/* Spacer for bottom nav */}
-      <div className="bottom-nav-spacer" />
+      <div className="h-[90px] shrink-0" />
     </div>
   )
 }

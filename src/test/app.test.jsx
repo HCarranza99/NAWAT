@@ -85,7 +85,7 @@ describe('Navigation — Home Screen', () => {
   it('renders HomeScreen at root path', async () => {
     render(<App />)
     await waitFor(() => {
-      expect(document.querySelector('.home-screen')).toBeInTheDocument()
+      expect(screen.getByText('Náhuat')).toBeInTheDocument()
     })
   })
 
@@ -108,7 +108,8 @@ describe('Navigation — Sections Screen', () => {
     await clickNavTab('Secciones')
 
     await waitFor(() => {
-      expect(document.querySelector('.sections-screen')).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Secciones' })).toBeInTheDocument()
+      expect(screen.getByText('Tu camino para aprender náhuat')).toBeInTheDocument()
     })
   })
 
@@ -117,7 +118,7 @@ describe('Navigation — Sections Screen', () => {
     await clickNavTab('Secciones')
 
     await waitFor(() => {
-      const cards = document.querySelectorAll('.section-card')
+      const cards = document.querySelectorAll('[data-testid="section-card"]')
       expect(cards.length).toBe(sections.length)
     })
   })
@@ -127,8 +128,8 @@ describe('Navigation — Sections Screen', () => {
     await clickNavTab('Secciones')
 
     await waitFor(() => {
-      const cards = document.querySelectorAll('.section-card')
-      expect(cards[0]).not.toHaveClass('section-locked')
+      const cards = document.querySelectorAll('[data-testid="section-card"]')
+      expect(cards[0]).not.toHaveClass('opacity-55')
     })
   })
 })
@@ -141,7 +142,6 @@ describe('Navigation — Profile Screen', () => {
     await clickNavTab('Perfil')
 
     await waitFor(() => {
-      expect(document.querySelector('.profile-screen')).toBeInTheDocument()
       expect(screen.getByText('150')).toBeInTheDocument()
     })
   })
@@ -177,9 +177,9 @@ describe('Section unlocking logic', () => {
     await clickNavTab('Secciones')
 
     await waitFor(() => {
-      const cards = document.querySelectorAll('.section-card')
+      const cards = document.querySelectorAll('[data-testid="section-card"]')
       // Section 2 (index 1) should not be locked
-      expect(cards[1]).not.toHaveClass('section-locked')
+      expect(cards[1]).not.toHaveClass('opacity-55')
     })
   })
 
@@ -195,11 +195,11 @@ describe('Section unlocking logic', () => {
     await clickNavTab('Secciones')
 
     await waitFor(() => {
-      const cards = document.querySelectorAll('.section-card')
+      const cards = document.querySelectorAll('[data-testid="section-card"]')
       // Sections 3, 4, 5 should still be locked
-      expect(cards[2]).toHaveClass('section-locked')
-      expect(cards[3]).toHaveClass('section-locked')
-      expect(cards[4]).toHaveClass('section-locked')
+      expect(cards[2]).toHaveClass('opacity-55')
+      expect(cards[3]).toHaveClass('opacity-55')
+      expect(cards[4]).toHaveClass('opacity-55')
     })
   })
 })

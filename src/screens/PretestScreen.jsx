@@ -17,7 +17,7 @@ export default function PretestScreen() {
 
   if (!started) {
     return (
-      <div className="screen questionnaire-intro-screen">
+      <div className="screen px-7 pt-12 pb-10 justify-between bg-background">
         <div className="onboarding-body-wrap">
           <div className="onboarding-slide">
             <span className="onboarding-icon">📝</span>

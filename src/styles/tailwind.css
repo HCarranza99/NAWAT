@@ -354,3 +354,107 @@
     @apply opacity-60 cursor-not-allowed;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 5 — Primitivas de onboarding/intro compartidas por
+   AboutScreen, PracticeScreen, PretestScreen, PosttestScreen y
+   ConsentScreen. Mantienen los nombres de clase originales.
+   ───────────────────────────────────────────────────────────── */
+@keyframes practice-hint-fade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@theme inline {
+  --animate-practice-hint-fade: practice-hint-fade 0.3s ease;
+}
+
+@layer components {
+  .onboarding-body-wrap {
+    @apply flex-1 flex flex-col items-center justify-center gap-8;
+  }
+
+  .onboarding-slide {
+    @apply flex flex-col items-center text-center gap-3.5;
+  }
+
+  .onboarding-icon {
+    @apply text-[4rem] leading-none;
+  }
+
+  .onboarding-title {
+    @apply text-[1.7rem] font-extrabold text-foreground tracking-[-0.5px];
+  }
+
+  .onboarding-text {
+    @apply text-base text-muted-foreground leading-[1.55] max-w-[300px];
+  }
+
+  .onboarding-dots {
+    @apply flex gap-2;
+  }
+
+  .onboarding-dot {
+    @apply w-2 h-2 rounded-full bg-border transition-all;
+  }
+  .onboarding-dot.dot-active {
+    @apply bg-primary scale-130;
+  }
+
+  .onboarding-actions {
+    @apply flex flex-col items-center gap-3 w-full;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 5 — Animación flotante (HomeScreen greeting icon).
+   ───────────────────────────────────────────────────────────── */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 6 — Globals: #root layout, body reset, responsive shell.
+   Movidos desde src/index.css.
+   ───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100svh;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  background: #e8e0d8;
+  min-height: 100svh;
+}
+
+/* Responsive app-shell — Phase 6 breakpoints */
+@layer components {
+  .app-shell {
+    @apply relative w-full min-h-[100svh] overflow-x-hidden bg-background;
+    max-width: 480px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@media (min-width: 768px) {
+  .app-shell { max-width: 680px; }
+}
+@media (min-width: 1024px) {
+  .app-shell { max-width: 780px; }
+}

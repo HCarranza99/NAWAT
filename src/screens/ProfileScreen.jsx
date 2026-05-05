@@ -49,73 +49,61 @@ export default function ProfileScreen() {
   }
 
   return (
-    <div className="screen profile-screen">
+    <div className="screen bg-background">
       {/* Header */}
-      <header className="profile-header">
-        <div className="profile-avatar-wrap">
+      <header className="flex flex-col items-center px-5 pt-8 pb-7 bg-gradient-to-br from-[#1f4f3b] via-primary to-[#3a8461] text-white rounded-b-[32px] shadow-[0_6px_20px_rgba(29,73,54,0.25)] gap-2">
+        <div className="mb-1">
           <TorogozBadge size={72} />
         </div>
-        <h1 className="profile-name">{participantName || 'Estudiante'}</h1>
-        <p className="profile-level-label">Nivel {level}</p>
-        <div className="profile-level-bar">
-          <div className="profile-level-fill" style={{ width: `${levelPct}%` }} />
+        <h1 className="text-[1.4rem] font-extrabold text-white tracking-[-0.5px]">{participantName || 'Estudiante'}</h1>
+        <p className="text-[0.82rem] font-semibold text-white/80">Nivel {level}</p>
+        <div className="w-[60%] h-2 rounded bg-white/20 overflow-hidden mt-1">
+          <div className="h-full bg-nahuat-gold rounded transition-[width] duration-400 ease-out" style={{ width: `${levelPct}%` }} />
         </div>
-        <p className="profile-xp-label">{xpInLevel} / {xpPerLevel} XP</p>
+        <p className="text-[0.72rem] text-white/65 mt-0.5">{xpInLevel} / {xpPerLevel} XP</p>
 
         {/* Account status badge */}
-        <div className={`profile-account-badge ${isGuestMode ? 'badge-guest' : 'badge-linked'}`}>
+        <div className={`inline-flex items-center gap-1.5 mt-3 px-3.5 py-1.5 rounded-[20px] text-[0.8rem] font-bold ${
+          isGuestMode
+            ? 'bg-white/[0.12] text-white/75 border border-white/20'
+            : 'bg-[rgba(82,183,136,0.2)] text-nahuat-green-light border border-[rgba(82,183,136,0.35)]'
+        }`}>
           <span>{isGuestMode ? '📵' : '☁️'}</span>
           <span>{isGuestMode ? 'Sin cuenta' : 'Cuenta vinculada'}</span>
         </div>
       </header>
 
       {/* Stats Grid */}
-      <main className="profile-body">
-        <div className="profile-stats-grid">
-          <div className="profile-stat-card">
-            <span className="profile-stat-icon">⚡</span>
-            <span className="profile-stat-value">{xp}</span>
-            <span className="profile-stat-label">XP Total</span>
-          </div>
-          <div className="profile-stat-card">
-            <span className="profile-stat-icon">🔥</span>
-            <span className="profile-stat-value">{streak}</span>
-            <span className="profile-stat-label">Racha</span>
-          </div>
-          <div className="profile-stat-card">
-            <span className="profile-stat-icon">⭐</span>
-            <span className="profile-stat-value">{totalStars}</span>
-            <span className="profile-stat-label">Estrellas</span>
-          </div>
-          <div className="profile-stat-card">
-            <span className="profile-stat-icon">📖</span>
-            <span className="profile-stat-value">{totalLessonsCompleted}</span>
-            <span className="profile-stat-label">Lecciones</span>
-          </div>
-          <div className="profile-stat-card">
-            <span className="profile-stat-icon">🏆</span>
-            <span className="profile-stat-value">{totalSectionsCompleted}</span>
-            <span className="profile-stat-label">Secciones</span>
-          </div>
-          <div className="profile-stat-card">
-            <span className="profile-stat-icon">❤️</span>
-            <span className="profile-stat-value">{lives}/{GAME_CONFIG.lives.max}</span>
-            <span className="profile-stat-label">Vidas</span>
-          </div>
+      <main className="px-4 py-5 flex flex-col gap-5">
+        <div className="grid grid-cols-3 gap-2.5">
+          {[
+            { icon: '⚡', value: xp, label: 'XP Total' },
+            { icon: '🔥', value: streak, label: 'Racha' },
+            { icon: '⭐', value: totalStars, label: 'Estrellas' },
+            { icon: '📖', value: totalLessonsCompleted, label: 'Lecciones' },
+            { icon: '🏆', value: totalSectionsCompleted, label: 'Secciones' },
+            { icon: '❤️', value: `${lives}/${GAME_CONFIG.lives.max}`, label: 'Vidas' },
+          ].map((stat) => (
+            <div key={stat.label} className="flex flex-col items-center gap-1 px-2.5 py-4 bg-card rounded-sm shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
+              <span className="text-[1.3rem]">{stat.icon}</span>
+              <span className="text-[1.3rem] font-extrabold text-foreground tabular-nums">{stat.value}</span>
+              <span className="text-[0.68rem] font-semibold uppercase tracking-[0.5px] text-muted-foreground">{stat.label}</span>
+            </div>
+          ))}
         </div>
 
         {/* Section badges */}
         {totalSectionsCompleted > 0 && (
-          <div className="profile-section-badges">
-            <h2 className="profile-section-title">Insignias</h2>
-            <div className="profile-badges-row">
+          <div className="flex flex-col gap-3">
+            <h2 className="text-[0.85rem] font-bold uppercase tracking-[0.6px] text-muted-foreground">Insignias</h2>
+            <div className="flex flex-wrap gap-2.5">
               {sections.map((s) => {
                 const completed = sectionProgress[s.id]?.bossCompleted === true
                 if (!completed) return null
                 return (
-                  <div key={s.id} className="profile-badge" style={{ '--badge-color': s.color }}>
-                    <span className="profile-badge-icon">{s.icon}</span>
-                    <span className="profile-badge-name">{s.title}</span>
+                  <div key={s.id} className="flex flex-col items-center gap-1 px-4 py-3.5 bg-card rounded-sm shadow-[0_2px_12px_rgba(0,0,0,0.08)] border-2 min-w-[80px]" style={{ borderColor: s.color }}>
+                    <span className="text-[1.5rem]">{s.icon}</span>
+                    <span className="text-[0.7rem] font-bold text-foreground text-center">{s.title}</span>
                   </div>
                 )
               })}
@@ -125,13 +113,13 @@ export default function ProfileScreen() {
 
         {/* Last played */}
         {lastPlayedDate && (
-          <p className="profile-last-played">
+          <p className="text-center text-[0.78rem] text-muted-foreground italic">
             Última sesión: {new Date(lastPlayedDate).toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })}
           </p>
         )}
 
         {/* Actions */}
-        <div className="profile-actions">
+        <div className="flex flex-col gap-2.5">
           {lives === 0 && (
             <button className="btn btn-secondary" onClick={resetLives}>
               ❤️ Recuperar vidas
@@ -147,7 +135,7 @@ export default function ProfileScreen() {
             </button>
           ) : (
             <button
-              className="btn btn-secondary profile-logout-btn"
+              className="btn btn-secondary w-full mt-1"
               onClick={handleLogout}
               disabled={loggingOut}
             >
@@ -158,7 +146,7 @@ export default function ProfileScreen() {
       </main>
 
       {/* Spacer for bottom nav */}
-      <div className="bottom-nav-spacer" />
+      <div className="h-[90px] shrink-0" />
     </div>
   )
 }

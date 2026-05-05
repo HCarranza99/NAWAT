@@ -26,7 +26,7 @@ export default function PosttestScreen() {
 
   if (phase === 'gate') {
     return (
-      <div className="screen questionnaire-intro-screen">
+      <div className="screen px-7 pt-12 pb-10 justify-between bg-background">
         <div className="onboarding-body-wrap">
           <div className="onboarding-slide">
             <span className="onboarding-icon">⏱️</span>
@@ -51,7 +51,7 @@ export default function PosttestScreen() {
 
   if (phase === 'done') {
     return (
-      <div className="screen questionnaire-intro-screen">
+      <div className="screen px-7 pt-12 pb-10 justify-between bg-background">
         <div className="onboarding-body-wrap">
           <div className="onboarding-slide">
             <span className="onboarding-icon">🎉</span>
