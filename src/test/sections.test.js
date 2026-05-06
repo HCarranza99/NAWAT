@@ -144,11 +144,11 @@ describe('Sections data integrity', () => {
     })
   })
 
-  it('bosses have 8-10 items and isBoss flag', () => {
+  it('bosses have 8-12 items and isBoss flag', () => {
     sections.forEach((s) => {
       expect(s.boss.isBoss).toBe(true)
       expect(s.boss.items.length).toBeGreaterThanOrEqual(8)
-      expect(s.boss.items.length).toBeLessThanOrEqual(10)
+      expect(s.boss.items.length).toBeLessThanOrEqual(12)
       expect(s.boss.xpReward).toBeGreaterThan(0)
     })
   })

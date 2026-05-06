@@ -50,8 +50,8 @@ const section1 = {
             spanish_translation: "Sonido \"kw\" — como en \"cual\"",
             pronunciation: "kwa",
             pronunciationText: "kua",
-            example_sentence: "Kwitawal",
-            example_translation: "Nombre propio (ejemplo del sonido Kw)",
+            example_sentence: "Kwawit",
+            example_translation: "Árbol / leña (ejemplo del sonido Kw)",
           },
           // 2. Flashcard — sonido Tz
           // TZ = conjunción de T+S, como en "tsunami". TTS: "tsa".
@@ -82,13 +82,13 @@ const section1 = {
           {
             id: "s1-l1-4",
             type: "multiple_choice_text",
-            nahuat_word: "Kwitawal",
+            nahuat_word: "Kwawit",
             spanish_translation: "Contiene el sonido Kw",
-            pronunciation: "kwi-ta-wal",
-            pronunciationText: "kuita ual",
+            pronunciation: "kwa-wit",
+            pronunciationText: "kua uit",
             instruction: "¿Cuál palabra tiene el sonido Kw?",
             options: [
-              { id: "a", text: "Kwitawal", correct: true },
+              { id: "a", text: "Kwawit", correct: true },
               { id: "b", text: "Tzaput", correct: false },
               { id: "c", text: "Shiwit", correct: false },
               { id: "d", text: "Tamal", correct: false },
@@ -100,7 +100,7 @@ const section1 = {
             type: "matching",
             instruction: "Une cada sonido con su palabra ejemplo",
             pairs: [
-              { nahuat: "Kw", spanish: "Kwitawal" },
+              { nahuat: "Kw", spanish: "Kwawit" },
               { nahuat: "Tz", spanish: "Tzaput" },
               { nahuat: "Sh", spanish: "Shiwit" },
             ],
@@ -424,7 +424,7 @@ const section1 = {
       //  tinemi   → T-i-n-e-m-i → TTS: "ti ne mi"
       //  ninemi   → N-i-n-e-m-i → TTS: "ni ne mi"
       //  yek      → Y-e-K → Y = "i" alargada, K al final de sílaba = K → TTS: "iek"
-      //  tesu yek → TTS: "te su iek"
+      //  tesu ninemi yek → TTS: "te su ni ne mi iek"
       // ──────────────────────────────────────────────────────
       {
         id: "s1-l4",
@@ -457,17 +457,17 @@ const section1 = {
             example_sentence: "Ninemi yek.",
             example_translation: "Estoy bien.",
           },
-          // 3. Flashcard — Tesu yek (mal / no bien)
-          // Tesu = no. Yek = bien. "Tesu yek" = literalmente "no bien" = mal.
+          // 3. Flashcard — Tesu ninemi yek (no estoy bien)
+          // Tesu = no. Ninemi = estoy. Yek = bien.
           {
             id: "s1-l4-3",
             type: "flashcard",
-            nahuat_word: "Tesu yek",
-            spanish_translation: "Mal (literalmente: no bien)",
-            pronunciation: "te-su yek",
-            pronunciationText: "te su iek",
-            example_sentence: "Ninemi tesu yek.",
-            example_translation: "Estoy mal.",
+            nahuat_word: "Tesu ninemi yek",
+            spanish_translation: "No estoy bien",
+            pronunciation: "te-su ni-ne-mi yek",
+            pronunciationText: "te su ni ne mi iek",
+            example_sentence: "Tesu ninemi yek.",
+            example_translation: "No estoy bien.",
           },
           // 4. Multiple choice (audio) — Ken tinemi?
           {
@@ -505,14 +505,14 @@ const section1 = {
           {
             id: "s1-l4-6",
             type: "multiple_choice_text",
-            nahuat_word: "Ninemi tesu yek",
-            spanish_translation: "Estoy mal",
-            pronunciation: "ni-ne-mi te-su yek",
-            pronunciationText: "ni ne mi te su iek",
+            nahuat_word: "Tesu ninemi yek",
+            spanish_translation: "No estoy bien",
+            pronunciation: "te-su ni-ne-mi yek",
+            pronunciationText: "te su ni ne mi iek",
             instruction: "María está enferma. ¿Cómo responde a \"¿Ken tinemi?\"?",
             options: [
               { id: "a", text: "Ninemi yek", correct: false },
-              { id: "b", text: "Ninemi tesu yek", correct: true },
+              { id: "b", text: "Tesu ninemi yek", correct: true },
               { id: "c", text: "Shiawa", correct: false },
               { id: "d", text: "Eje", correct: false },
             ],
@@ -525,7 +525,7 @@ const section1 = {
             pairs: [
               { nahuat: "Ken tinemi?", spanish: "¿Cómo estás?" },
               { nahuat: "Ninemi yek", spanish: "Estoy bien" },
-              { nahuat: "Ninemi tesu yek", spanish: "Estoy mal" },
+              { nahuat: "Tesu ninemi yek", spanish: "No estoy bien" },
               { nahuat: "Yek", spanish: "Bien / Bueno" },
             ],
           },
@@ -570,10 +570,10 @@ const section1 = {
         {
           id: "s1-b-1",
           type: "multiple_choice_text",
-          nahuat_word: "Kwitawal",
+          nahuat_word: "Kwawit",
           spanish_translation: "Contiene el sonido Kw",
-          pronunciation: "kwi-ta-wal",
-          pronunciationText: "kuita ual",
+          pronunciation: "kwa-wit",
+          pronunciationText: "kua uit",
           instruction: "¿Qué sonido especial tiene esta palabra?",
           options: [
             { id: "a", text: "Sh", correct: false },

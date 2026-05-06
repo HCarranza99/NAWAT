@@ -1,5 +1,47 @@
 import { useState, useCallback, useEffect } from 'react'
 
+const VOWELS = 'aeiouáéíóú'
+const KW_MARK = '§'
+
+function isVowel(char = '') {
+  return char.length === 1 && VOWELS.includes(char)
+}
+
+function applyKRule(word) {
+  return [...word].map((char, index, chars) => {
+    if (char !== 'k') return char
+
+    const prev = chars[index - 1] || ''
+    const next = chars[index + 1] || ''
+    const soundsLikeG =
+      index === 0 ||
+      prev === 'n' ||
+      (isVowel(prev) && isVowel(next))
+
+    return soundsLikeG ? 'g' : 'k'
+  }).join('')
+}
+
+function toSpeechWord(word) {
+  const lower = word.toLowerCase().replace(/[’']/g, '')
+  const withProtectedKw = lower.replace(/kw/g, KW_MARK)
+  const withKRule = applyKRule(withProtectedKw)
+
+  return withKRule
+    .replaceAll(KW_MARK, 'ku')
+    .replace(/tz/g, 'ts')
+    .replace(/w/g, 'u')
+    .replace(/y/g, 'i')
+}
+
+export function toNahuatSpeechText(text = '') {
+  return String(text)
+    .normalize('NFC')
+    .replace(/[A-Za-zÁÉÍÓÚáéíóúÑñÜü’']+/g, toSpeechWord)
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 /**
  * useTextToSpeech(text)
  *
@@ -13,10 +55,11 @@ export function useTextToSpeech(text) {
   const [isSpeaking, setIsSpeaking] = useState(false)
   const isSupported = typeof window !== 'undefined' && 'speechSynthesis' in window
 
-  // Pick the best available Spanish voice
+  // Pick the best available Spanish voice.
   const getSpanishVoice = () => {
     const voices = window.speechSynthesis.getVoices()
     return (
+      voices.find((v) => v.lang === 'es-SV') ||
       voices.find((v) => v.lang === 'es-MX') ||
       voices.find((v) => v.lang === 'es-US') ||
       voices.find((v) => v.lang === 'es-ES') ||
@@ -31,9 +74,9 @@ export function useTextToSpeech(text) {
     // Cancel any ongoing speech first
     window.speechSynthesis.cancel()
 
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang  = 'es-MX'
-    utterance.rate  = 0.85   // slightly slower for clarity
+    const utterance = new SpeechSynthesisUtterance(toNahuatSpeechText(text))
+    utterance.lang  = 'es-SV'
+    utterance.rate  = 0.78
     utterance.pitch = 1.0
 
     // Assign voice if already loaded; voices may load async on first call

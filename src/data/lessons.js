@@ -80,7 +80,7 @@ const lessons = [
         id: "1-6",
         type: "flashcard",
         nahuat_word: "Shiawa",
-        spanish_translation: "Adiós (vete bien)",
+        spanish_translation: "Adiós (me quedo)",
         pronunciation: "SHI-a-wa",
       },
 
@@ -156,7 +156,7 @@ const lessons = [
         instruction: "Une cada expresión náhuat con su significado",
         pairs: [
           { nahuat: "Tesu datka", spanish: "De nada"    },
-          { nahuat: "Shiawa",     spanish: "Vete bien"  },
+          { nahuat: "Shiawa",     spanish: "Adiós (me quedo)"  },
           { nahuat: "Ninemi yek", spanish: "Estoy bien" },
           { nahuat: "Padiush",    spanish: "Gracias"    },
         ],
