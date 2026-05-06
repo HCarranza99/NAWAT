@@ -115,11 +115,11 @@ export default function QuestionnaireRunner({ items, phase, onComplete }) {
   }
 
   return (
-    <div className="questionnaire-screen screen">
+    <div className="screen bg-background justify-between">
       {/* ── Barra superior con progreso ── */}
-      <div className="questionnaire-topbar">
+      <div className="flex items-center gap-3 px-4 pt-3.5 pb-2">
         <button
-          className="qnr-back"
+          className="w-9 h-9 flex items-center justify-center text-[1.3rem] font-bold text-muted-foreground bg-card border-[1.5px] border-border rounded-full shrink-0 transition-all not-disabled:active:scale-[0.94] disabled:opacity-35 disabled:cursor-not-allowed"
           onClick={handleBack}
           disabled={index === 0 || submitting}
           aria-label="Pregunta anterior"
@@ -127,11 +127,13 @@ export default function QuestionnaireRunner({ items, phase, onComplete }) {
           ←
         </button>
         <ProgressBar value={progress} />
-        <span className="qnr-count">{index + 1}/{items.length}</span>
+        <span className="text-[0.82rem] font-bold text-muted-foreground tabular-nums min-w-12 text-right">
+          {index + 1}/{items.length}
+        </span>
       </div>
 
       {/* ── Tarjeta de pregunta ── */}
-      <div className="questionnaire-body">
+      <div className="flex-1 flex flex-col px-5 pt-2 pb-4">
         <QuestionCard
           key={item.code}
           item={item}
@@ -142,7 +144,7 @@ export default function QuestionnaireRunner({ items, phase, onComplete }) {
       </div>
 
       {/* ── CTA ── */}
-      <div className="questionnaire-actions">
+      <div className="flex flex-col gap-2 px-5 pt-4 pb-7">
         <button
           className="btn btn-primary"
           onClick={handleNext}
@@ -151,7 +153,9 @@ export default function QuestionnaireRunner({ items, phase, onComplete }) {
           {submitting ? 'Guardando…' : isLast ? 'Finalizar' : 'Siguiente →'}
         </button>
         {!item.is_required && (
-          <p className="qnr-skip-hint">Esta pregunta es opcional — puedes dejarla en blanco.</p>
+          <p className="text-center text-[0.78rem] text-muted-foreground italic">
+            Esta pregunta es opcional — puedes dejarla en blanco.
+          </p>
         )}
       </div>
     </div>

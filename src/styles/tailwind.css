@@ -1,0 +1,469 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────────────────────────
+   Tokens del Sistema Náhuat mapeados a variables shadcn/ui.
+   Mantienen los valores originales de src/index.css para que
+   el rediseño preserve la identidad visual del proyecto.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --radius: 1rem; /* 16px — equivalente a --radius original */
+
+  /* Náhuat raw tokens */
+  --nahuat-green: #2D6A4F;
+  --nahuat-green-light: #52B788;
+  --nahuat-green-pale: #D8F3DC;
+  --nahuat-terra: #E76F51;
+  --nahuat-gold: #F4A261;
+  --nahuat-bg: #FFF8F0;
+  --nahuat-card: #FFFFFF;
+  --nahuat-text: #1B1B1E;
+  --nahuat-text-muted: #6B7280;
+  --nahuat-border: #E5E7EB;
+  --nahuat-correct: #52B788;
+  --nahuat-correct-bg: #D8F3DC;
+  --nahuat-wrong: #E63946;
+  --nahuat-wrong-bg: #FFE0E3;
+
+  /* shadcn semantic tokens */
+  --background: var(--nahuat-bg);
+  --foreground: var(--nahuat-text);
+
+  --card: var(--nahuat-card);
+  --card-foreground: var(--nahuat-text);
+
+  --popover: var(--nahuat-card);
+  --popover-foreground: var(--nahuat-text);
+
+  --primary: var(--nahuat-green);
+  --primary-foreground: #FFFFFF;
+
+  --secondary: var(--nahuat-green-pale);
+  --secondary-foreground: var(--nahuat-green);
+
+  --muted: #F3F4F6;
+  --muted-foreground: var(--nahuat-text-muted);
+
+  --accent: var(--nahuat-gold);
+  --accent-foreground: var(--nahuat-text);
+
+  --destructive: var(--nahuat-wrong);
+  --destructive-foreground: #FFFFFF;
+
+  --border: var(--nahuat-border);
+  --input: var(--nahuat-border);
+  --ring: var(--nahuat-green);
+
+  /* Chart palette — derivada de los tokens Náhuat */
+  --chart-1: var(--nahuat-green);
+  --chart-2: var(--nahuat-green-light);
+  --chart-3: var(--nahuat-terra);
+  --chart-4: var(--nahuat-gold);
+  --chart-5: var(--nahuat-text-muted);
+
+  /* Sidebar (no se usa aún pero shadcn lo espera) */
+  --sidebar: var(--nahuat-card);
+  --sidebar-foreground: var(--nahuat-text);
+  --sidebar-primary: var(--nahuat-green);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--nahuat-green-pale);
+  --sidebar-accent-foreground: var(--nahuat-green);
+  --sidebar-border: var(--nahuat-border);
+  --sidebar-ring: var(--nahuat-green);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Exposición de tokens a Tailwind v4.
+   - Variables shadcn semánticas (bg-background, text-foreground, etc.)
+   - Variables Náhuat raw para clases como bg-terra, bg-gold, etc.
+   ───────────────────────────────────────────────────────────── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Náhuat raw: utilizables como bg-nahuat-green, text-nahuat-terra, etc. */
+  --color-nahuat-green: var(--nahuat-green);
+  --color-nahuat-green-light: var(--nahuat-green-light);
+  --color-nahuat-green-pale: var(--nahuat-green-pale);
+  --color-nahuat-terra: var(--nahuat-terra);
+  --color-nahuat-gold: var(--nahuat-gold);
+  --color-nahuat-bg: var(--nahuat-bg);
+  --color-nahuat-card: var(--nahuat-card);
+  --color-nahuat-text: var(--nahuat-text);
+  --color-nahuat-text-muted: var(--nahuat-text-muted);
+  --color-nahuat-border: var(--nahuat-border);
+  --color-nahuat-correct: var(--nahuat-correct);
+  --color-nahuat-correct-bg: var(--nahuat-correct-bg);
+  --color-nahuat-wrong: var(--nahuat-wrong);
+  --color-nahuat-wrong-bg: var(--nahuat-wrong-bg);
+
+  --radius-sm: calc(var(--radius) - 6px);   /* 10px */
+  --radius-md: calc(var(--radius) - 4px);   /* 12px */
+  --radius-lg: var(--radius);               /* 16px */
+  --radius-xl: calc(var(--radius) + 4px);   /* 20px */
+
+  --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 1 — Primitivas globales reescritas con Tailwind.
+   Mantienen el mismo nombre de clase para no romper los 22
+   componentes que aún las consumen; en fases 2-5 cada uno
+   irá adoptando shadcn <Button>/<Card> directamente.
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  .app-shell {
+    @apply relative w-full max-w-[480px] min-h-[100svh] overflow-x-hidden bg-background;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .screen {
+    @apply flex min-h-[100svh] flex-col;
+  }
+
+  .btn {
+    @apply rounded-sm px-6 py-4 text-base font-bold text-center;
+    letter-spacing: 0.2px;
+    transition: all 0.2s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .btn-primary {
+    background-color: #2D6A4F;
+    color: #FFFFFF;
+    /* Sombra inferior fija (#1a4a35 = verde más oscuro que --primary) */
+    box-shadow: 0 3px 0 #1a4a35;
+  }
+  .btn-primary:active { box-shadow: none; }
+
+  .btn-secondary {
+    @apply bg-card text-primary border-2 border-primary;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 2 — Animaciones de Torogoz (mascota).
+   El SVG en components/ui/Torogoz.jsx aplica torogoz +
+   torogoz-{emotion} y los <g class="torogoz-tail">; estas reglas
+   deben quedar globales para que las animaciones funcionen.
+   ───────────────────────────────────────────────────────────── */
+@keyframes toro-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes toro-tail-idle {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(8deg); }
+}
+@keyframes toro-celebrate {
+  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  25%      { transform: translateY(-14px) rotate(-4deg); }
+  50%      { transform: translateY(-6px)  rotate(3deg); }
+  75%      { transform: translateY(-10px) rotate(-2deg); }
+}
+@keyframes toro-tail-celebrate {
+  0%, 100% { transform: rotate(0deg); }
+  40%      { transform: rotate(-18deg); }
+  80%      { transform: rotate(10deg); }
+}
+@keyframes toro-sad {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50%      { transform: rotate(-5deg) translateY(4px); }
+}
+@keyframes toro-enter {
+  from { opacity: 0; transform: scale(0.7) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+@layer components {
+  .torogoz {
+    animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    display: block;
+    overflow: visible;
+  }
+
+  .torogoz-idle {
+    animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+               toro-float 3s ease-in-out 0.4s infinite;
+    transform-origin: center bottom;
+  }
+  .torogoz-idle .torogoz-tail {
+    animation: toro-tail-idle 3s ease-in-out infinite;
+    transform-origin: 150px 115px;
+  }
+
+  .torogoz-celebrate {
+    animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+               toro-celebrate 0.55s ease-in-out 0.4s 3;
+    transform-origin: center bottom;
+  }
+  .torogoz-celebrate .torogoz-tail {
+    animation: toro-tail-celebrate 0.55s ease-in-out 0.4s 3;
+    transform-origin: 150px 115px;
+  }
+
+  .torogoz-sad {
+    animation: toro-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+               toro-sad 2s ease-in-out 0.4s infinite;
+    transform-origin: center bottom;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 2 — Animaciones de feedback / hint (consumidas por
+   FeedbackModal y WordHint, ya migrados a Tailwind).
+   ───────────────────────────────────────────────────────────── */
+@keyframes feedback-slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes hint-pop {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px) scale(0.9); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0)   scale(1);   }
+}
+
+@theme inline {
+  --animate-feedback-slide-up: feedback-slide-up 0.28s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  --animate-hint-pop: hint-pop 0.15s ease both;
+  --animate-fade-in-up: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 3 — Animaciones de ejercicios.
+   bounce-in: feedback de respuesta correcta
+   shake: feedback de respuesta incorrecta (5 paradas, ±8/5px)
+   pulse-speak: pulso del botón TTS mientras habla
+   ───────────────────────────────────────────────────────────── */
+@keyframes bounce-in {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.08); }
+  70%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-5px); }
+  80%      { transform: translateX(5px); }
+}
+@keyframes pulse-speak {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%      { transform: scale(1.25); opacity: 0.7; }
+}
+
+@theme inline {
+  --animate-bounce-in: bounce-in 0.4s ease both;
+  --animate-shake: shake 0.4s ease both;
+  --animate-pulse-speak: pulse-speak 0.75s ease-in-out infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 3 — Primitivas compartidas entre los 4 ejercicios.
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  .exercise-instruction {
+    @apply text-[0.72rem] font-black uppercase tracking-[0.16em] text-[#6d756e];
+  }
+
+  .word-with-speaker {
+    @apply flex items-center justify-center gap-3;
+  }
+
+  .word-nahuat {
+    @apply text-[2.35rem] font-black text-foreground tracking-normal leading-[1.05];
+  }
+
+  .word-pronunciation {
+    @apply block text-[0.85rem] text-[#6d756e] mt-2 font-semibold italic;
+  }
+
+  /* Botón TTS — usado en MultipleChoiceText y Flashcard.
+     hover:not(:disabled) y disabled gestionados a continuación. */
+  .speak-btn {
+    @apply inline-flex items-center justify-center text-[1.25rem] py-1.5 px-2 rounded-sm bg-black/[0.06] cursor-pointer transition-all shrink-0 leading-none;
+  }
+  .speak-btn:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.12);
+    transform: scale(1.1);
+  }
+  .speak-btn:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+  .speak-btn.speaking {
+    animation: pulse-speak 0.75s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* Variante clara — usada sobre el frente verde de Flashcard */
+  .speak-btn-light {
+    @apply bg-white/20;
+  }
+  .speak-btn-light:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.35);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 4 — Input compartido (.profile-input).
+   Usado por ShortTextItem, LongTextItem, SingleChoiceItem (custom),
+   ConsentScreen y ProfileScreen — vive aquí como primitiva.
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  .profile-input {
+    @apply text-base px-4 py-3.5 border-2 border-border rounded-sm bg-card text-foreground outline-none transition-colors;
+    font-family: inherit;
+  }
+  .profile-input:focus {
+    @apply border-primary;
+  }
+  .profile-input:disabled {
+    @apply opacity-60 cursor-not-allowed;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 5 — Primitivas de onboarding/intro compartidas por
+   AboutScreen, PracticeScreen, PretestScreen, PosttestScreen y
+   ConsentScreen. Mantienen los nombres de clase originales.
+   ───────────────────────────────────────────────────────────── */
+@keyframes practice-hint-fade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@theme inline {
+  --animate-practice-hint-fade: practice-hint-fade 0.3s ease;
+}
+
+@layer components {
+  .onboarding-body-wrap {
+    @apply flex-1 flex flex-col items-center justify-center gap-8;
+  }
+
+  .onboarding-slide {
+    @apply flex flex-col items-center text-center gap-3.5;
+  }
+
+  .onboarding-icon {
+    @apply text-[4rem] leading-none;
+  }
+
+  .onboarding-title {
+    @apply text-[1.7rem] font-extrabold text-foreground tracking-[-0.5px];
+  }
+
+  .onboarding-text {
+    @apply text-base text-muted-foreground leading-[1.55] max-w-[300px];
+  }
+
+  .onboarding-dots {
+    @apply flex gap-2;
+  }
+
+  .onboarding-dot {
+    @apply w-2 h-2 rounded-full bg-border transition-all;
+  }
+  .onboarding-dot.dot-active {
+    @apply bg-primary scale-130;
+  }
+
+  .onboarding-actions {
+    @apply flex flex-col items-center gap-3 w-full;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 5 — Animación flotante (HomeScreen greeting icon).
+   ───────────────────────────────────────────────────────────── */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fase 6 — Globals: #root layout, body reset, responsive shell.
+   Movidos desde src/index.css.
+   ───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100svh;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  background: linear-gradient(135deg, #e8e0d8 0%, #d5cec6 50%, #e2dbd3 100%);
+  min-height: 100svh;
+}
+
+/* App shell — fixed mobile width, centered on all viewports */
+@layer components {
+  .app-shell {
+    @apply relative w-full min-h-[100svh] overflow-x-hidden bg-background;
+    max-width: 480px;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.12);
+  }
+
+  .card-premium {
+    @apply bg-white rounded-[40px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/5;
+  }
+}

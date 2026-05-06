@@ -4,6 +4,9 @@
  *
  * answer = { valueText: option.value, valueOther?: customText } o null
  */
+const btnBase =
+  'px-4 py-3.5 rounded-sm text-[0.95rem] font-semibold border-2 text-left transition-all leading-[1.35] active:translate-y-0.5 active:shadow-none'
+
 export default function SingleChoiceItem({ item, answer, onChange }) {
   const selectedValue = answer?.valueText ?? null
   const otherText = answer?.valueOther ?? ''
@@ -28,24 +31,30 @@ export default function SingleChoiceItem({ item, answer, onChange }) {
   }
 
   return (
-    <div className="sc-wrap">
-      <div className="sc-options">
-        {item.options.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            className={`sc-btn ${selectedValue === option.value ? 'sc-selected' : ''}`}
-            onClick={() => handleSelect(option)}
-          >
-            {option.label}
-          </button>
-        ))}
+    <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-2.5">
+        {item.options.map((option) => {
+          const isSelected = selectedValue === option.value
+          const tone = isSelected
+            ? 'border-primary bg-secondary text-primary shadow-[0_2px_0_var(--primary)]'
+            : 'border-border bg-card text-foreground shadow-[0_2px_0_var(--border)]'
+          return (
+            <button
+              key={option.value}
+              type="button"
+              className={`${btnBase} ${tone}`}
+              onClick={() => handleSelect(option)}
+            >
+              {option.label}
+            </button>
+          )
+        })}
       </div>
 
       {needsCustom && (
         <input
           type="text"
-          className="profile-input sc-custom-input"
+          className="profile-input w-full mt-1"
           placeholder="Especifica cuál…"
           value={otherText}
           onChange={handleCustomChange}

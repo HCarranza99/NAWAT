@@ -8,7 +8,7 @@ export default function ShortTextItem({ item, answer, onChange }) {
   return (
     <input
       type="text"
-      className="profile-input short-text-input"
+      className="profile-input w-full"
       placeholder={item.placeholder || 'Escribe tu respuesta'}
       value={text}
       onChange={(e) =>

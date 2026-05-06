@@ -1,12 +1,24 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'motion/react'
+import {
+  ArrowRight,
+  BookOpen,
+  Clock3,
+  Flame,
+  Heart,
+  Layers3,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
+} from 'lucide-react'
+
 import sections from '../data/sections'
 import useGameStore, { PHASES } from '../store/useGameStore'
 import { GAME_CONFIG } from '../data/gameConfig'
 import { INTERVENTION_MS } from '../data/questionnaires'
 import { useLivesRecharge } from '../hooks/useLivesRecharge'
 import TorogozBadge from '../components/ui/TorogozBadge'
-import Torogoz from '../components/ui/Torogoz'
 
 function formatClock(ms) {
   const totalSec = Math.max(0, Math.ceil(ms / 1000))
@@ -15,14 +27,38 @@ function formatClock(ms) {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
+function Metric({ icon: Icon, label, value, tone = 'text-foreground' }) {
+  return (
+    <div className="flex items-center gap-2.5 rounded-md border border-white/12 bg-white/10 px-3 py-2 backdrop-blur">
+      <Icon className={`h-4 w-4 ${tone}`} />
+      <div className="min-w-0">
+        <p className="text-[0.62rem] font-bold uppercase leading-none tracking-[0.16em] text-white/55">{label}</p>
+        <p className="mt-1 text-sm font-extrabold leading-none text-white">{value}</p>
+      </div>
+    </div>
+  )
+}
+
+function ProgressRail({ value }) {
+  return (
+    <div className="h-2.5 overflow-hidden rounded-full bg-[#e8ece6]">
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: `${value}%` }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+        className="h-full rounded-full bg-[#1f7a57]"
+      />
+    </div>
+  )
+}
+
 export default function HomeScreen() {
   const navigate = useNavigate()
   const { xp, lives, streak, sectionProgress, resetLives, participantName } = useGameStore()
   const { timeLeftStr } = useLivesRecharge()
-  
-  const firstName = participantName ? participantName.split(' ')[0] : ''
 
-  // ── Timer for study phase ──
+  const firstName = participantName ? participantName.split(' ')[0] : 'Estudiante'
+
   const studyPhase = useGameStore((s) => s.studyPhase)
   const pretestCompletedAt = useGameStore((s) => s.pretestCompletedAt)
 
@@ -38,17 +74,14 @@ export default function HomeScreen() {
       ? Math.max(0, INTERVENTION_MS - (now - Date.parse(pretestCompletedAt)))
       : null
 
-  // ── Level calculations ──
   const xpPerLevel = GAME_CONFIG.xp.perLevel
+  const level = Math.floor(xp / xpPerLevel) + 1
   const xpInLevel = xp % xpPerLevel
-  const xpToNext = xpPerLevel - xpInLevel
-  const levelPct = Math.round((xpInLevel / xpPerLevel) * 100)
+  const levelPct = Math.min(100, Math.round((xpInLevel / xpPerLevel) * 100))
 
-  // ── Find current section and next lesson ──
   const findNextLesson = () => {
     for (let sIdx = 0; sIdx < sections.length; sIdx++) {
       const section = sections[sIdx]
-      // Check if section is unlocked
       if (sIdx > 0) {
         const prevSection = sections[sIdx - 1]
         const prevProg = sectionProgress[prevSection.id]
@@ -57,270 +90,184 @@ export default function HomeScreen() {
 
       const prog = sectionProgress[section.id] || { lessonsCompleted: {}, bossCompleted: false }
 
-      // Find first incomplete lesson
       for (let lIdx = 0; lIdx < section.lessons.length; lIdx++) {
         const lesson = section.lessons[lIdx]
-        // Check if lesson is unlocked
         if (lIdx > 0) {
           const prevLesson = section.lessons[lIdx - 1]
           if (!prog.lessonsCompleted?.[prevLesson.id]?.completed) break
         }
         if (!prog.lessonsCompleted?.[lesson.id]?.completed) {
-          return { section, lesson, isBoss: false, activeIndex: lIdx }
+          return { section, lesson, isBoss: false }
         }
       }
 
-      // All lessons done, check boss
       const allLessonsDone = section.lessons.every(
         (l) => prog.lessonsCompleted?.[l.id]?.completed
       )
       if (allLessonsDone && !prog.bossCompleted && section.boss) {
-        return { section, lesson: section.boss, isBoss: true, activeIndex: section.lessons.length }
+        return { section, lesson: section.boss, isBoss: true }
       }
     }
     return null
   }
 
-  const nextLesson = findNextLesson()
-
-  // Overall progress
-
-  // Calculate which 3 lessons to show
-  let lessonsToShow = []
-  let showBoss = false
-  if (nextLesson) {
-    let startIdx = 0
-    if (nextLesson.activeIndex > 1) {
-      startIdx = Math.min(nextLesson.activeIndex - 1, Math.max(0, nextLesson.section.lessons.length - 3))
-    }
-    lessonsToShow = nextLesson.section.lessons.slice(startIdx, startIdx + 3)
-    
-    // Si la lista a mostrar llega hasta el final, o si el boss es la lección activa
-    if (startIdx + 3 >= nextLesson.section.lessons.length && nextLesson.section.boss) {
-      showBoss = true
-    }
-  }
+  const nextLessonData = findNextLesson()
+  const completedLessons = sections.reduce((acc, section) => {
+    const prog = sectionProgress[section.id]
+    if (!prog?.lessonsCompleted) return acc
+    return acc + Object.values(prog.lessonsCompleted).filter((lesson) => lesson.completed).length
+  }, 0)
+  const totalLessons = sections.reduce((acc, section) => acc + section.lessons.length, 0)
 
   return (
-    <div className="screen home-screen">
-      {/* HEADER */}
-      <header className="home-header">
-        <div className="home-logo">
-          <TorogozBadge size={52} />
-          <div>
-            <h1 className="logo-title">Náhuat</h1>
-            <p className="logo-sub">Idioma del pueblo Pipil</p>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="min-h-[100svh] bg-[#f7f5ef] pb-28 text-foreground"
+    >
+      <header className="relative overflow-hidden bg-[#102f29] px-5 pb-6 pt-5 text-white">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <TorogozBadge size={50} />
+            <div>
+              <p className="flex items-center gap-1.5 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#9ddfc6]">
+                <Sparkles className="h-3 w-3" />
+                Aprendizaje diario
+              </p>
+              <h1 className="mt-1 text-[2rem] font-black leading-none tracking-normal">Náhuat</h1>
+            </div>
+          </div>
+          <div className="rounded-md border border-white/12 bg-white/10 px-3 py-2 text-right backdrop-blur">
+            <p className="text-[0.62rem] font-bold uppercase tracking-[0.16em] text-white/55">Nivel</p>
+            <p className="text-xl font-black leading-none">{level}</p>
           </div>
         </div>
 
-        <div className="home-header-right">
-          <div className="home-lives">
-            {Array.from({ length: GAME_CONFIG.lives.max }, (_, i) => (
-              <span key={i}>{i < lives ? '❤️' : '🖤'}</span>
-            ))}
+        <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-white/68">Hola, {firstName}</p>
+              <p className="mt-2 text-[2.45rem] font-black leading-none tracking-normal">{xpInLevel}</p>
+              <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-white/50">de {xpPerLevel} XP</p>
+            </div>
+            <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-[#f4a261] text-[#102f29]">
+              <Trophy className="h-8 w-8" />
+            </div>
           </div>
-          <div className="home-badges">
-            {msLeft != null && (
-              <div className="timer-badge" aria-label="Tiempo restante del estudio">
-                <span className="xp-icon">⏱</span>
-                <span className="xp-count">{formatClock(msLeft)}</span>
-              </div>
-            )}
-            {streak > 0 && (
-              <div className="streak-badge">
-                <span>🔥</span>
-                <span className="streak-count">{streak}</span>
-              </div>
-            )}
+          <div className="mt-5">
+            <ProgressRail value={levelPct} />
           </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-2.5">
+          <Metric icon={Heart} label="Vidas" value={lives === 0 && timeLeftStr ? timeLeftStr : lives} tone="text-[#ff8b8b]" />
+          <Metric icon={Flame} label="Racha" value={`${streak} d`} tone="text-[#ffb15f]" />
+          {msLeft != null && (
+            <div className="col-span-2">
+              <Metric icon={Clock3} label="Tiempo de estudio" value={formatClock(msLeft)} tone="text-[#9ddfc6]" />
+            </div>
+          )}
         </div>
       </header>
 
-      {/* LEVEL CARD */}
-      <div className="level-card">
-        <div className="level-card-top">
-          <div className="level-card-left">
-            <div className="streak-card-mini">
-              <span className="streak-card-mini-icon">🔥</span>
-              <span className="streak-card-mini-val">{streak}</span>
-              <span className="streak-card-mini-label">racha</span>
-              <span className="streak-card-mini-sub">¡Sigue así!</span>
-            </div>
-          </div>
-          
-          <div className="level-card-divider" />
-          
-          <div className="level-card-right">
-            <div className="level-card-info">
-              <p className="level-card-label">XP total</p>
-              <p className="level-card-xp">{xp}</p>
-            </div>
-            <div className="level-progress" style={{ marginTop: '8px' }}>
-              <div className="level-progress-fill" style={{ width: `${levelPct}%` }} />
-            </div>
-            <p className="level-card-next" style={{ marginTop: '6px' }}>
-              <span style={{ fontWeight: 800 }}>{xpToNext} XP</span> para tu siguiente nivel
-            </p>
-          </div>
-        </div>
-        
-        {/* Torogoz Decoration */}
-        <div style={{ position: 'absolute', right: '16px', top: '16px', width: '80px', pointerEvents: 'none', display: 'flex', justifyContent: 'flex-end' }}>
-           <Torogoz emotion="idle" size={90} />
-        </div>
-      </div>
-
-      <main className="home-main">
-        {/* NO LIVES BANNER */}
+      <main className="space-y-5 px-5 pt-5">
         {lives === 0 && (
-          <div className="no-lives-banner-card">
-            <p className="no-lives-text">
-              {timeLeftStr
-                ? `Sin vidas — recarga en ${timeLeftStr}`
-                : 'Sin vidas — recuperando...'}
-            </p>
-            <button className="btn-recover" onClick={resetLives}>
+          <section className="flex items-center justify-between gap-3 rounded-lg border border-[#e63946]/25 bg-[#fff0f1] px-4 py-3">
+            <div>
+              <p className="text-sm font-extrabold text-[#b91c1c]">Sin vidas</p>
+              <p className="text-xs font-medium text-[#b91c1c]/70">
+                {timeLeftStr ? `Recarga en ${timeLeftStr}` : 'Recuperando pronto'}
+              </p>
+            </div>
+            <button
+              className="rounded-md bg-[#b91c1c] px-4 py-2 text-sm font-extrabold text-white transition active:scale-95"
+              onClick={resetLives}
+            >
               Recuperar
             </button>
-          </div>
+          </section>
         )}
 
-        {nextLesson ? (
-          <>
-            <div className="home-greeting">
-              <div className="home-greeting-text">
-                <h2 className="home-greeting-title">¡Hola{firstName ? ` ${firstName}` : ''}! ¿Qué vamos a aprender hoy?</h2>
-                <p className="home-greeting-sub">Sigue tu camino, una palabra a la vez.</p>
-              </div>
-              <div className="home-greeting-icon">☀️</div>
+        <section>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-[#6d756e]">Continuar</p>
+              <h2 className="text-xl font-black tracking-normal text-[#17211d]">Tu próxima práctica</h2>
             </div>
-
             <button
-              className="btn btn-primary"
-              style={{ width: '100%', marginBottom: '8px', padding: '16px', fontSize: '1.1rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(45,106,79,0.3)' }}
+              onClick={() => navigate('/sections')}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#d8ddd5] bg-white text-[#1f7a57] shadow-sm transition hover:bg-[#eef8f2]"
+              aria-label="Ver secciones"
+            >
+              <Layers3 className="h-5 w-5" />
+            </button>
+          </div>
+
+          {nextLessonData ? (
+            <motion.button
+              whileTap={lives > 0 ? { scale: 0.985 } : {}}
               onClick={() => {
                 if (lives === 0) return
-                if (nextLesson.isBoss) {
-                  navigate(`/section/${nextLesson.section.id}/boss`)
-                } else {
-                  navigate(`/section/${nextLesson.section.id}/lesson/${nextLesson.lesson.id}`)
-                }
+                navigate(`/section/${nextLessonData.section.id}/${nextLessonData.isBoss ? 'boss' : `lesson/${nextLessonData.lesson.id}`}`)
               }}
               disabled={lives === 0}
+              className="group w-full overflow-hidden rounded-lg border border-[#e3ded2] bg-white text-left shadow-[0_14px_35px_rgba(37,48,42,0.08)] transition disabled:cursor-not-allowed disabled:opacity-65"
             >
-              🚀 Iniciar Lección
-            </button>
-
-            <p className="home-section-title">SECCIÓN: {nextLesson.section.title}</p>
-            
-            <div className="organic-lessons-list">
-              {lessonsToShow.map((lesson) => {
-                const lessonIndex = nextLesson.section.lessons.findIndex(l => l.id === lesson.id)
-                const prog = sectionProgress[nextLesson.section.id]?.lessonsCompleted?.[lesson.id];
-                const completed = prog?.completed === true;
-                const unlocked = lessonIndex === 0 || sectionProgress[nextLesson.section.id]?.lessonsCompleted?.[nextLesson.section.lessons[lessonIndex - 1].id]?.completed === true;
-                
-                return (
-                  <button
-                    key={lesson.id}
-                    className="organic-lesson-card"
-                    style={{ '--card-color': lesson.color || nextLesson.section.color }}
-                    disabled={!unlocked || lives === 0}
-                    onClick={() => navigate(`/section/${nextLesson.section.id}/lesson/${lesson.id}`)}
-                  >
-                    <div className="organic-card-strip" />
-                    <div className="organic-card-img-wrap">
-                       <img src={`/assets/images/section${nextLesson.section.id}.png`} alt="" className="organic-card-img" />
-                    </div>
-                    <div className="organic-card-content">
-                      <div className="organic-card-info">
-                        <span className="organic-card-title">{lesson.title}</span>
-                        <span className="organic-card-desc">{lesson.description}</span>
-                      </div>
-                      <div className="organic-card-action">
-                        {!unlocked ? (
-                          <>
-                            <div className="organic-card-lock">🔒</div>
-                            <span className="organic-card-lock-label">Bloqueado</span>
-                          </>
-                        ) : completed ? (
-                           <div className="organic-card-xp" style={{ color: 'var(--correct)' }}>✓</div>
-                        ) : (
-                          <>
-                            <span className="organic-card-xp">+{lesson.xpReward}</span>
-                            <span className="organic-card-xp-label">XP</span>
-                          </>
-                        )}
-                        {unlocked && !completed && <span className="organic-card-arrow">›</span>}
-                      </div>
-                    </div>
-                  </button>
-                )
-              })}
-              
-              {/* Boss card */}
-              {showBoss && (() => {
-                 const allLessonsDone = nextLesson.section.lessons.every(l => sectionProgress[nextLesson.section.id]?.lessonsCompleted?.[l.id]?.completed);
-                 const bossDone = sectionProgress[nextLesson.section.id]?.bossCompleted;
-                 return (
-                    <button
-                      className="organic-lesson-card organic-boss-card"
-                      disabled={!allLessonsDone || lives === 0}
-                      onClick={() => navigate(`/section/${nextLesson.section.id}/boss`)}
-                    >
-                      <div className="organic-card-strip" />
-                      <div className="organic-card-img-wrap">
-                         <img src={`/assets/images/section${nextLesson.section.id}.png`} alt="" className="organic-card-img" />
-                      </div>
-                      <div className="organic-card-content">
-                        <div className="organic-card-info">
-                          <span className="organic-card-title">{nextLesson.section.boss.title}</span>
-                          <span className="organic-card-desc">{nextLesson.section.boss.description}</span>
-                        </div>
-                        <div className="organic-card-action">
-                          {!allLessonsDone ? (
-                            <>
-                              <div className="organic-card-lock">🔒</div>
-                              <span className="organic-card-lock-label">Bloqueado</span>
-                            </>
-                          ) : bossDone ? (
-                             <div className="organic-card-xp" style={{ color: 'var(--correct)' }}>✓</div>
-                          ) : (
-                            <>
-                              <span className="organic-card-xp">+{nextLesson.section.boss.xpReward}</span>
-                              <span className="organic-card-xp-label">XP</span>
-                              <span className="organic-card-arrow">›</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                 )
-              })()}
+              <div className="grid grid-cols-[94px_1fr]">
+                <div className="relative min-h-[142px] bg-[#f0ede5]">
+                  <img
+                    src={`/assets/images/section${nextLessonData.section.id}.png`}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
+                </div>
+                <div className="flex min-w-0 flex-col justify-between p-4">
+                  <div>
+                    <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#fff1de] px-2 py-1 text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#b95a18]">
+                      {nextLessonData.isBoss ? <ShieldCheck className="h-3 w-3" /> : <BookOpen className="h-3 w-3" />}
+                      {nextLessonData.isBoss ? 'Reto final' : 'Siguiente lección'}
+                    </span>
+                    <h3 className="mt-3 text-2xl font-black leading-[1.05] tracking-normal text-[#17211d]">
+                      {nextLessonData.lesson.title}
+                    </h3>
+                    <p className="mt-2 line-clamp-2 text-sm font-medium leading-snug text-[#6d756e]">
+                      {nextLessonData.lesson.description}
+                    </p>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#6d756e]">
+                      +{nextLessonData.lesson.xpReward} XP
+                    </span>
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[#1f7a57] text-white shadow-[0_8px_18px_rgba(31,122,87,0.25)] transition group-hover:translate-x-1">
+                      <ArrowRight className="h-5 w-5" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </motion.button>
+          ) : (
+            <div className="rounded-lg border border-[#d8ddd5] bg-white p-6 text-center shadow-sm">
+              <ShieldCheck className="mx-auto h-9 w-9 text-[#1f7a57]" />
+              <h3 className="mt-3 text-lg font-black text-[#17211d]">Todo completado</h3>
+              <p className="mt-1 text-sm text-[#6d756e]">Has terminado las lecciones disponibles.</p>
             </div>
-          </>
-        ) : (
-          <div className="home-all-done">
-            <span className="home-all-done-icon">🎉</span>
-            <h2>¡Felicidades!</h2>
-            <p>Has completado todas las lecciones disponibles.</p>
-          </div>
-        )}
+          )}
+        </section>
 
-        <button
-          className="home-all-sections-banner"
-          onClick={() => navigate('/sections')}
-        >
-          <div className="banner-content">
-             <span className="banner-icon">📚</span>
-             <span className="banner-text">Ver todas las secciones</span>
+        <section className="grid grid-cols-2 gap-3">
+          <div className="rounded-lg border border-[#e3ded2] bg-white p-4 shadow-sm">
+            <BookOpen className="h-5 w-5 text-[#1f7a57]" />
+            <p className="mt-4 text-2xl font-black leading-none text-[#17211d]">{completedLessons}</p>
+            <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-[#6d756e]">de {totalLessons} lecciones</p>
           </div>
-          <span className="banner-arrow">→</span>
-        </button>
+          <div className="rounded-lg border border-[#e3ded2] bg-white p-4 shadow-sm">
+            <Trophy className="h-5 w-5 text-[#c77918]" />
+            <p className="mt-4 text-2xl font-black leading-none text-[#17211d]">{xp}</p>
+            <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-[#6d756e]">XP total</p>
+          </div>
+        </section>
       </main>
-
-      {/* Spacer for bottom nav */}
-      <div className="bottom-nav-spacer" />
-    </div>
+    </motion.div>
   )
 }

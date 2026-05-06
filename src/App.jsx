@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import useGameStore, { PHASES } from './store/useGameStore'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import useGameStore, { PHASES, DEMO_MODE } from './store/useGameStore'
 import ErrorBoundary from './components/ErrorBoundary'
 import ConsentScreen from './screens/ConsentScreen'
 import AboutScreen from './screens/AboutScreen'
@@ -29,7 +29,7 @@ export default function App() {
   const triggerPosttest = useGameStore((s) => s.triggerPosttest)
   const authUserId = useGameStore((s) => s.authUserId)
 
-  // Inicializar observador de sesión de Supabase Auth
+  // Inicializar observador de sesión de Supabase Auth (skip in demo mode)
   const { isLoading: authLoading } = useAuth()
 
   // Guardamos el ms de inicio para calcular duración al cerrar
@@ -41,9 +41,9 @@ export default function App() {
     sessionIdRef.current = currentSessionId
   }, [currentSessionId])
 
-  // Inicia sesión cuando el participante está identificado
+  // Inicia sesión cuando el participante está identificado (skip in demo)
   useEffect(() => {
-    if (!participantId) return
+    if (!participantId || DEMO_MODE) return
 
     let cancelled = false
     sessionStartRef.current = Date.now()
@@ -79,7 +79,9 @@ export default function App() {
 
   // Trigger global del postest cuando se cumplen los 15 min (wall-clock).
   // Corre aunque el usuario esté dentro de una lección.
+  // No aplica en demo mode.
   useEffect(() => {
+    if (DEMO_MODE) return
     if (studyPhase !== PHASES.PLAYING || !pretestCompletedAt) return
 
     const start = Date.parse(pretestCompletedAt)
@@ -96,14 +98,15 @@ export default function App() {
   // Auto-sincronizar progreso a la nube cuando el usuario tiene cuenta
   // Se ejecuta cada vez que el studyPhase cambia (hitos clave del protocolo)
   // y también cada 60 segundos mientras está jugando
+  // No aplica en demo mode.
   useEffect(() => {
-    if (!authUserId) return
+    if (!authUserId || DEMO_MODE) return
     const state = useGameStore.getState()
     saveProgressToCloud(state)
   }, [authUserId, studyPhase])
 
   useEffect(() => {
-    if (!authUserId) return
+    if (!authUserId || DEMO_MODE) return
     const id = setInterval(() => {
       const state = useGameStore.getState()
       saveProgressToCloud(state)
@@ -113,6 +116,28 @@ export default function App() {
 
   // ── Routing por fase del estudio ─────────────────────────────
   const renderByPhase = () => {
+    // In demo mode, skip straight to the app
+    if (DEMO_MODE) {
+      return (
+        <BrowserRouter basename="/demo">
+          <Routes>
+            <Route path="/" element={<HomeScreen />} />
+            {/* Legacy lesson routes */}
+            <Route path="/lesson/:id" element={<LessonScreen />} />
+            <Route path="/result" element={<ResultScreen />} />
+            {/* Section-based routes */}
+            <Route path="/sections" element={<SectionsScreen />} />
+            <Route path="/section/:sectionId/lesson/:lessonId" element={<SectionLessonScreen />} />
+            <Route path="/section/:sectionId/boss" element={<SectionLessonScreen />} />
+            <Route path="/profile" element={<ProfileScreen />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          <DemoBanner />
+          <BottomNav />
+        </BrowserRouter>
+      )
+    }
+
     // Esperar a que Supabase resuelva la sesión antes de mostrar cualquier pantalla
     // (evita flash de ConsentScreen para usuarios ya autenticados)
     if (authLoading) return null
@@ -148,5 +173,23 @@ export default function App() {
     <ErrorBoundary>
       <div className="app-shell">{renderByPhase()}</div>
     </ErrorBoundary>
+  )
+}
+
+/* ── Demo Banner ───────────────────────────────────────────────── */
+function DemoBanner() {
+  const location = useLocation()
+  const hidden = location.pathname.startsWith('/section/') ||
+    location.pathname.startsWith('/lesson/') ||
+    location.pathname === '/result'
+
+  if (hidden) return null
+
+  return (
+    <div className="fixed bottom-[76px] left-1/2 -translate-x-1/2 z-[200] pointer-events-none">
+      <div className="px-4 py-1 bg-[#F4A261] text-white text-[0.7rem] font-extrabold uppercase tracking-[1.5px] rounded-full shadow-lg pointer-events-auto">
+        MODO DEMO
+      </div>
+    </div>
   )
 }

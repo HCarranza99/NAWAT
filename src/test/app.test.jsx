@@ -73,9 +73,9 @@ beforeEach(() => {
 async function clickNavTab(label) {
   // Wait for BottomNav to render (App is gated on async useAuth)
   await waitFor(() => {
-    expect(document.querySelector('.bottom-nav')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Navegación principal')).toBeInTheDocument()
   })
-  const nav = document.querySelector('.bottom-nav')
+  const nav = screen.queryByLabelText('Navegación principal')
   const btn = within(nav).getByLabelText(label)
   fireEvent.click(btn)
 }
@@ -85,16 +85,16 @@ describe('Navigation — Home Screen', () => {
   it('renders HomeScreen at root path', async () => {
     render(<App />)
     await waitFor(() => {
-      expect(document.querySelector('.home-screen')).toBeInTheDocument()
+      expect(screen.getByText('Náhuat')).toBeInTheDocument()
     })
   })
 
   it('shows BottomNav with 3 tabs', async () => {
     render(<App />)
     await waitFor(() => {
-      expect(document.querySelector('.bottom-nav')).toBeInTheDocument()
+      expect(screen.queryByLabelText('Navegación principal')).toBeInTheDocument()
     })
-    const nav = document.querySelector('.bottom-nav')
+    const nav = screen.queryByLabelText('Navegación principal')
     expect(within(nav).getByLabelText('Secciones')).toBeInTheDocument()
     expect(within(nav).getByLabelText('Inicio')).toBeInTheDocument()
     expect(within(nav).getByLabelText('Perfil')).toBeInTheDocument()
@@ -108,7 +108,8 @@ describe('Navigation — Sections Screen', () => {
     await clickNavTab('Secciones')
 
     await waitFor(() => {
-      expect(document.querySelector('.sections-screen')).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Secciones' })).toBeInTheDocument()
+      expect(screen.getByText('Tu camino para aprender náhuat')).toBeInTheDocument()
     })
   })
 
@@ -117,7 +118,7 @@ describe('Navigation — Sections Screen', () => {
     await clickNavTab('Secciones')
 
     await waitFor(() => {
-      const cards = document.querySelectorAll('.section-card')
+      const cards = document.querySelectorAll('[data-testid="section-card"]')
       expect(cards.length).toBe(sections.length)
     })
   })
@@ -127,8 +128,8 @@ describe('Navigation — Sections Screen', () => {
     await clickNavTab('Secciones')
 
     await waitFor(() => {
-      const cards = document.querySelectorAll('.section-card')
-      expect(cards[0]).not.toHaveClass('section-locked')
+      const cards = document.querySelectorAll('[data-testid="section-card"]')
+      expect(cards[0]).not.toHaveClass('opacity-55')
     })
   })
 })
@@ -141,7 +142,6 @@ describe('Navigation — Profile Screen', () => {
     await clickNavTab('Perfil')
 
     await waitFor(() => {
-      expect(document.querySelector('.profile-screen')).toBeInTheDocument()
       expect(screen.getByText('150')).toBeInTheDocument()
     })
   })
@@ -153,13 +153,13 @@ describe('Study flow — Phase gating', () => {
     useGameStore.setState({ studyPhase: PHASES.CONSENT })
     render(<App />)
     // ConsentScreen should NOT have the BottomNav
-    expect(document.querySelector('.bottom-nav')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Navegación principal')).not.toBeInTheDocument()
   })
 
   it('does NOT show BottomNav during posttest', () => {
     useGameStore.setState({ studyPhase: PHASES.POSTTEST })
     render(<App />)
-    expect(document.querySelector('.bottom-nav')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Navegación principal')).not.toBeInTheDocument()
   })
 })
 
@@ -177,9 +177,9 @@ describe('Section unlocking logic', () => {
     await clickNavTab('Secciones')
 
     await waitFor(() => {
-      const cards = document.querySelectorAll('.section-card')
+      const cards = document.querySelectorAll('[data-testid="section-card"]')
       // Section 2 (index 1) should not be locked
-      expect(cards[1]).not.toHaveClass('section-locked')
+      expect(cards[1]).not.toHaveClass('opacity-55')
     })
   })
 
@@ -195,11 +195,11 @@ describe('Section unlocking logic', () => {
     await clickNavTab('Secciones')
 
     await waitFor(() => {
-      const cards = document.querySelectorAll('.section-card')
+      const cards = document.querySelectorAll('[data-testid="section-card"]')
       // Sections 3, 4, 5 should still be locked
-      expect(cards[2]).toHaveClass('section-locked')
-      expect(cards[3]).toHaveClass('section-locked')
-      expect(cards[4]).toHaveClass('section-locked')
+      expect(cards[2]).toHaveClass('opacity-55')
+      expect(cards[3]).toHaveClass('opacity-55')
+      expect(cards[4]).toHaveClass('opacity-55')
     })
   })
 })

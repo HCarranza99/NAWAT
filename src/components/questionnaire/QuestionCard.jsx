@@ -9,17 +9,25 @@ import LongTextItem from './LongTextItem'
  */
 export default function QuestionCard({ item, answer, onChange, sectionLabel }) {
   return (
-    <div className="question-card">
-      <div className="question-header">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-1.5">
         {sectionLabel && (
-          <span className="question-section-label">{sectionLabel}</span>
+          <span className="text-[0.7rem] font-bold uppercase tracking-[0.8px] text-primary mb-0.5">
+            {sectionLabel}
+          </span>
         )}
-        <p className="question-code">{item.code}</p>
-        <h2 className="question-text">{item.question_text}</h2>
-        {!item.is_required && <span className="question-optional">Opcional</span>}
+        <p className="text-[0.72rem] font-bold text-muted-foreground tabular-nums">{item.code}</p>
+        <h2 className="text-[1.1rem] font-bold text-foreground leading-[1.35] tracking-[-0.2px]">
+          {item.question_text}
+        </h2>
+        {!item.is_required && (
+          <span className="self-start text-[0.7rem] font-bold uppercase text-muted-foreground bg-border rounded-md px-2 py-0.5 mt-1">
+            Opcional
+          </span>
+        )}
       </div>
 
-      <div className="question-input">
+      <div className="flex flex-col gap-3">
         {item.item_type === 'likert_5' && (
           <LikertItem answer={answer} onChange={onChange} />
         )}

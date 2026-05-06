@@ -2,6 +2,13 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { z } from 'zod'
 
+/**
+ * Demo mode is activated when the URL starts with /demo.
+ * It uses a separate localStorage key so demo progress never
+ * touches the real study data.
+ */
+export const DEMO_MODE = window.location.pathname.startsWith('/demo')
+
 export const PHASES = Object.freeze({
   CONSENT: 'consent',
   ABOUT: 'about',
@@ -36,12 +43,12 @@ const GameStateSchema = z.object({
 const useGameStore = create(
   persist(
     (set) => ({
-      participantId: null,
-      participantName: null,
+      participantId: DEMO_MODE ? 'demo-user' : null,
+      participantName: DEMO_MODE ? 'Demo' : null,
       authUserId: null,
       isGuestMode: true,
       currentSessionId: null,
-      studyPhase: PHASES.CONSENT,
+      studyPhase: DEMO_MODE ? PHASES.FREE : PHASES.CONSENT,
       consentAcceptedAt: null,
       pretestCompletedAt: null,
       posttestCompletedAt: null,
@@ -170,7 +177,7 @@ const useGameStore = create(
       }),
     }),
     {
-      name: 'nahuat-game-v1',
+      name: DEMO_MODE ? 'nahuat-demo-v1' : 'nahuat-game-v1',
       version: 1,
       migrate: (state) => {
         const parsed = GameStateSchema.safeParse(state)
