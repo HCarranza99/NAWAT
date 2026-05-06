@@ -1,96 +1,96 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { ArrowRight, Flame, Medal, RotateCcw, Star, Target, Trophy, Zap } from 'lucide-react'
+
 import useGameStore from '../store/useGameStore'
 import Torogoz from '../components/ui/Torogoz'
+
+function ResultStat({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
+  return (
+    <div className="rounded-lg border border-[#e3ded2] bg-white p-4 text-left shadow-sm">
+      <Icon className={`h-5 w-5 ${tone}`} />
+      <p className="mt-3 text-2xl font-black leading-none text-[#17211d]">{value}</p>
+      <p className="mt-1 text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#6d756e]">{label}</p>
+    </div>
+  )
+}
 
 export default function ResultScreen() {
   const { state } = useLocation()
   const navigate = useNavigate()
-  const streak = useGameStore((s) => s.streak)
+  const streak = useGameStore((store) => store.streak)
 
   if (!state) {
     navigate('/', { replace: true })
     return null
   }
 
-  const { lessonId, lessonTitle, lessonIcon, score, xpEarned, isBoss, sectionId, returnTo } = state
+  const { lessonId, lessonTitle, score, xpEarned, isBoss, sectionId, returnTo } = state
   const pct = Math.round(score * 100)
   const stars = score >= 0.9 ? 3 : score >= 0.7 ? 2 : 1
   const passed = score >= 0.5
 
   return (
-    <div className="screen px-6 pt-10 pb-9 justify-between">
-      <div className="flex flex-col items-center gap-4 text-center">
-        {/* Mascota */}
-        <div className="flex justify-center items-center my-2">
-          <Torogoz emotion={passed ? 'celebrate' : 'sad'} size={110} />
+    <div className="screen justify-between bg-[#f7f5ef] px-5 py-5">
+      <main className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
+        <div className="relative">
+          <div className="absolute inset-x-0 bottom-2 mx-auto h-12 w-36 rounded-full bg-[#102f29]/10 blur-xl" />
+          <Torogoz emotion={passed ? 'celebrate' : 'sad'} size={132} />
         </div>
 
-        {/* Stars */}
-        <div className="flex gap-2 mb-1">
-          {Array.from({ length: 3 }, (_, i) => {
-            const earned = i < stars
+        <div className="flex gap-2">
+          {Array.from({ length: 3 }, (_, index) => {
+            const earned = index < stars
             return (
               <span
-                key={i}
-                className={`transition-transform duration-300 ${
-                  earned ? 'text-[2.5rem] scale-110' : 'text-[2.1rem] opacity-30'
+                key={index}
+                className={`flex h-11 w-11 items-center justify-center rounded-md border ${
+                  earned
+                    ? 'border-[#f4a261]/45 bg-[#fff8ec] text-[#c77918]'
+                    : 'border-[#e3ded2] bg-white text-[#cfd6d1]'
                 }`}
               >
-                {earned ? '⭐' : '☆'}
+                <Star className={`h-6 w-6 ${earned ? 'fill-current' : ''}`} />
               </span>
             )
           })}
         </div>
 
-        {/* Heading */}
-        <div className="flex items-center gap-2 bg-secondary text-primary font-semibold text-[0.85rem] px-4 py-1.5 rounded-[20px]">
-          <span>{lessonIcon}</span>
-          <span>{lessonTitle}</span>
+        <span className="inline-flex max-w-full items-center gap-2 rounded-md border border-[#e3ded2] bg-white px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#6d756e] shadow-sm">
+          {isBoss ? <Trophy className="h-4 w-4 text-[#c77918]" /> : <Medal className="h-4 w-4 text-[#1f7a57]" />}
+          <span className="truncate">{lessonTitle}</span>
+        </span>
+
+        <div>
+          <h1 className="text-3xl font-black leading-tight tracking-normal text-[#17211d]">
+            {passed
+              ? (isBoss ? 'Sección completada' : 'Lección completada')
+              : 'Sigue practicando'}
+          </h1>
+          <p className="mx-auto mt-2 max-w-[300px] text-sm font-medium leading-snug text-[#6d756e]">
+            {passed
+              ? 'Vas sumando bases sólidas para entender y usar el náhuat.'
+              : 'Repasa los ejercicios y vuelve a intentarlo con calma.'}
+          </p>
         </div>
 
-        <h1 className="text-[1.8rem] font-extrabold text-foreground tracking-[-0.5px] leading-[1.2]">
-          {passed
-            ? (isBoss ? '¡Sección completada!' : '¡Lección completada!')
-            : '¡Sigue intentándolo!'}
-        </h1>
-        <p className="text-[0.95rem] text-muted-foreground max-w-[280px]">
-          {passed
-            ? 'Estás aprendiendo Náhuat muy bien.'
-            : 'Repasa los ejercicios y vuelve a intentarlo.'}
-        </p>
+        <section className="grid w-full grid-cols-3 gap-3">
+          <ResultStat icon={Target} value={`${pct}%`} label="Precisión" tone="text-[#2f6fb2]" />
+          <ResultStat icon={Zap} value={`+${xpEarned}`} label="XP ganado" tone="text-[#1f7a57]" />
+          <ResultStat icon={Star} value={`${stars}/3`} label="Estrellas" tone="text-[#c77918]" />
+        </section>
 
-        {/* Stats */}
-        <div className="flex gap-3 mt-2 w-full">
-          <div className="flex-1 bg-card rounded-sm px-2.5 py-4 flex flex-col items-center gap-1 shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
-            <span className="text-[1.5rem] font-extrabold text-foreground">{pct}%</span>
-            <span className="text-[0.72rem] uppercase tracking-[0.5px] font-semibold text-muted-foreground">Precisión</span>
-          </div>
-          <div className="flex-1 bg-card rounded-sm px-2.5 py-4 flex flex-col items-center gap-1 shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
-            <span className="text-[1.5rem] font-extrabold text-primary">+{xpEarned}</span>
-            <span className="text-[0.72rem] uppercase tracking-[0.5px] font-semibold text-muted-foreground">XP ganado</span>
-          </div>
-          <div className="flex-1 bg-card rounded-sm px-2.5 py-4 flex flex-col items-center gap-1 shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
-            <span className="text-[1.5rem] font-extrabold text-foreground">{stars}/3</span>
-            <span className="text-[0.72rem] uppercase tracking-[0.5px] font-semibold text-muted-foreground">Estrellas</span>
-          </div>
-        </div>
-
-        {/* Streak */}
         {streak > 0 && (
-          <div className="flex items-center gap-2 bg-[#fff3e0] border-[1.5px] border-[#ffb300] rounded-[20px] px-[18px] py-2 mt-1">
-            <span className="text-[1.2rem]">🔥</span>
-            <p className="text-[0.9rem] font-bold text-[#e65100]">
-              {streak === 1 ? '¡Primer día de racha!' : `${streak} días seguidos`}
-            </p>
+          <div className="flex items-center gap-2 rounded-md border border-[#f4d7ad] bg-[#fff8ec] px-4 py-3 text-sm font-black text-[#8a4b12]">
+            <Flame className="h-5 w-5 text-[#c77918]" />
+            {streak === 1 ? 'Primer día de racha' : `${streak} días seguidos`}
           </div>
         )}
-      </div>
+      </main>
 
-      {/* Actions */}
-      <div className="flex flex-col gap-2.5 w-full">
+      <footer className="space-y-2.5">
         {!passed && sectionId && (
           <button
-            className="btn btn-secondary"
+            className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d8ddd5] bg-white px-4 py-3.5 text-base font-black text-[#17211d] shadow-sm transition active:scale-[0.99]"
             onClick={() => {
               if (isBoss) {
                 navigate(`/section/${sectionId}/boss`)
@@ -99,21 +99,27 @@ export default function ResultScreen() {
               }
             }}
           >
+            <RotateCcw className="h-5 w-5" />
             Intentar de nuevo
           </button>
         )}
         {!passed && !sectionId && (
           <button
-            className="btn btn-secondary"
+            className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d8ddd5] bg-white px-4 py-3.5 text-base font-black text-[#17211d] shadow-sm transition active:scale-[0.99]"
             onClick={() => navigate(`/lesson/${lessonId}`)}
           >
+            <RotateCcw className="h-5 w-5" />
             Intentar de nuevo
           </button>
         )}
-        <button className="btn btn-primary" onClick={() => navigate(returnTo || '/')}>
+        <button
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1f7a57] px-4 py-4 text-base font-black text-white shadow-[0_10px_24px_rgba(31,122,87,0.22)] transition active:scale-[0.99]"
+          onClick={() => navigate(returnTo || '/')}
+        >
           {returnTo === '/sections' ? 'Ver secciones' : 'Volver al inicio'}
+          <ArrowRight className="h-5 w-5" />
         </button>
-      </div>
+      </footer>
     </div>
   )
 }

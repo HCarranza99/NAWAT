@@ -5,7 +5,7 @@ export default function ProgressBar({ value }) {
   return (
     <Progress
       value={pct}
-      className="h-2.5 flex-1 bg-border"
+      className="h-2.5 flex-1 bg-[#e0e5dd] [&_[data-slot=progress-indicator]]:bg-[#1f7a57]"
       aria-valuenow={pct}
       aria-valuemin={0}
       aria-valuemax={100}

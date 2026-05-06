@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import useGameStore, { PHASES, DEMO_MODE } from './store/useGameStore'
 import ErrorBoundary from './components/ErrorBoundary'
 import ConsentScreen from './screens/ConsentScreen'
@@ -178,9 +178,18 @@ export default function App() {
 
 /* ── Demo Banner ───────────────────────────────────────────────── */
 function DemoBanner() {
+  const location = useLocation()
+  const hidden = location.pathname.startsWith('/section/') ||
+    location.pathname.startsWith('/lesson/') ||
+    location.pathname === '/result'
+
+  if (hidden) return null
+
   return (
-    <div className="fixed top-0 left-1/2 -translate-x-1/2 z-[200] px-4 py-1.5 bg-nahuat-gold text-white text-[0.72rem] font-extrabold uppercase tracking-[1.5px] rounded-b-xl shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
-      MODO DEMO
+    <div className="fixed bottom-[76px] left-1/2 -translate-x-1/2 z-[200] pointer-events-none">
+      <div className="px-4 py-1 bg-[#F4A261] text-white text-[0.7rem] font-extrabold uppercase tracking-[1.5px] rounded-full shadow-lg pointer-events-auto">
+        MODO DEMO
+      </div>
     </div>
   )
 }
