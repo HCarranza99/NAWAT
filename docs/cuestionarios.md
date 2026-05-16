@@ -165,6 +165,21 @@ Esta encuesta recoge opiniones sobre el uso de herramientas digitales interactiv
 - 41–60 minutos
 - Más de 60 minutos
 
+### Sección G. Valor cultural e identitario
+
+**Escala Likert estandarizada para G1–G4:**
+
+| 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|
+| Totalmente en desacuerdo | En desacuerdo | Ni de acuerdo ni en desacuerdo | De acuerdo | Totalmente de acuerdo |
+
+| # | Ítem |
+|---|------|
+| G1 | Me identifico como descendiente o portador de la herencia pipil/náhuat. |
+| G2 | Me siento orgulloso(a) de las raíces indígenas de mi país o comunidad. |
+| G3 | Siento una conexión emocional con la historia y la cultura del pueblo náhuat. |
+| G4 | Considero que aprender el náhuat contribuye a preservar nuestra identidad cultural. |
+
 ---
 
 ## Anexo 2 — Postest
@@ -218,12 +233,12 @@ Basándote en tu experiencia de los últimos 15 minutos interactuando con la apl
 
 | # | Ítem | Comparar con pretest |
 |---|------|----------------------|
-| C1 | Después de usar NAWAT, mi interés por aprender nociones básicas de náhuat ha aumentado. | D1 |
-| C2 | Las dinámicas de juego (gamificación) en la aplicación me motivaron a seguir intentando aprender las palabras. | C8 |
+| C1 | Después de usar NAWAT, mi interés por aprender nociones básicas de náhuat ha aumentado. (Compara con D1 del pretest) | D1 |
+| C2 | Las dinámicas de juego (gamificación) en la aplicación me motivaron a seguir intentando aprender las palabras. (Compara con C8 del pretest) | C8 |
 | C3 | Considero que el tiempo pasó rápido mientras usaba la aplicación (experimenté inmersión/flujo). | — |
-| C4 | Me gustaría tener acceso continuo a esta aplicación para seguir aprendiendo náhuat por mi cuenta. | D2, D5 |
+| C4 | Me gustaría tener acceso continuo a esta aplicación para seguir aprendiendo náhuat por mi cuenta. (Compara con D2 y D5 del pretest) | D2, D5 |
 
-**C5. Tras conocer la herramienta, ¿cuánto tiempo estarías dispuesto/a a dedicar por semana para seguir aprendiendo náhuat?** *(Comparar con E3 del pretest para medir cambio de actitud real)*
+**C5. Tras conocer la herramienta, ¿cuánto tiempo estarías dispuesto/a a dedicar por semana para seguir aprendiendo náhuat? (Compara con E3 del pretest para medir cambio de actitud real)**
 
 - 0 minutos
 - 10–20 minutos

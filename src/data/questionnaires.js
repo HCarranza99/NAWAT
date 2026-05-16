@@ -202,31 +202,37 @@ export const PRETEST_ITEMS = [
     ],
     is_required: true, order_index: 31,
   },
+
+  // Sección G — Valor cultural e identitario (Likert)
+  likert('G1', 'G', 'Me identifico como descendiente o portador de la herencia pipil/náhuat.', 32),
+  likert('G2', 'G', 'Me siento orgulloso(a) de las raíces indígenas de mi país o comunidad.', 33),
+  likert('G3', 'G', 'Siento una conexión emocional con la historia y la cultura del pueblo náhuat.', 34),
+  likert('G4', 'G', 'Considero que aprender el náhuat contribuye a preservar nuestra identidad cultural.', 35),
 ]
 
 // ── POSTEST ─────────────────────────────────────────────────────────────────
 
 export const POSTTEST_ITEMS = [
   // Sección B — SUS (10 items alternados positivo/negativo)
-  likert('sus_b1',  'B', 'Creo que me gustaría utilizar esta aplicación con frecuencia.',                                     32, 'positive', 'posttest'),
-  likert('sus_b2',  'B', 'Encontré la aplicación innecesariamente compleja.',                                                  33, 'negative', 'posttest'),
-  likert('sus_b3',  'B', 'Pensé que la aplicación era fácil de usar.',                                                         34, 'positive', 'posttest'),
-  likert('sus_b4',  'B', 'Creo que necesitaría el apoyo de una persona técnica para poder usar esta aplicación.',              35, 'negative', 'posttest'),
-  likert('sus_b5',  'B', 'Encontré que las diversas funciones de esta aplicación estaban bien integradas.',                    36, 'positive', 'posttest'),
-  likert('sus_b6',  'B', 'Pensé que había demasiada inconsistencia en esta aplicación.',                                       37, 'negative', 'posttest'),
-  likert('sus_b7',  'B', 'Imagino que la mayoría de las personas aprenderían a usar esta aplicación muy rápidamente.',         38, 'positive', 'posttest'),
-  likert('sus_b8',  'B', 'Encontré la aplicación muy engorrosa (difícil) de usar.',                                            39, 'negative', 'posttest'),
-  likert('sus_b9',  'B', 'Me sentí muy seguro/a usando la aplicación.',                                                        40, 'positive', 'posttest'),
-  likert('sus_b10', 'B', 'Necesitaba aprender muchas cosas antes de poder empezar a usar la aplicación.',                      41, 'negative', 'posttest'),
+  { ...likert('sus_b1',  'B', 'Creo que me gustaría utilizar esta aplicación con frecuencia.',                                     37, 'positive', 'posttest'), display_code: 'B1' },
+  { ...likert('sus_b2',  'B', 'Encontré la aplicación innecesariamente compleja.',                                                  38, 'negative', 'posttest'), display_code: 'B2' },
+  { ...likert('sus_b3',  'B', 'Pensé que la aplicación era fácil de usar.',                                                         39, 'positive', 'posttest'), display_code: 'B3' },
+  { ...likert('sus_b4',  'B', 'Creo que necesitaría el apoyo de una persona técnica para poder usar esta aplicación.',              40, 'negative', 'posttest'), display_code: 'B4' },
+  { ...likert('sus_b5',  'B', 'Encontré que las diversas funciones de esta aplicación estaban bien integradas.',                    41, 'positive', 'posttest'), display_code: 'B5' },
+  { ...likert('sus_b6',  'B', 'Pensé que había demasiada inconsistencia en esta aplicación.',                                       42, 'negative', 'posttest'), display_code: 'B6' },
+  { ...likert('sus_b7',  'B', 'Imagino que la mayoría de las personas aprenderían a usar esta aplicación muy rápidamente.',         43, 'positive', 'posttest'), display_code: 'B7' },
+  { ...likert('sus_b8',  'B', 'Encontré la aplicación muy engorrosa (difícil) de usar.',                                            44, 'negative', 'posttest'), display_code: 'B8' },
+  { ...likert('sus_b9',  'B', 'Me sentí muy seguro/a usando la aplicación.',                                                        45, 'positive', 'posttest'), display_code: 'B9' },
+  { ...likert('sus_b10', 'B', 'Necesitaba aprender muchas cosas antes de poder empezar a usar la aplicación.',                      46, 'negative', 'posttest'), display_code: 'B10' },
 
   // Sección C — Impacto (simetría con pretest)
-  likert('post_c1', 'C', 'Después de usar NAWAT, mi interés por aprender nociones básicas de náhuat ha aumentado.',            42, 'positive', 'posttest'),
-  likert('post_c2', 'C', 'Las dinámicas de juego (gamificación) en la aplicación me motivaron a seguir intentando aprender las palabras.', 43, 'positive', 'posttest'),
-  likert('post_c3', 'C', 'Considero que el tiempo pasó rápido mientras usaba la aplicación (experimenté inmersión/flujo).',    44, 'positive', 'posttest'),
-  likert('post_c4', 'C', 'Me gustaría tener acceso continuo a esta aplicación para seguir aprendiendo náhuat por mi cuenta.',  45, 'positive', 'posttest'),
+  { ...likert('post_c1', 'C', 'Después de usar NAWAT, mi interés por aprender nociones básicas de náhuat ha aumentado. (Compara con D1 del pretest)', 47, 'positive', 'posttest'), display_code: 'C1' },
+  { ...likert('post_c2', 'C', 'Las dinámicas de juego (gamificación) en la aplicación me motivaron a seguir intentando aprender las palabras. (Compara con C8 del pretest)', 48, 'positive', 'posttest'), display_code: 'C2' },
+  { ...likert('post_c3', 'C', 'Considero que el tiempo pasó rápido mientras usaba la aplicación (experimenté inmersión/flujo).', 49, 'positive', 'posttest'), display_code: 'C3' },
+  { ...likert('post_c4', 'C', 'Me gustaría tener acceso continuo a esta aplicación para seguir aprendiendo náhuat por mi cuenta. (Compara con D2 y D5 del pretest)', 50, 'positive', 'posttest'), display_code: 'C4' },
   {
-    code: 'post_c5', phase: 'posttest', section: 'C', item_type: 'single_choice',
-    question_text: 'Tras conocer la herramienta, ¿cuánto tiempo estarías dispuesto/a a dedicar por semana para seguir aprendiendo náhuat?',
+    code: 'post_c5', display_code: 'C5', phase: 'posttest', section: 'C', item_type: 'single_choice',
+    question_text: 'Tras conocer la herramienta, ¿cuánto tiempo estarías dispuesto/a a dedicar por semana para seguir aprendiendo náhuat? (Compara con E3 del pretest para medir cambio de actitud real)',
     options: [
       { value: '0', label: '0 minutos' },
       { value: '10-20', label: '10–20 minutos' },
@@ -234,21 +240,21 @@ export const POSTTEST_ITEMS = [
       { value: '41-60', label: '41–60 minutos' },
       { value: '60+', label: 'Más de 60 minutos' },
     ],
-    is_required: true, order_index: 46,
+    is_required: true, order_index: 51,
   },
 
   // Sección D — Retroalimentación abierta (opcional)
   {
-    code: 'post_d1', phase: 'posttest', section: 'D', item_type: 'long_text',
+    code: 'post_d1', display_code: 'D1', phase: 'posttest', section: 'D', item_type: 'long_text',
     question_text: '¿Qué fue lo que más te gustó de la aplicación NAWAT?',
     placeholder: 'Escribe aquí tu respuesta (opcional)',
-    is_required: false, order_index: 47,
+    is_required: false, order_index: 52,
   },
   {
-    code: 'post_d2', phase: 'posttest', section: 'D', item_type: 'long_text',
+    code: 'post_d2', display_code: 'D2', phase: 'posttest', section: 'D', item_type: 'long_text',
     question_text: '¿Qué aspecto mejorarías o qué dificultad encontraste?',
     placeholder: 'Escribe aquí tu respuesta (opcional)',
-    is_required: false, order_index: 48,
+    is_required: false, order_index: 53,
   },
 ]
 

@@ -7,6 +7,7 @@ export default function LongTextItem({ item, answer, onChange }) {
 
   return (
     <textarea
+      data-testid="long-text-answer"
       className="profile-input w-full min-h-30 resize-y leading-normal"
       placeholder={item.placeholder || 'Escribe tu respuesta'}
       value={text}
