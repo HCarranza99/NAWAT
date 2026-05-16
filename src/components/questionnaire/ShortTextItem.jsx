@@ -8,6 +8,7 @@ export default function ShortTextItem({ item, answer, onChange }) {
   return (
     <input
       type="text"
+      data-testid="short-text-answer"
       className="profile-input w-full"
       placeholder={item.placeholder || 'Escribe tu respuesta'}
       value={text}

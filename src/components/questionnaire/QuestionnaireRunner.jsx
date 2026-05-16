@@ -5,17 +5,18 @@ import ProgressBar from '../ui/ProgressBar'
 import QuestionCard from './QuestionCard'
 
 const SECTION_LABELS = {
-  A: 'Datos generales',
-  B: 'Conocimiento previo',
-  C: 'Uso de herramientas TIC',
-  D: 'Interés por el náhuat',
-  E: 'Preferencias y barreras',
+  A: 'Sección A. Datos generales',
+  B: 'Sección B. Conocimiento previo y hábitos',
+  C: 'Sección C. Percepción del uso de herramientas TIC interactivas (VI)',
+  D: 'Sección D. Interés por aprender náhuat (VD)',
+  E: 'Sección E. Preferencias y barreras',
+  G: 'Sección G. Valor cultural e identitario',
 }
 
 const POSTTEST_SECTION_LABELS = {
-  B: 'Usabilidad',
-  C: 'Impacto',
-  D: 'Comentarios (opcional)',
+  B: 'Sección B. Evaluación de Usabilidad (Modelo SUS Estandarizado)',
+  C: 'Sección C. Impacto en la Motivación y el Interés',
+  D: 'Sección D. Retroalimentación Abierta (Opcional)',
 }
 
 function isAnswerValid(item, answer) {
@@ -115,7 +116,7 @@ export default function QuestionnaireRunner({ items, phase, onComplete }) {
   }
 
   return (
-    <div className="screen bg-background justify-between">
+    <div className="screen bg-background justify-between" data-testid="questionnaire-screen">
       {/* ── Barra superior con progreso ── */}
       <div className="flex items-center gap-3 px-4 pt-3.5 pb-2">
         <button
@@ -147,6 +148,7 @@ export default function QuestionnaireRunner({ items, phase, onComplete }) {
       <div className="flex flex-col gap-2 px-5 pt-4 pb-7">
         <button
           className="btn btn-primary"
+          data-testid="questionnaire-next"
           onClick={handleNext}
           disabled={(!valid && item.is_required) || submitting}
         >

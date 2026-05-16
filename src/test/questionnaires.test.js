@@ -28,6 +28,12 @@ const ALL_ITEMS = [...PRETEST_ITEMS, ...POSTTEST_ITEMS]
 
 describe('Questionnaires — global integrity', () => {
 
+  it('has the expected number of items after the instrument cotejo', () => {
+    expect(PRETEST_ITEMS.length).toBe(35)
+    expect(POSTTEST_ITEMS.length).toBe(17)
+    expect(ALL_ITEMS.length).toBe(52)
+  })
+
   it('every item code is globally unique across pretest+posttest', () => {
     const codes = ALL_ITEMS.map((it) => it.code)
     const dup = codes.filter((c, i) => codes.indexOf(c) !== i)
@@ -78,6 +84,32 @@ describe('Questionnaires — global integrity', () => {
       expect(it.question_text).toBeTruthy()
       expect(typeof it.question_text).toBe('string')
     })
+  })
+})
+
+describe('Questionnaires — instrument text cotejo', () => {
+  it('includes the complete pretest section G items', () => {
+    expect(PRETEST_ITEMS.filter((it) => it.section === 'G').map((it) => it.question_text)).toEqual([
+      'Me identifico como descendiente o portador de la herencia pipil/náhuat.',
+      'Me siento orgulloso(a) de las raíces indígenas de mi país o comunidad.',
+      'Siento una conexión emocional con la historia y la cultura del pueblo náhuat.',
+      'Considero que aprender el náhuat contribuye a preservar nuestra identidad cultural.',
+    ])
+  })
+
+  it('shows posttest document codes instead of internal storage codes', () => {
+    expect(POSTTEST_ITEMS.map((it) => it.display_code ?? it.code)).toEqual([
+      'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10',
+      'C1', 'C2', 'C3', 'C4', 'C5',
+      'D1', 'D2',
+    ])
+  })
+
+  it('keeps posttest traceability and comparison notes in the visible item text', () => {
+    expect(POSTTEST_ITEMS.find((it) => it.display_code === 'C1')?.question_text)
+      .toBe('Después de usar NAWAT, mi interés por aprender nociones básicas de náhuat ha aumentado. (Compara con D1 del pretest)')
+    expect(POSTTEST_ITEMS.find((it) => it.display_code === 'C5')?.question_text)
+      .toBe('Tras conocer la herramienta, ¿cuánto tiempo estarías dispuesto/a a dedicar por semana para seguir aprendiendo náhuat? (Compara con E3 del pretest para medir cambio de actitud real)')
   })
 })
 

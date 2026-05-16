@@ -81,8 +81,13 @@ CREATE POLICY "anon_all_timeline" ON intervention_timeline
   FOR ALL TO anon USING (true) WITH CHECK (true);
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- SEED — 48 items (pretest: 31, postest: 17)
+-- SEED — 52 items (pretest: 35, postest: 17)
 -- ═══════════════════════════════════════════════════════════════════════════
+
+-- Limpieza de ítems obsoletos: la trazabilidad del postest se maneja por
+-- participant_id/participants, no como pregunta visible ni como item del codebook.
+DELETE FROM questionnaire_responses WHERE item_code = 'post_a1';
+DELETE FROM questionnaire_items WHERE code = 'post_a1';
 
 INSERT INTO questionnaire_items (code, phase, section, item_type, question_text, options, polarity, is_required, order_index) VALUES
 
@@ -149,30 +154,36 @@ INSERT INTO questionnaire_items (code, phase, section, item_type, question_text,
   '[{"value":"0","label":"0 minutos"},{"value":"10-20","label":"10–20 minutos"},{"value":"21-40","label":"21–40 minutos"},{"value":"41-60","label":"41–60 minutos"},{"value":"60+","label":"Más de 60 minutos"}]'::jsonb,
   NULL, TRUE, 31),
 
+-- ─── PRETEST, Sección G (valor cultural e identitario, Likert) ───
+('G1', 'pretest', 'G', 'likert_5', 'Me identifico como descendiente o portador de la herencia pipil/náhuat.', NULL, 'positive', TRUE, 32),
+('G2', 'pretest', 'G', 'likert_5', 'Me siento orgulloso(a) de las raíces indígenas de mi país o comunidad.', NULL, 'positive', TRUE, 33),
+('G3', 'pretest', 'G', 'likert_5', 'Siento una conexión emocional con la historia y la cultura del pueblo náhuat.', NULL, 'positive', TRUE, 34),
+('G4', 'pretest', 'G', 'likert_5', 'Considero que aprender el náhuat contribuye a preservar nuestra identidad cultural.', NULL, 'positive', TRUE, 35),
+
 -- ─── POSTEST, Sección B (SUS, 10 items, polaridad alternada) ───
-('sus_b1',  'posttest', 'B', 'likert_5', 'Creo que me gustaría utilizar esta aplicación con frecuencia.', NULL, 'positive', TRUE, 32),
-('sus_b2',  'posttest', 'B', 'likert_5', 'Encontré la aplicación innecesariamente compleja.', NULL, 'negative', TRUE, 33),
-('sus_b3',  'posttest', 'B', 'likert_5', 'Pensé que la aplicación era fácil de usar.', NULL, 'positive', TRUE, 34),
-('sus_b4',  'posttest', 'B', 'likert_5', 'Creo que necesitaría el apoyo de una persona técnica para poder usar esta aplicación.', NULL, 'negative', TRUE, 35),
-('sus_b5',  'posttest', 'B', 'likert_5', 'Encontré que las diversas funciones de esta aplicación estaban bien integradas.', NULL, 'positive', TRUE, 36),
-('sus_b6',  'posttest', 'B', 'likert_5', 'Pensé que había demasiada inconsistencia en esta aplicación.', NULL, 'negative', TRUE, 37),
-('sus_b7',  'posttest', 'B', 'likert_5', 'Imagino que la mayoría de las personas aprenderían a usar esta aplicación muy rápidamente.', NULL, 'positive', TRUE, 38),
-('sus_b8',  'posttest', 'B', 'likert_5', 'Encontré la aplicación muy engorrosa (difícil) de usar.', NULL, 'negative', TRUE, 39),
-('sus_b9',  'posttest', 'B', 'likert_5', 'Me sentí muy seguro/a usando la aplicación.', NULL, 'positive', TRUE, 40),
-('sus_b10', 'posttest', 'B', 'likert_5', 'Necesitaba aprender muchas cosas antes de poder empezar a usar la aplicación.', NULL, 'negative', TRUE, 41),
+('sus_b1',  'posttest', 'B', 'likert_5', 'Creo que me gustaría utilizar esta aplicación con frecuencia.', NULL, 'positive', TRUE, 37),
+('sus_b2',  'posttest', 'B', 'likert_5', 'Encontré la aplicación innecesariamente compleja.', NULL, 'negative', TRUE, 38),
+('sus_b3',  'posttest', 'B', 'likert_5', 'Pensé que la aplicación era fácil de usar.', NULL, 'positive', TRUE, 39),
+('sus_b4',  'posttest', 'B', 'likert_5', 'Creo que necesitaría el apoyo de una persona técnica para poder usar esta aplicación.', NULL, 'negative', TRUE, 40),
+('sus_b5',  'posttest', 'B', 'likert_5', 'Encontré que las diversas funciones de esta aplicación estaban bien integradas.', NULL, 'positive', TRUE, 41),
+('sus_b6',  'posttest', 'B', 'likert_5', 'Pensé que había demasiada inconsistencia en esta aplicación.', NULL, 'negative', TRUE, 42),
+('sus_b7',  'posttest', 'B', 'likert_5', 'Imagino que la mayoría de las personas aprenderían a usar esta aplicación muy rápidamente.', NULL, 'positive', TRUE, 43),
+('sus_b8',  'posttest', 'B', 'likert_5', 'Encontré la aplicación muy engorrosa (difícil) de usar.', NULL, 'negative', TRUE, 44),
+('sus_b9',  'posttest', 'B', 'likert_5', 'Me sentí muy seguro/a usando la aplicación.', NULL, 'positive', TRUE, 45),
+('sus_b10', 'posttest', 'B', 'likert_5', 'Necesitaba aprender muchas cosas antes de poder empezar a usar la aplicación.', NULL, 'negative', TRUE, 46),
 
 -- ─── POSTEST, Sección C (impacto, simetría con pretest) ───
-('post_c1', 'posttest', 'C', 'likert_5', 'Después de usar NAWAT, mi interés por aprender nociones básicas de náhuat ha aumentado.', NULL, 'positive', TRUE, 42),
-('post_c2', 'posttest', 'C', 'likert_5', 'Las dinámicas de juego (gamificación) en la aplicación me motivaron a seguir intentando aprender las palabras.', NULL, 'positive', TRUE, 43),
-('post_c3', 'posttest', 'C', 'likert_5', 'Considero que el tiempo pasó rápido mientras usaba la aplicación (experimenté inmersión/flujo).', NULL, 'positive', TRUE, 44),
-('post_c4', 'posttest', 'C', 'likert_5', 'Me gustaría tener acceso continuo a esta aplicación para seguir aprendiendo náhuat por mi cuenta.', NULL, 'positive', TRUE, 45),
-('post_c5', 'posttest', 'C', 'single_choice', 'Tras conocer la herramienta, ¿cuánto tiempo estarías dispuesto/a a dedicar por semana para seguir aprendiendo náhuat?',
+('post_c1', 'posttest', 'C', 'likert_5', 'Después de usar NAWAT, mi interés por aprender nociones básicas de náhuat ha aumentado. (Compara con D1 del pretest)', NULL, 'positive', TRUE, 47),
+('post_c2', 'posttest', 'C', 'likert_5', 'Las dinámicas de juego (gamificación) en la aplicación me motivaron a seguir intentando aprender las palabras. (Compara con C8 del pretest)', NULL, 'positive', TRUE, 48),
+('post_c3', 'posttest', 'C', 'likert_5', 'Considero que el tiempo pasó rápido mientras usaba la aplicación (experimenté inmersión/flujo).', NULL, 'positive', TRUE, 49),
+('post_c4', 'posttest', 'C', 'likert_5', 'Me gustaría tener acceso continuo a esta aplicación para seguir aprendiendo náhuat por mi cuenta. (Compara con D2 y D5 del pretest)', NULL, 'positive', TRUE, 50),
+('post_c5', 'posttest', 'C', 'single_choice', 'Tras conocer la herramienta, ¿cuánto tiempo estarías dispuesto/a a dedicar por semana para seguir aprendiendo náhuat? (Compara con E3 del pretest para medir cambio de actitud real)',
   '[{"value":"0","label":"0 minutos"},{"value":"10-20","label":"10–20 minutos"},{"value":"21-40","label":"21–40 minutos"},{"value":"41-60","label":"41–60 minutos"},{"value":"60+","label":"Más de 60 minutos"}]'::jsonb,
-  NULL, TRUE, 46),
+  NULL, TRUE, 51),
 
 -- ─── POSTEST, Sección D (retroalimentación abierta, opcional) ───
-('post_d1', 'posttest', 'D', 'long_text', '¿Qué fue lo que más te gustó de la aplicación NAWAT?', NULL, NULL, FALSE, 47),
-('post_d2', 'posttest', 'D', 'long_text', '¿Qué aspecto mejorarías o qué dificultad encontraste?', NULL, NULL, FALSE, 48)
+('post_d1', 'posttest', 'D', 'long_text', '¿Qué fue lo que más te gustó de la aplicación NAWAT?', NULL, NULL, FALSE, 52),
+('post_d2', 'posttest', 'D', 'long_text', '¿Qué aspecto mejorarías o qué dificultad encontraste?', NULL, NULL, FALSE, 53)
 
 ON CONFLICT (code) DO UPDATE SET
   phase         = EXCLUDED.phase,
@@ -225,7 +236,10 @@ WHERE r.phase = 'posttest' AND i.code LIKE 'sus_%'
 GROUP BY r.participant_id;
 
 -- ── v_dataset_wide: 1 fila por participante, listo para SPSS/R ─────────────
-CREATE OR REPLACE VIEW v_dataset_wide AS
+-- Se elimina antes de recrearla porque PostgreSQL no permite cambiar el orden
+-- o insertar columnas intermedias con CREATE OR REPLACE VIEW.
+DROP VIEW IF EXISTS v_dataset_wide;
+CREATE VIEW v_dataset_wide AS
 WITH q AS (
   SELECT
     participant_id,
@@ -265,6 +279,11 @@ WITH q AS (
     MAX(CASE WHEN phase='pretest' AND item_code='E1' THEN COALESCE(value_other, value_text) END) AS pre_e1_herramienta_preferida,
     MAX(CASE WHEN phase='pretest' AND item_code='E2' THEN COALESCE(value_other, value_text) END) AS pre_e2_barrera,
     MAX(CASE WHEN phase='pretest' AND item_code='E3' THEN value_text END) AS pre_e3_tiempo_dispuesto,
+    -- Pretest G (valor cultural e identitario)
+    MAX(CASE WHEN phase='pretest' AND item_code='G1' THEN value_numeric END) AS pre_g1_herencia_pipil_nahuat,
+    MAX(CASE WHEN phase='pretest' AND item_code='G2' THEN value_numeric END) AS pre_g2_orgullo_raices,
+    MAX(CASE WHEN phase='pretest' AND item_code='G3' THEN value_numeric END) AS pre_g3_conexion_cultural,
+    MAX(CASE WHEN phase='pretest' AND item_code='G4' THEN value_numeric END) AS pre_g4_preservar_identidad,
     -- Postest SUS (crudos)
     MAX(CASE WHEN phase='posttest' AND item_code='sus_b1'  THEN value_numeric END) AS post_sus_b1,
     MAX(CASE WHEN phase='posttest' AND item_code='sus_b2'  THEN value_numeric END) AS post_sus_b2,
@@ -337,6 +356,7 @@ SELECT
   q.pre_c1, q.pre_c2, q.pre_c3, q.pre_c4, q.pre_c5, q.pre_c6, q.pre_c7, q.pre_c8, q.pre_c9, q.pre_c10, q.pre_c11, q.pre_c12,
   q.pre_d1, q.pre_d2, q.pre_d3, q.pre_d4, q.pre_d5, q.pre_d6,
   q.pre_e1_herramienta_preferida, q.pre_e2_barrera, q.pre_e3_tiempo_dispuesto,
+  q.pre_g1_herencia_pipil_nahuat, q.pre_g2_orgullo_raices, q.pre_g3_conexion_cultural, q.pre_g4_preservar_identidad,
   q.post_sus_b1, q.post_sus_b2, q.post_sus_b3, q.post_sus_b4, q.post_sus_b5,
   q.post_sus_b6, q.post_sus_b7, q.post_sus_b8, q.post_sus_b9, q.post_sus_b10,
   q.post_c1_interes, q.post_c2_gamificacion, q.post_c3_flujo, q.post_c4_acceso_continuo,

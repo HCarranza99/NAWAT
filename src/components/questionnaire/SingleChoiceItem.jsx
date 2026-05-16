@@ -42,6 +42,7 @@ export default function SingleChoiceItem({ item, answer, onChange }) {
             <button
               key={option.value}
               type="button"
+              data-testid="single-choice-option"
               className={`${btnBase} ${tone}`}
               onClick={() => handleSelect(option)}
             >
@@ -54,6 +55,7 @@ export default function SingleChoiceItem({ item, answer, onChange }) {
       {needsCustom && (
         <input
           type="text"
+          data-testid="single-choice-custom"
           className="profile-input w-full mt-1"
           placeholder="Especifica cuál…"
           value={otherText}

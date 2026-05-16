@@ -9,18 +9,24 @@
 -- ── 1. Resumen global: ¿hay datos? ──────────────────────────────────────────
 SELECT 'participants'             AS tabla, COUNT(*) AS filas FROM participants
 UNION ALL SELECT 'consent_records',         COUNT(*) FROM consent_records
-UNION ALL SELECT 'questionnaire_items',     COUNT(*) FROM questionnaire_items   -- esperado: 48
+UNION ALL SELECT 'questionnaire_items',     COUNT(*) FROM questionnaire_items   -- esperado: 52
 UNION ALL SELECT 'questionnaire_responses', COUNT(*) FROM questionnaire_responses
 UNION ALL SELECT 'intervention_timeline',   COUNT(*) FROM intervention_timeline
 UNION ALL SELECT 'sessions',                COUNT(*) FROM sessions
 UNION ALL SELECT 'lesson_attempts',         COUNT(*) FROM lesson_attempts
 UNION ALL SELECT 'exercise_responses',      COUNT(*) FROM exercise_responses;
 
+-- ── 1.1. Verificación de ítems obsoletos ───────────────────────────────────
+-- Esperado: 0. La trazabilidad del postest no debe existir como pregunta post_a1.
+SELECT COUNT(*) AS post_a1_obsoleto
+FROM questionnaire_items
+WHERE code = 'post_a1';
+
 -- ── 2. Lista todos los participantes con un contador por tabla ──────────────
 -- Cada participante debería tener:
 --   • 1 consent_record
---   • 31 respuestas en pretest
---   • 17 respuestas en postest (si completó — post_d1/d2 son opcionales)
+--   • 35 respuestas en pretest
+--   • 15–17 respuestas en postest (post_d1/post_d2 son opcionales)
 --   • 1 intervention_timeline con los 3 timestamps si completó
 SELECT
   p.id AS participant_id,
