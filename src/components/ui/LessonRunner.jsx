@@ -44,6 +44,17 @@ export default function LessonRunner({
 
   const xpForType = (type) => GAME_CONFIG.itemTypes[type]?.xp ?? 10
 
+  const recordExerciseResponse = (exercise, isCorrect) => {
+    logExerciseResponse(
+      participantId,
+      currentSessionId,
+      attemptIdRef.current,
+      exercise,
+      isCorrect,
+      exerciseStartRef.current
+    )
+  }
+
   const hints = Object.fromEntries(
     lesson.items
       .filter((item) => item.nahuat_word && item.spanish_translation)
@@ -170,18 +181,14 @@ export default function LessonRunner({
     const xp = xpForType(current.type)
     const updated = { correct: score.correct + 1, xp: score.xp + xp }
     setScore(updated)
-    if (attemptIdRef.current) {
-      logExerciseResponse(participantId, currentSessionId, attemptIdRef.current, current, true, exerciseStartRef.current)
-    }
+    recordExerciseResponse(current, true)
     setFeedback('correct')
   }
 
   const handleWrong = () => {
     playWrong()
     loseLife()
-    if (attemptIdRef.current) {
-      logExerciseResponse(participantId, currentSessionId, attemptIdRef.current, current, false, exerciseStartRef.current)
-    }
+    recordExerciseResponse(current, false)
     if (isBoss && !retryMode) {
       setFailedItems((prev) => {
         if (prev.find((item) => item.id === current.id)) return prev
@@ -204,9 +211,7 @@ export default function LessonRunner({
     if (knew) playCorrect()
     const xp = xpForType('flashcard')
     const updated = knew ? { correct: score.correct + 1, xp: score.xp + xp } : score
-    if (attemptIdRef.current) {
-      logExerciseResponse(participantId, currentSessionId, attemptIdRef.current, current, knew, exerciseStartRef.current)
-    }
+    recordExerciseResponse(current, knew)
     setScore(updated)
     goNext(updated)
   }
@@ -215,9 +220,7 @@ export default function LessonRunner({
     playCorrect()
     const xp = xpForType('matching')
     const updated = { correct: score.correct + 1, xp: score.xp + xp }
-    if (attemptIdRef.current) {
-      logExerciseResponse(participantId, currentSessionId, attemptIdRef.current, current, true, exerciseStartRef.current)
-    }
+    recordExerciseResponse(current, true)
     setScore(updated)
     goNext(updated)
   }

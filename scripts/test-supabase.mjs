@@ -28,50 +28,48 @@ const log = (label, result) => {
 console.log('\n🧪 Testing Supabase end-to-end flow...\n')
 
 // 1. Crear participante
-const p = log(
+const participantId = crypto.randomUUID()
+log(
   'participants.insert',
   await supabase
     .from('participants')
-    .insert({ first_name: 'Test', last_name: 'Script' })
-    .select()
-    .single()
+    .insert({ id: participantId, first_name: 'Test', last_name: 'Script' })
 )
-console.log(`   → participant_id: ${p.id}`)
+console.log(`   → participant_id: ${participantId}`)
 
 // 2. Crear sesión
-const s = log(
+const sessionId = crypto.randomUUID()
+log(
   'sessions.insert',
   await supabase
     .from('sessions')
-    .insert({ participant_id: p.id })
-    .select()
-    .single()
+    .insert({ id: sessionId, participant_id: participantId })
 )
-console.log(`   → session_id: ${s.id}`)
+console.log(`   → session_id: ${sessionId}`)
 
 // 3. Crear lesson_attempt
-const a = log(
+const attemptId = crypto.randomUUID()
+log(
   'lesson_attempts.insert',
   await supabase
     .from('lesson_attempts')
     .insert({
-      participant_id: p.id,
-      session_id: s.id,
-      lesson_id: 1,
-      lesson_title: 'Saludos (test)',
+      id: attemptId,
+      participant_id: participantId,
+      session_id: sessionId,
+      lesson_id: 's1-l1',
+      lesson_title: 'Los sonidos del Nahuat (test)',
     })
-    .select()
-    .single()
 )
-console.log(`   → attempt_id: ${a.id}`)
+console.log(`   → attempt_id: ${attemptId}`)
 
 // 4. Registrar una respuesta
 log(
   'exercise_responses.insert',
   await supabase.from('exercise_responses').insert({
-    participant_id: p.id,
-    session_id: s.id,
-    lesson_attempt_id: a.id,
+    participant_id: participantId,
+    session_id: sessionId,
+    lesson_attempt_id: attemptId,
     exercise_id: '1-1',
     exercise_type: 'flashcard',
     is_correct: true,
@@ -92,7 +90,7 @@ log(
       xp_earned: 150,
       passed: true,
     })
-    .eq('id', a.id)
+    .eq('id', attemptId)
 )
 
 // 6. Cerrar sesión (UPDATE)
@@ -104,7 +102,7 @@ log(
       ended_at: new Date().toISOString(),
       duration_seconds: 180,
     })
-    .eq('id', s.id)
+    .eq('id', sessionId)
 )
 
 console.log('\n🎉 All checks passed. Your Supabase setup is working end-to-end.')

@@ -18,19 +18,18 @@ import { DEMO_MODE } from '../store/useGameStore'
  */
 export async function createParticipant(firstName, lastName) {
   if (DEMO_MODE) return 'demo-user'
+  const participantId = crypto.randomUUID()
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('participants')
-      .insert({ first_name: firstName, last_name: lastName })
-      .select('id')
-      .single()
+      .insert({ id: participantId, first_name: firstName, last_name: lastName })
 
     if (error) throw error
-    return data.id
+    return participantId
   } catch (e) {
     logError('createParticipant', e)
     // Fallback: UUID local si Supabase no está configurado o falla
-    return crypto.randomUUID()
+    return participantId
   }
 }
 
@@ -41,15 +40,14 @@ export async function createParticipant(firstName, lastName) {
  */
 export async function startSession(participantId) {
   if (DEMO_MODE) return null
+  const sessionId = crypto.randomUUID()
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('sessions')
-      .insert({ participant_id: participantId })
-      .select('id')
-      .single()
+      .insert({ id: sessionId, participant_id: participantId })
 
     if (error) throw error
-    return data.id
+    return sessionId
   } catch (e) {
     logError('startSession', e)
     return null
@@ -72,10 +70,12 @@ export async function endSession(sessionId, startedAtMs) {
     const endedAt = new Date().toISOString()
     const durationSeconds = Math.round((Date.now() - startedAtMs) / 1000)
 
-    await supabase
+    const { error } = await supabase
       .from('sessions')
       .update({ ended_at: endedAt, duration_seconds: durationSeconds })
       .eq('id', sessionId)
+
+    if (error) throw error
   } catch (e) {
     logError('endSession', e)
   }
@@ -87,25 +87,25 @@ export async function endSession(sessionId, startedAtMs) {
  * Registra el inicio de un intento de lección y retorna su ID.
  * @param {string} participantId
  * @param {string|null} sessionId
- * @param {{ id: number, title: string }} lesson
+ * @param {{ id: string|number, title: string }} lesson
  */
 export async function startLessonAttempt(participantId, sessionId, lesson) {
   if (DEMO_MODE) return null
+  const attemptId = crypto.randomUUID()
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('lesson_attempts')
       .insert({
+        id: attemptId,
         participant_id: participantId,
         session_id: sessionId,
-        lesson_id: lesson.id,
+        lesson_id: String(lesson.id),
         lesson_title: lesson.title,
         started_at: new Date().toISOString(),
       })
-      .select('id')
-      .single()
 
     if (error) throw error
-    return data.id
+    return attemptId
   } catch (e) {
     logError('startLessonAttempt', e)
     return null
@@ -126,7 +126,7 @@ export async function completeLessonAttempt(attemptId, startedAtMs, score, stars
     const completedAt = new Date().toISOString()
     const durationSeconds = Math.round((Date.now() - startedAtMs) / 1000)
 
-    await supabase
+    const { error } = await supabase
       .from('lesson_attempts')
       .update({
         completed_at: completedAt,
@@ -137,6 +137,8 @@ export async function completeLessonAttempt(attemptId, startedAtMs, score, stars
         passed: score >= 0.7,
       })
       .eq('id', attemptId)
+
+    if (error) throw error
   } catch (e) {
     logError('completeLessonAttempt', e)
   }
@@ -161,13 +163,13 @@ export async function logExerciseResponse(
   isCorrect,
   exerciseStartedAtMs
 ) {
-  if (DEMO_MODE) return
+  if (!participantId || DEMO_MODE) return
   try {
     const responseTimeSec = parseFloat(
       ((Date.now() - exerciseStartedAtMs) / 1000).toFixed(2)
     )
 
-    await supabase.from('exercise_responses').insert({
+    const { error } = await supabase.from('exercise_responses').insert({
       participant_id: participantId,
       session_id: sessionId,
       lesson_attempt_id: lessonAttemptId,
@@ -176,6 +178,8 @@ export async function logExerciseResponse(
       is_correct: isCorrect,
       response_time_sec: responseTimeSec,
     })
+
+    if (error) throw error
   } catch (e) {
     logError('logExerciseResponse', e)
   }

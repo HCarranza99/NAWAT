@@ -100,13 +100,25 @@ export default function ProfileScreen() {
           </div>
         </div>
 
-        <div className={`mt-3 inline-flex items-center gap-2 rounded-md border px-3 py-2 text-xs font-extrabold ${
-          isGuestMode
-            ? 'border-white/15 bg-white/8 text-white/72'
-            : 'border-[#9ddfc6]/25 bg-[#9ddfc6]/12 text-[#9ddfc6]'
-        }`}>
-          {isGuestMode ? <ShieldCheck className="h-4 w-4" /> : <Cloud className="h-4 w-4" />}
-          {isGuestMode ? 'Sin cuenta vinculada' : 'Cuenta vinculada'}
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <div className={`inline-flex min-w-0 items-center gap-2 rounded-md border px-3 py-2 text-xs font-extrabold ${
+            isGuestMode
+              ? 'border-white/15 bg-white/8 text-white/72'
+              : 'border-[#9ddfc6]/25 bg-[#9ddfc6]/12 text-[#9ddfc6]'
+          }`}>
+            {isGuestMode ? <ShieldCheck className="h-4 w-4 shrink-0" /> : <Cloud className="h-4 w-4 shrink-0" />}
+            <span className="truncate">{isGuestMode ? 'Sin cuenta vinculada' : 'Cuenta vinculada'}</span>
+          </div>
+
+          {isGuestMode && (
+            <button
+              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#1f7a57] px-3 py-2 text-xs font-extrabold text-white shadow-[0_8px_18px_rgba(31,122,87,0.2)] transition active:scale-[0.99]"
+              onClick={() => useGameStore.setState({ studyPhase: PHASES.ACCOUNT_PROMPT })}
+            >
+              <Cloud className="h-4 w-4" />
+              Crear cuenta
+            </button>
+          )}
         </div>
       </header>
 
@@ -161,15 +173,7 @@ export default function ProfileScreen() {
             </button>
           )}
 
-          {isGuestMode ? (
-            <button
-              className="flex w-full items-center justify-center gap-2 rounded-md bg-[#1f7a57] px-4 py-3 text-sm font-extrabold text-white shadow-[0_8px_18px_rgba(31,122,87,0.2)] transition active:scale-[0.99]"
-              onClick={() => useGameStore.setState({ studyPhase: PHASES.ACCOUNT_PROMPT })}
-            >
-              <Cloud className="h-4 w-4" />
-              Crear cuenta
-            </button>
-          ) : (
+          {!isGuestMode && (
             <button
               className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d8ddd5] bg-white px-4 py-3 text-sm font-extrabold text-[#17211d] shadow-sm transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
               onClick={handleLogout}

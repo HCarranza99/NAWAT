@@ -170,7 +170,7 @@ export default function HomeScreen() {
         </div>
       </header>
 
-      <main className="space-y-5 px-5 pt-5">
+      <main className="space-y-3 px-5 pt-4">
         {lives === 0 && (
           <section className="flex items-center justify-between gap-3 rounded-lg border border-[#e63946]/25 bg-[#fff0f1] px-4 py-3">
             <div>
@@ -189,7 +189,7 @@ export default function HomeScreen() {
         )}
 
         <section>
-          <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="mb-2.5 flex items-center justify-between gap-3">
             <div>
               <p className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-[#6d756e]">Continuar</p>
               <h2 className="text-xl font-black tracking-normal text-[#17211d]">Tu próxima práctica</h2>
@@ -211,10 +211,10 @@ export default function HomeScreen() {
                 navigate(`/section/${nextLessonData.section.id}/${nextLessonData.isBoss ? 'boss' : `lesson/${nextLessonData.lesson.id}`}`)
               }}
               disabled={lives === 0}
-              className="group w-full overflow-hidden rounded-lg border border-[#e3ded2] bg-white text-left shadow-[0_14px_35px_rgba(37,48,42,0.08)] transition disabled:cursor-not-allowed disabled:opacity-65"
+              className="group w-full overflow-hidden rounded-lg border border-[#e3ded2] bg-white text-left shadow-[0_10px_28px_rgba(37,48,42,0.07)] transition disabled:cursor-not-allowed disabled:opacity-65"
             >
-              <div className="grid grid-cols-[94px_1fr]">
-                <div className="relative min-h-[142px] bg-[#f0ede5]">
+              <div className="grid h-[106px] grid-cols-[72px_1fr]">
+                <div className="relative h-full bg-[#f0ede5]">
                   <img
                     src={`/assets/images/section${nextLessonData.section.id}.png`}
                     alt=""
@@ -222,25 +222,25 @@ export default function HomeScreen() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
                 </div>
-                <div className="flex min-w-0 flex-col justify-between p-4">
+                <div className="flex min-w-0 flex-col justify-between overflow-hidden p-2.5">
                   <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#fff1de] px-2 py-1 text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#b95a18]">
-                      {nextLessonData.isBoss ? <ShieldCheck className="h-3 w-3" /> : <BookOpen className="h-3 w-3" />}
+                    <span className="inline-flex items-center gap-1 rounded-sm bg-[#fff1de] px-1.5 py-0.5 text-[0.54rem] font-black uppercase tracking-[0.12em] text-[#b95a18]">
+                      {nextLessonData.isBoss ? <ShieldCheck className="h-2.5 w-2.5" /> : <BookOpen className="h-2.5 w-2.5" />}
                       {nextLessonData.isBoss ? 'Reto final' : 'Siguiente lección'}
                     </span>
-                    <h3 className="mt-3 text-2xl font-black leading-[1.05] tracking-normal text-[#17211d]">
+                    <h3 className="mt-1 text-base font-black leading-[1.05] tracking-normal text-[#17211d]">
                       {nextLessonData.lesson.title}
                     </h3>
-                    <p className="mt-2 line-clamp-2 text-sm font-medium leading-snug text-[#6d756e]">
+                    <p className="mt-0.5 line-clamp-1 text-[0.68rem] font-semibold leading-snug text-[#6d756e]">
                       {nextLessonData.lesson.description}
                     </p>
                   </div>
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#6d756e]">
+                  <div className="mt-1.5 flex items-center justify-between">
+                    <span className="text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-[#6d756e]">
                       +{nextLessonData.lesson.xpReward} XP
                     </span>
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[#1f7a57] text-white shadow-[0_8px_18px_rgba(31,122,87,0.25)] transition group-hover:translate-x-1">
-                      <ArrowRight className="h-5 w-5" />
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[#1f7a57] text-white shadow-[0_8px_18px_rgba(31,122,87,0.22)] transition group-hover:translate-x-1">
+                      <ArrowRight className="h-3.5 w-3.5" />
                     </span>
                   </div>
                 </div>
