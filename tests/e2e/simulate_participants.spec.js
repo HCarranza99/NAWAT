@@ -92,6 +92,9 @@ for (let i = 1; i <= participantCount; i += 1) {
     await page.getByRole('button', { name: /Empezar cuestionario/ }).click()
     await completeQuestionnaire(page, PRETEST_ITEMS)
 
+    await expect(page.getByRole('heading', { name: /Practica durante 15 minutos/ })).toBeVisible()
+    await page.getByRole('button', { name: /Empezar pr/ }).click()
+
     await expect(page.getByText('Tu próxima práctica')).toBeVisible({ timeout: 15_000 })
     await expect(page.getByText('Tiempo de estudio')).toBeVisible()
 

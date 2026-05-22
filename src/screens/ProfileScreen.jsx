@@ -3,6 +3,7 @@ import {
   Award,
   BookOpen,
   Cloud,
+  Download,
   Flame,
   Heart,
   LogOut,
@@ -19,6 +20,7 @@ import sections from '../data/sections'
 import { GAME_CONFIG } from '../data/gameConfig'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import { signOut } from '../services/auth'
+import { usePwaInstall } from '../hooks/usePwaInstall'
 
 function StatCard({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
   return (
@@ -32,6 +34,7 @@ function StatCard({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
 
 export default function ProfileScreen() {
   const [loggingOut, setLoggingOut] = useState(false)
+  const { canInstall, install } = usePwaInstall()
   const {
     xp, lives, streak, lastPlayedDate,
     sectionProgress,
@@ -163,6 +166,16 @@ export default function ProfileScreen() {
         )}
 
         <section className="space-y-2">
+          {canInstall && (
+            <button
+              className="flex w-full items-center justify-center gap-2 rounded-md bg-[#1f7a57] px-4 py-3 text-sm font-extrabold text-white shadow-[0_8px_18px_rgba(31,122,87,0.2)] transition active:scale-[0.99]"
+              onClick={install}
+            >
+              <Download className="h-4 w-4" />
+              Instalar app
+            </button>
+          )}
+
           {lives === 0 && (
             <button
               className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d94848]/25 bg-[#fff0f1] px-4 py-3 text-sm font-extrabold text-[#b91c1c] transition active:scale-[0.99]"
