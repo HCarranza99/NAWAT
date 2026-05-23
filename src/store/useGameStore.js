@@ -3,11 +3,44 @@ import { persist } from 'zustand/middleware'
 import { z } from 'zod'
 
 /**
- * Demo mode is activated when the URL starts with /demo.
- * It uses a separate localStorage key so demo progress never
- * touches the real study data.
+ * Demo mode has a canonical /demo route. The explicit ?demo=true entry
+ * supports shared links that point at the deployment root.
  */
-export const DEMO_MODE = window.location.pathname.startsWith('/demo')
+export function resolveDemoLocation(location = window.location) {
+  const url = new URL(location.href)
+  const demoPath = url.pathname.match(/^\/demo(?=\/|$)/i)
+  const demoQuery = url.searchParams.get('demo') === 'true'
+
+  if (!demoPath && !demoQuery) {
+    return { enabled: false, canonicalUrl: null }
+  }
+
+  const suffix = demoPath
+    ? url.pathname.slice(demoPath[0].length)
+    : url.pathname === '/' ? '' : url.pathname
+
+  url.pathname = `/demo${suffix}`
+  if (demoQuery) url.searchParams.delete('demo')
+
+  return {
+    enabled: true,
+    canonicalUrl: `${url.pathname}${url.search}${url.hash}`,
+  }
+}
+
+const demoLocation = resolveDemoLocation()
+
+if (demoLocation.enabled) {
+  const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
+  if (currentUrl !== demoLocation.canonicalUrl) {
+    window.history.replaceState(window.history.state, '', demoLocation.canonicalUrl)
+  }
+}
+
+/**
+ * A separate localStorage key keeps demo progress out of study data.
+ */
+export const DEMO_MODE = demoLocation.enabled
 
 export const PHASES = Object.freeze({
   CONSENT: 'consent',
