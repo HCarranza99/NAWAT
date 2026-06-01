@@ -19,9 +19,9 @@ export default function BottomNav() {
   const activeTab = tabs.find((tab) => tab.path === location.pathname)?.id || 'home'
 
   return (
-    <div className="fixed bottom-4 left-1/2 z-50 w-[calc(480px-32px)] max-w-[calc(100vw-32px)] -translate-x-1/2">
+    <div className="fixed bottom-3 left-1/2 z-50 w-[calc(480px-32px)] max-w-[calc(100vw-32px)] -translate-x-1/2">
       <nav
-        className="grid grid-cols-3 gap-1 rounded-lg border border-black/10 bg-[#102f29]/94 p-1.5 shadow-[0_18px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl"
+        className="grid grid-cols-3 gap-1 rounded-lg border border-black/10 bg-[#102f29]/94 p-1.5 shadow-[0_16px_34px_rgba(0,0,0,0.2)] backdrop-blur-xl"
         aria-label="Navegación principal"
       >
         {tabs.map((tab) => {
@@ -32,7 +32,7 @@ export default function BottomNav() {
             <button
               key={tab.id}
               onClick={() => navigate(tab.path)}
-              className={`flex h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-md text-[0.68rem] font-extrabold uppercase tracking-[0.08em] transition ${
+              className={`flex h-12 min-w-0 flex-col items-center justify-center gap-0.5 rounded-md text-[0.64rem] font-extrabold uppercase tracking-[0.08em] transition ${
                 isActive
                   ? 'bg-white text-[#102f29] shadow-sm'
                   : 'text-white/62 hover:bg-white/8 hover:text-white'
@@ -40,7 +40,7 @@ export default function BottomNav() {
               aria-label={tab.label}
               aria-current={isActive ? 'page' : undefined}
             >
-              <Icon className="h-5 w-5" strokeWidth={2.4} />
+              <Icon className="h-[18px] w-[18px]" strokeWidth={2.4} />
               <span className="leading-none">{tab.shortLabel || tab.label}</span>
             </button>
           )

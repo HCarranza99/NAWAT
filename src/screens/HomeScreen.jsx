@@ -30,10 +30,10 @@ function formatClock(ms) {
 
 function Metric({ icon: Icon, label, value, tone = 'text-foreground' }) {
   return (
-    <div className="flex items-center gap-2.5 rounded-md border border-white/12 bg-white/10 px-3 py-2 backdrop-blur">
+    <div className="flex items-center gap-2 rounded-md border border-white/12 bg-white/10 px-2.5 py-1.5 backdrop-blur">
       <Icon className={`h-4 w-4 ${tone}`} />
       <div className="min-w-0">
-        <p className="text-[0.62rem] font-bold uppercase leading-none tracking-[0.16em] text-white/55">{label}</p>
+        <p className="text-[0.58rem] font-bold uppercase leading-none tracking-[0.14em] text-white/55">{label}</p>
         <p className="mt-1 text-sm font-extrabold leading-none text-white">{value}</p>
       </div>
     </div>
@@ -42,7 +42,7 @@ function Metric({ icon: Icon, label, value, tone = 'text-foreground' }) {
 
 function ProgressRail({ value }) {
   return (
-    <div className="h-2.5 overflow-hidden rounded-full bg-[#e8ece6]">
+    <div className="h-2 overflow-hidden rounded-full bg-[#e8ece6]">
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: `${value}%` }}
@@ -141,43 +141,43 @@ export default function HomeScreen() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-[100svh] bg-[#f7f5ef] pb-28 text-foreground"
+      className="h-[100svh] overflow-hidden bg-[#f7f5ef] text-foreground"
     >
-      <header className="relative overflow-hidden bg-[#102f29] px-5 pb-6 pt-5 text-white">
+      <header className="relative overflow-hidden bg-[#102f29] px-4 pb-4 pt-4 text-white">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <TorogozBadge size={50} />
+            <TorogozBadge size={44} />
             <div>
-              <p className="flex items-center gap-1.5 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#9ddfc6]">
+              <p className="flex items-center gap-1.5 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-[#9ddfc6]">
                 <Sparkles className="h-3 w-3" />
                 Aprendizaje diario
               </p>
-              <h1 className="mt-1 text-[2rem] font-black leading-none tracking-normal">Náhuat</h1>
+              <h1 className="mt-0.5 text-[1.8rem] font-black leading-none tracking-normal">Náhuat</h1>
             </div>
           </div>
-          <div className="rounded-md border border-white/12 bg-white/10 px-3 py-2 text-right backdrop-blur">
-            <p className="text-[0.62rem] font-bold uppercase tracking-[0.16em] text-white/55">Nivel</p>
-            <p className="text-xl font-black leading-none">{level}</p>
+          <div className="rounded-md border border-white/12 bg-white/10 px-2.5 py-2 text-right backdrop-blur">
+            <p className="text-[0.56rem] font-bold uppercase tracking-[0.14em] text-white/55">Nivel</p>
+            <p className="text-lg font-black leading-none">{level}</p>
           </div>
         </div>
 
-        <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
-          <div className="flex items-end justify-between gap-4">
+        <div className="mt-3 rounded-lg border border-white/10 bg-white/[0.07] p-3.5 shadow-[0_14px_34px_rgba(0,0,0,0.2)]">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-white/68">Hola, {firstName}</p>
-              <p className="mt-2 text-[2.45rem] font-black leading-none tracking-normal">{xpInLevel}</p>
-              <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-white/50">de {xpPerLevel} XP</p>
+              <p className="text-[0.82rem] font-semibold text-white/68">Hola, {firstName}</p>
+              <p className="mt-1 text-[2rem] font-black leading-none tracking-normal">{xpInLevel}</p>
+              <p className="mt-0.5 text-[0.66rem] font-bold uppercase tracking-[0.14em] text-white/50">de {xpPerLevel} XP</p>
             </div>
-            <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-[#f4a261] text-[#102f29]">
-              <Trophy className="h-8 w-8" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-[#f4a261] text-[#102f29]">
+              <Trophy className="h-7 w-7" />
             </div>
           </div>
-          <div className="mt-5">
+          <div className="mt-3">
             <ProgressRail value={levelPct} />
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-2.5">
+        <div className="mt-3 grid grid-cols-2 gap-2">
           <Metric icon={Heart} label="Vidas" value={lives} tone="text-[#ff8b8b]" />
           <Metric icon={Flame} label="Racha" value={`${streak} d`} tone="text-[#ffb15f]" />
           {msLeft != null && (
@@ -188,7 +188,7 @@ export default function HomeScreen() {
         </div>
       </header>
 
-      <main className="space-y-3 px-5 pt-4">
+      <main className="space-y-2 px-4 pt-3">
         {lives === 0 && (
           <section className="grid grid-cols-[1fr_86px] items-center gap-3 rounded-lg border border-[#e63946]/25 bg-[#fff0f1] px-4 py-3">
             <div className="min-w-0">
@@ -210,14 +210,14 @@ export default function HomeScreen() {
         )}
 
         <section>
-          <div className="mb-2.5 flex items-center justify-between gap-3">
+          <div className="mb-2 flex items-center justify-between gap-3">
             <div>
-              <p className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-[#6d756e]">Continuar</p>
-              <h2 className="text-xl font-black tracking-normal text-[#17211d]">Tu próxima práctica</h2>
+              <p className="text-[0.62rem] font-black uppercase tracking-[0.2em] text-[#6d756e]">Continuar</p>
+              <h2 className="text-lg font-black tracking-normal text-[#17211d]">Tu próxima práctica</h2>
             </div>
             <button
               onClick={() => navigate('/sections')}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#d8ddd5] bg-white text-[#1f7a57] shadow-sm transition hover:bg-[#eef8f2]"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#d8ddd5] bg-white text-[#1f7a57] shadow-sm transition hover:bg-[#eef8f2]"
               aria-label="Ver secciones"
             >
               <Layers3 className="h-5 w-5" />
@@ -235,11 +235,11 @@ export default function HomeScreen() {
               style={{
                 background: `radial-gradient(circle at 75% 20%, ${nextLessonData.section.color || '#f4a261'}22 0, transparent 45%), #102f29`,
               }}
-              className="group relative w-full overflow-hidden rounded-[2rem] border border-white/10 p-5 text-left shadow-[0_20px_45px_rgba(16,47,41,0.25)] transition-all duration-300 hover:border-[#f4a261]/35 hover:shadow-[0_20px_50px_rgba(244,162,97,0.15),0_20px_45px_rgba(16,47,41,0.3)] disabled:cursor-not-allowed disabled:opacity-65"
+              className="group relative min-h-[208px] w-full overflow-hidden rounded-[1.6rem] border border-white/10 p-4 text-left shadow-[0_16px_34px_rgba(16,47,41,0.23)] transition-all duration-300 hover:border-[#f4a261]/35 hover:shadow-[0_18px_42px_rgba(244,162,97,0.14),0_16px_34px_rgba(16,47,41,0.28)] disabled:cursor-not-allowed disabled:opacity-65"
             >
-              <div className="grid grid-cols-[1fr_100px] items-center gap-4">
+              <div className="grid grid-cols-[1fr_92px] items-center gap-3">
                 <div className="z-10">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f4a261]/18 border border-[#f4a261]/25 px-3 py-1 text-[0.6rem] font-black uppercase tracking-[0.16em] text-[#f4a261]">
+                  <span className="inline-flex max-w-[150px] items-center gap-1.5 rounded-full bg-[#f4a261]/18 border border-[#f4a261]/25 px-2.5 py-1 text-[0.54rem] font-black uppercase tracking-[0.14em] text-[#f4a261]">
                     {nextLessonData.isBoss ? <ShieldCheck className="h-3.5 w-3.5" /> : <BookOpen className="h-3.5 w-3.5" />}
                     {nextLessonData.isBoss ? 'RETO FINAL' : 'SIGUIENTE LECCIÓN'}
                     <span className="relative flex h-1.5 w-1.5 ml-0.5">
@@ -248,19 +248,19 @@ export default function HomeScreen() {
                     </span>
                   </span>
                   
-                  <h3 className="mt-3.5 text-[1.4rem] font-black leading-tight tracking-normal text-white drop-shadow-xs">
+                  <h3 className="mt-3 text-[1.24rem] font-black leading-tight tracking-normal text-white drop-shadow-xs">
                     {nextLessonData.lesson.title}
                   </h3>
                   
-                  <p className="mt-1.5 text-xs font-semibold leading-relaxed text-white/60 line-clamp-2 max-w-[230px]">
+                  <p className="mt-1 text-[0.78rem] font-semibold leading-snug text-white/60 line-clamp-2 max-w-[205px]">
                     {nextLessonData.lesson.description}
                   </p>
                   
-                  <div className="mt-5 flex items-center gap-3.5">
+                  <div className="mt-4 flex items-center gap-3">
                     <span className="text-xs font-black uppercase tracking-[0.14em] text-[#9ddfc6]">
                       +{nextLessonData.lesson.xpReward} XP
                     </span>
-                    <div className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f4a261] px-6 py-3 text-xs font-black text-[#102f29] shadow-[0_4px_0_#c47330,0_8px_20px_rgba(244,162,97,0.35)] transition-all duration-150 transform group-hover:scale-[1.03] group-active:translate-y-[4px] group-active:shadow-[0_0px_0_#c47330,0_4px_10px_rgba(244,162,97,0.2)]">
+                    <div className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f4a261] px-4 py-2.5 text-[0.72rem] font-black text-[#102f29] shadow-[0_3px_0_#c47330,0_7px_16px_rgba(244,162,97,0.32)] transition-all duration-150 transform group-hover:scale-[1.03] group-active:translate-y-[3px] group-active:shadow-[0_0px_0_#c47330,0_4px_10px_rgba(244,162,97,0.2)]">
                       ¡APRENDER AHORA!
                       <Play className="h-3 w-3 fill-current" />
                     </div>
@@ -268,11 +268,11 @@ export default function HomeScreen() {
                 </div>
 
                 {/* Globo de diálogo (Speech Bubble) del Torogoz */}
-                <div className="absolute right-4 top-4 z-20 max-w-[155px] rounded-2xl border border-white/10 bg-white/95 px-3.5 py-2 text-left shadow-[0_8px_25px_rgba(0,0,0,0.22)] backdrop-blur-sm transition-all duration-300 scale-95 origin-top-right group-hover:scale-100">
-                  <p className="text-[0.62rem] font-black uppercase tracking-wider text-[#102f29]">
+                <div className="absolute right-3 top-3 z-20 max-w-[136px] rounded-2xl border border-white/10 bg-white/95 px-3 py-2 text-left shadow-[0_8px_22px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-all duration-300 scale-95 origin-top-right group-hover:scale-100">
+                  <p className="text-[0.56rem] font-black uppercase tracking-wider text-[#102f29]">
                     {greeting.nahuat}
                   </p>
-                  <p className="mt-0.5 text-[0.68rem] font-bold leading-tight text-[#2d4d44]">
+                  <p className="mt-0.5 text-[0.62rem] font-bold leading-tight text-[#2d4d44]">
                     {greeting.spanish}
                   </p>
                   {/* Flechita del globo apuntando hacia abajo al Torogoz */}
@@ -280,8 +280,8 @@ export default function HomeScreen() {
                 </div>
 
                 {/* Integración del Torogoz 3D asomándose de forma espectacular */}
-                <div className="absolute -right-3 -bottom-1 drop-shadow-[0_12px_24px_rgba(0,0,0,0.35)] pointer-events-none transition group-hover:translate-y-1">
-                  <Torogoz emotion={nextLessonData.isBoss ? 'proud' : 'explaining'} size={135} />
+                <div className="absolute -right-2 -bottom-1 drop-shadow-[0_12px_22px_rgba(0,0,0,0.34)] pointer-events-none transition group-hover:translate-y-1">
+                  <Torogoz emotion={nextLessonData.isBoss ? 'proud' : 'explaining'} size={118} />
                 </div>
               </div>
             </motion.button>
@@ -294,16 +294,20 @@ export default function HomeScreen() {
           )}
         </section>
 
-        <section className="grid grid-cols-2 gap-3">
-          <div className="rounded-lg border border-[#e3ded2] bg-white p-4 shadow-sm">
-            <BookOpen className="h-5 w-5 text-[#1f7a57]" />
-            <p className="mt-4 text-2xl font-black leading-none text-[#17211d]">{completedLessons}</p>
-            <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-[#6d756e]">de {totalLessons} lecciones</p>
+        <section className="grid grid-cols-2 gap-2">
+          <div className="flex items-center gap-2.5 rounded-md border border-[#e3ded2] bg-white p-2.5 shadow-sm">
+            <BookOpen className="h-[18px] w-[18px] shrink-0 text-[#1f7a57]" />
+            <div className="min-w-0">
+              <p className="text-lg font-black leading-none text-[#17211d]">{completedLessons}</p>
+              <p className="mt-0.5 text-[0.58rem] font-bold uppercase tracking-[0.1em] text-[#6d756e]">de {totalLessons} lecciones</p>
+            </div>
           </div>
-          <div className="rounded-lg border border-[#e3ded2] bg-white p-4 shadow-sm">
-            <Trophy className="h-5 w-5 text-[#c77918]" />
-            <p className="mt-4 text-2xl font-black leading-none text-[#17211d]">{xp}</p>
-            <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-[#6d756e]">XP total</p>
+          <div className="flex items-center gap-2.5 rounded-md border border-[#e3ded2] bg-white p-2.5 shadow-sm">
+            <Trophy className="h-[18px] w-[18px] shrink-0 text-[#c77918]" />
+            <div className="min-w-0">
+              <p className="text-lg font-black leading-none text-[#17211d]">{xp}</p>
+              <p className="mt-0.5 text-[0.58rem] font-bold uppercase tracking-[0.1em] text-[#6d756e]">XP total</p>
+            </div>
           </div>
         </section>
       </main>
