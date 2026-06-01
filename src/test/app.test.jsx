@@ -13,6 +13,12 @@ import sections from '../data/sections'
 vi.mock('../services/analytics', () => ({
   startSession: vi.fn().mockResolvedValue('mock-session-id'),
   endSession: vi.fn(),
+  markPretestCompleted: vi.fn(),
+  markPosttestUnlocked: vi.fn(),
+  markPosttestCompleted: vi.fn(),
+  logExerciseResponse: vi.fn(),
+  startLessonAttempt: vi.fn().mockResolvedValue('mock-attempt-id'),
+  completeLessonAttempt: vi.fn(),
 }))
 
 // Mock Supabase auth service so useAuth doesn't hang in jsdom
@@ -56,7 +62,7 @@ function setStoreToPlaying() {
     consentAcceptedAt: new Date().toISOString(),
     pretestCompletedAt: new Date().toISOString(),
     xp: 0,
-    lives: 3,
+    lives: 5,
     livesLastLostAt: null,
     streak: 0,
     lastPlayedDate: null,
@@ -129,7 +135,7 @@ describe('Navigation — Sections Screen', () => {
 
     await waitFor(() => {
       const cards = document.querySelectorAll('[data-testid="section-card"]')
-      expect(cards[0]).not.toHaveClass('opacity-55')
+      expect(cards[0]).not.toHaveClass('opacity-35')
     })
   })
 })
@@ -179,7 +185,7 @@ describe('Section unlocking logic', () => {
     await waitFor(() => {
       const cards = document.querySelectorAll('[data-testid="section-card"]')
       // Section 2 (index 1) should not be locked
-      expect(cards[1]).not.toHaveClass('opacity-55')
+      expect(cards[1]).not.toHaveClass('opacity-35')
     })
   })
 
@@ -197,9 +203,9 @@ describe('Section unlocking logic', () => {
     await waitFor(() => {
       const cards = document.querySelectorAll('[data-testid="section-card"]')
       // Sections 3, 4, 5 should still be locked
-      expect(cards[2]).toHaveClass('opacity-55')
-      expect(cards[3]).toHaveClass('opacity-55')
-      expect(cards[4]).toHaveClass('opacity-55')
+      expect(cards[2]).toHaveClass('opacity-35')
+      expect(cards[3]).toHaveClass('opacity-35')
+      expect(cards[4]).toHaveClass('opacity-35')
     })
   })
 })

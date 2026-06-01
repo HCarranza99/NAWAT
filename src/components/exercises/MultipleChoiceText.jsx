@@ -51,15 +51,26 @@ export default function MultipleChoiceText({ item, onCorrect, onWrong }) {
             <WordHint word={item.nahuat_word} translation={item.spanish_translation} />
           </h2>
           {isSupported && (
-            <button
-              className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[#d8ddd5] bg-white text-[#1f7a57] shadow-sm transition hover:bg-[#eef8f2] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 ${isSpeaking ? 'animate-pulse-speak' : ''}`}
-              onClick={speak}
-              disabled={isSpeaking}
-              aria-label="Escuchar pronunciación"
-              title="Escuchar pronunciación"
-            >
-              <Volume2 className="h-5 w-5" />
-            </button>
+            <div className="flex gap-2">
+              <button
+                className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[#d8ddd5] bg-white text-[#1f7a57] shadow-sm transition hover:bg-[#eef8f2] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 ${isSpeaking ? 'animate-pulse-speak' : ''}`}
+                onClick={() => speak(false)}
+                disabled={isSpeaking}
+                aria-label="Escuchar pronunciación normal"
+                title="Escuchar pronunciación normal"
+              >
+                <Volume2 className="h-5 w-5" />
+              </button>
+              <button
+                className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[#d8ddd5] bg-[#fff8ec] text-[#b95a18] shadow-sm transition hover:bg-[#fff1de] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60`}
+                onClick={() => speak(true)}
+                disabled={isSpeaking}
+                aria-label="Escuchar pronunciación lenta"
+                title="Escuchar pronunciación lenta (despacio)"
+              >
+                <span className="text-lg">🐢</span>
+              </button>
+            </div>
           )}
         </div>
         {item.pronunciation && (

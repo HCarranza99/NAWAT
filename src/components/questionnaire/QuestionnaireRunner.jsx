@@ -14,8 +14,8 @@ const SECTION_LABELS = {
 }
 
 const POSTTEST_SECTION_LABELS = {
-  B: 'Sección B. Evaluación de Usabilidad (Modelo SUS Estandarizado)',
-  C: 'Sección C. Impacto en la Motivación y el Interés',
+  B: 'Sección B. Comparación directa con el pretest',
+  C: 'Sección C. Evaluación de Usabilidad (Modelo SUS Estandarizado)',
   D: 'Sección D. Retroalimentación Abierta (Opcional)',
 }
 

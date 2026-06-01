@@ -14,7 +14,7 @@ export const GAME_CONFIG = {
 
   // Sistema de vidas (corazones)
   lives: {
-    max: 3,
+    max: 5,
     lostOnWrong: 1,
     rechargeMinutes: 30,
   },

@@ -3,6 +3,7 @@ import { ArrowRight, Flame, Medal, RotateCcw, Star, Target, Trophy, Zap } from '
 
 import useGameStore from '../store/useGameStore'
 import Torogoz from '../components/ui/Torogoz'
+import sections from '../data/sections'
 
 function ResultStat({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
   return (
@@ -29,12 +30,48 @@ export default function ResultScreen() {
   const stars = score >= 0.9 ? 3 : score >= 0.7 ? 2 : 1
   const passed = score >= 0.5
 
+  const sectionProgress = useGameStore((store) => store.sectionProgress)
+
+  const findNextLesson = () => {
+    for (let sIdx = 0; sIdx < sections.length; sIdx++) {
+      const section = sections[sIdx]
+      if (sIdx > 0) {
+        const prevSection = sections[sIdx - 1]
+        const prevProg = sectionProgress[prevSection.id]
+        if (!prevProg?.bossCompleted) continue
+      }
+
+      const prog = sectionProgress[section.id] || { lessonsCompleted: {}, bossCompleted: false }
+
+      for (let lIdx = 0; lIdx < section.lessons.length; lIdx++) {
+        const lesson = section.lessons[lIdx]
+        if (lIdx > 0) {
+          const prevLesson = section.lessons[lIdx - 1]
+          if (!prog.lessonsCompleted?.[prevLesson.id]?.completed) break
+        }
+        if (!prog.lessonsCompleted?.[lesson.id]?.completed) {
+          return { section, lesson, isBoss: false }
+        }
+      }
+
+      const allLessonsDone = section.lessons.every(
+        (l) => prog.lessonsCompleted?.[l.id]?.completed
+      )
+      if (allLessonsDone && !prog.bossCompleted && section.boss) {
+        return { section, lesson: section.boss, isBoss: true }
+      }
+    }
+    return null
+  }
+
+  const nextLesson = findNextLesson()
+
   return (
     <div className="screen justify-between bg-[#f7f5ef] px-5 py-5">
       <main className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
         <div className="relative">
           <div className="absolute inset-x-0 bottom-2 mx-auto h-12 w-36 rounded-full bg-[#102f29]/10 blur-xl" />
-          <Torogoz emotion={passed ? 'celebrate' : 'sad'} size={132} />
+          <Torogoz emotion={passed ? (isBoss ? 'achievement' : 'celebrate') : 'sad'} size={132} />
         </div>
 
         <div className="flex gap-2">
@@ -112,13 +149,49 @@ export default function ResultScreen() {
             Intentar de nuevo
           </button>
         )}
-        <button
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1f7a57] px-4 py-4 text-base font-black text-white shadow-[0_10px_24px_rgba(31,122,87,0.22)] transition active:scale-[0.99]"
-          onClick={() => navigate(returnTo || '/')}
-        >
-          {returnTo === '/sections' ? 'Ver secciones' : 'Volver al inicio'}
-          <ArrowRight className="h-5 w-5" />
-        </button>
+
+        {passed && nextLesson ? (
+          <>
+            <button
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1f7a57] px-4 py-4 text-base font-black text-white shadow-[0_10px_24px_rgba(31,122,87,0.28)] transition active:scale-[0.99] border-2 border-[#52b788]"
+              onClick={() => {
+                if (nextLesson.isBoss) {
+                  navigate(`/section/${nextLesson.section.id}/boss`)
+                } else {
+                  navigate(`/section/${nextLesson.section.id}/lesson/${nextLesson.lesson.id}`)
+                }
+              }}
+            >
+              Siguiente Lección
+              <ArrowRight className="h-5 w-5" />
+            </button>
+            <button
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d8ddd5] bg-white px-4 py-3 text-sm font-bold text-[#6d756e] transition active:scale-[0.99]"
+              onClick={() => navigate('/')}
+            >
+              Volver al inicio
+            </button>
+          </>
+        ) : (
+          <>
+            {returnTo === '/sections' && (
+              <button
+                className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d8ddd5] bg-white px-4 py-3.5 text-base font-black text-[#17211d] shadow-sm transition active:scale-[0.99]"
+                onClick={() => navigate('/sections')}
+              >
+                Ver secciones
+                <ArrowRight className="h-5 w-5" />
+              </button>
+            )}
+            <button
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1f7a57] px-4 py-4 text-base font-black text-white shadow-[0_10px_24px_rgba(31,122,87,0.22)] transition active:scale-[0.99]"
+              onClick={() => navigate('/')}
+            >
+              Volver al inicio
+              <ArrowRight className="h-5 w-5" />
+            </button>
+          </>
+        )}
       </footer>
     </div>
   )

@@ -11,9 +11,13 @@ export default function PretestScreen() {
   const participantId = useGameStore((s) => s.participantId)
   const completePretest = useGameStore((s) => s.completePretest)
 
-  const handleComplete = async () => {
-    await markPretestCompleted(participantId)
+  const handleComplete = () => {
     setCompleted(true)
+  }
+
+  const handleStartPractice = async () => {
+    await markPretestCompleted(participantId)
+    completePretest()
   }
 
   if (completed) {
@@ -31,16 +35,16 @@ export default function PretestScreen() {
               Practica durante {INTERVENTION_MINUTES} minutos
             </h1>
             <p className="mt-4 text-sm font-semibold leading-relaxed text-[#5f6b63]">
-              Ya completaste el cuestionario inicial. Ahora usa la app para practicar lecciones y ejercicios de nahuat durante {INTERVENTION_MINUTES} minutos.
+              Ya completaste la fase 1: el cuestionario inicial. Ahora empieza la fase 2: usa la app para practicar lecciones y ejercicios de náhuat durante {INTERVENTION_MINUTES} minutos.
             </p>
             <p className="mt-3 text-sm font-semibold leading-relaxed text-[#5f6b63]">
-              Cuando se cumpla el tiempo, la app abrira automaticamente el cuestionario final para terminar el estudio.
+              Cuando se cumpla el tiempo, la app abrirá automáticamente la fase 3: el cuestionario final. Tu participación solo será válida si completas también ese cuestionario.
             </p>
           </section>
 
           <button
             className="flex w-full items-center justify-center rounded-lg bg-[#1f7a57] px-5 py-4 text-base font-black text-white shadow-[0_10px_24px_rgba(31,122,87,0.22)] transition active:scale-[0.99]"
-            onClick={completePretest}
+            onClick={handleStartPractice}
           >
             Empezar practica
           </button>
@@ -57,7 +61,10 @@ export default function PretestScreen() {
             <span className="onboarding-icon">📝</span>
             <h1 className="onboarding-title">Cuestionario inicial</h1>
             <p className="onboarding-text">
-              Antes de usar la app, responde este cuestionario sobre tu experiencia con herramientas digitales y tu interés por aprender náhuat.
+              Esta es la fase 1 del estudio. Antes de usar la app, responde este cuestionario sobre tu experiencia con herramientas digitales y tu interés por aprender náhuat.
+            </p>
+            <p className="onboarding-text">
+              Después deberás usar NAWAT durante {INTERVENTION_MINUTES} minutos y completar el cuestionario final. Solo así tu participación será válida.
             </p>
             <p className="onboarding-text">
               <strong>{PRETEST_ITEMS.length} preguntas</strong> — toma unos 5 minutos.

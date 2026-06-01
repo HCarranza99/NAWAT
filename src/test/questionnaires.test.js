@@ -30,8 +30,8 @@ describe('Questionnaires — global integrity', () => {
 
   it('has the expected number of items after the instrument cotejo', () => {
     expect(PRETEST_ITEMS.length).toBe(35)
-    expect(POSTTEST_ITEMS.length).toBe(17)
-    expect(ALL_ITEMS.length).toBe(52)
+    expect(POSTTEST_ITEMS.length).toBe(22)
+    expect(ALL_ITEMS.length).toBe(57)
   })
 
   it('every item code is globally unique across pretest+posttest', () => {
@@ -100,29 +100,29 @@ describe('Questionnaires — instrument text cotejo', () => {
   it('shows posttest document codes instead of internal storage codes', () => {
     expect(POSTTEST_ITEMS.map((it) => it.display_code ?? it.code)).toEqual([
       'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10',
-      'C1', 'C2', 'C3', 'C4', 'C5',
+      'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10',
       'D1', 'D2',
     ])
   })
 
-  it('keeps posttest traceability and comparison notes in the visible item text', () => {
-    expect(POSTTEST_ITEMS.find((it) => it.display_code === 'C1')?.question_text)
-      .toBe('Después de usar NAWAT, mi interés por aprender nociones básicas de náhuat ha aumentado. (Compara con D1 del pretest)')
-    expect(POSTTEST_ITEMS.find((it) => it.display_code === 'C5')?.question_text)
-      .toBe('Tras conocer la herramienta, ¿cuánto tiempo estarías dispuesto/a a dedicar por semana para seguir aprendiendo náhuat? (Compara con E3 del pretest para medir cambio de actitud real)')
+  it('keeps direct-comparison posttest items aligned with the recommended instrument', () => {
+    expect(POSTTEST_ITEMS.find((it) => it.code === 'post_b1')?.question_text)
+      .toBe('Me interesa aprender nociones básicas de náhuat.')
+    expect(POSTTEST_ITEMS.find((it) => it.code === 'post_b10')?.question_text)
+      .toBe('¿Cuánto tiempo estarías dispuesto/a a dedicar por semana para aprender náhuat si el recurso fuera atractivo?')
   })
 })
 
 describe('Questionnaires — SUS (System Usability Scale)', () => {
   // SUS standard: items 1, 3, 5, 7, 9 are positive; 2, 4, 6, 8, 10 are negative.
-  const SUS = POSTTEST_ITEMS.filter((it) => /^sus_b\d+$/.test(it.code))
+  const SUS = POSTTEST_ITEMS.filter((it) => /^sus_c\d+$/.test(it.code))
 
   it('exactly 10 SUS items in posttest', () => {
     expect(SUS.length).toBe(10)
   })
 
   it('SUS items follow alternating polarity (1,3,5,7,9=positive — 2,4,6,8,10=negative)', () => {
-    // sus_b1..sus_b10 in declaration order
+    // sus_c1..sus_c10 in declaration order
     SUS.sort((a, b) => a.order_index - b.order_index)
     SUS.forEach((it, i) => {
       const isOdd = (i + 1) % 2 === 1 // 1-based item number

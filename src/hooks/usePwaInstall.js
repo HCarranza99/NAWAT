@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 let deferredPrompt = null
 let installed = false
 const listeners = new Set()
+let snapshot = {
+  canInstall: false,
+  isInstalled: false,
+}
 
 function getStandaloneState() {
   if (typeof window === 'undefined') return false
@@ -12,7 +16,7 @@ function getStandaloneState() {
   )
 }
 
-function getSnapshot() {
+function readSnapshot() {
   installed = getStandaloneState() || installed
   return {
     canInstall: Boolean(deferredPrompt) && !installed,
@@ -20,13 +24,29 @@ function getSnapshot() {
   }
 }
 
+function refreshSnapshot() {
+  const nextSnapshot = readSnapshot()
+  if (
+    nextSnapshot.canInstall !== snapshot.canInstall ||
+    nextSnapshot.isInstalled !== snapshot.isInstalled
+  ) {
+    snapshot = nextSnapshot
+  }
+  return snapshot
+}
+
+function getSnapshot() {
+  return snapshot
+}
+
 function notify() {
-  const snapshot = getSnapshot()
+  refreshSnapshot()
   listeners.forEach((listener) => listener(snapshot))
 }
 
 if (typeof window !== 'undefined') {
   installed = getStandaloneState()
+  refreshSnapshot()
 
   window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault()
@@ -43,13 +63,14 @@ if (typeof window !== 'undefined') {
 }
 
 export function usePwaInstall() {
-  const [state, setState] = useState(getSnapshot)
-
-  useEffect(() => {
-    listeners.add(setState)
-    setState(getSnapshot())
-    return () => listeners.delete(setState)
-  }, [])
+  const state = useSyncExternalStore(
+    (listener) => {
+      listeners.add(listener)
+      return () => listeners.delete(listener)
+    },
+    getSnapshot,
+    getSnapshot
+  )
 
   const install = async () => {
     if (!deferredPrompt || installed) return false

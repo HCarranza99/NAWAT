@@ -50,7 +50,10 @@ export default function ConsentScreen() {
           <span className="onboarding-icon">🌿</span>
           <h1 className="onboarding-title">Bienvenido al estudio NAWAT</h1>
           <p className="onboarding-text">
-            Antes de comenzar, necesitamos tu consentimiento y algunos datos básicos.
+            Queremos conocer si una app interactiva puede ayudar a despertar el interés por aprender náhuat.
+          </p>
+          <p className="onboarding-text">
+            Para que tu participación sea válida debes completar todo el proceso: cuestionario inicial, uso de la app por 10 minutos y cuestionario final.
           </p>
           <button
             className="inline-block mt-3 text-[0.88rem] font-bold text-nahuat-green-light underline py-1 transition-colors hover:text-white"

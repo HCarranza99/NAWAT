@@ -142,7 +142,10 @@ export default function AccountPromptScreen() {
           <span className="onboarding-icon">🎉</span>
           <h1 className="onboarding-title">¡Gracias por participar!</h1>
           <p className="onboarding-text">
-            Has completado el estudio. A partir de ahora la app queda libre para que sigas aprendiendo náhuat a tu ritmo.
+            Completaste las tres fases del estudio, así que tu participación ya quedó registrada como válida.
+          </p>
+          <p className="onboarding-text">
+            A partir de ahora la app queda libre para que sigas aprendiendo náhuat a tu ritmo.
           </p>
         </div>
 

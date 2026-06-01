@@ -290,16 +290,10 @@ const lessons = [
       },
       {
         id: "2-10",
-        type: "multiple_choice_text",
+        type: "active_recall",
         nahuat_word: "At",
         spanish_translation: "Agua",
         pronunciation: "AT",
-        options: [
-          { id: "a", text: "Café",     correct: false },
-          { id: "b", text: "Tortilla", correct: false },
-          { id: "c", text: "Agua",     correct: true  },
-          { id: "d", text: "Frijoles", correct: false },
-        ],
       },
 
       // ── MATCHING ───────────────────────────────────────────
@@ -616,16 +610,10 @@ const lessons = [
       },
       {
         id: "4-9",
-        type: "multiple_choice_text",
+        type: "active_recall",
         nahuat_word: "Kuyamet",
         spanish_translation: "Cerdo",
         pronunciation: "ku-YA-met",
-        options: [
-          { id: "a", text: "Gallina", correct: false },
-          { id: "b", text: "Perro",   correct: false },
-          { id: "c", text: "Gato",    correct: false },
-          { id: "d", text: "Cerdo",   correct: true  },
-        ],
       },
 
       // ── MATCHING ───────────────────────────────────────────
@@ -770,29 +758,17 @@ const lessons = [
       },
       {
         id: "5-8",
-        type: "multiple_choice_text",
+        type: "active_recall",
         nahuat_word: "Nitakwa",
         spanish_translation: "Yo como",
         pronunciation: "ni-TAK-wa",
-        options: [
-          { id: "a", text: "Yo como",         correct: true  },
-          { id: "b", text: "Yo duermo",       correct: false },
-          { id: "c", text: "Yo trabajo",      correct: false },
-          { id: "d", text: "Me despierto",    correct: false },
-        ],
       },
       {
         id: "5-9",
-        type: "multiple_choice_text",
+        type: "active_recall",
         nahuat_word: "Nitekiti",
         spanish_translation: "Yo trabajo",
         pronunciation: "ni-te-KI-ti",
-        options: [
-          { id: "a", text: "Yo como",         correct: false },
-          { id: "b", text: "Yo duermo",       correct: false },
-          { id: "c", text: "Me despierto",    correct: false },
-          { id: "d", text: "Yo trabajo",      correct: true  },
-        ],
       },
 
       // ── MATCHING ───────────────────────────────────────────

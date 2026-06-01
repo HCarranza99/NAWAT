@@ -80,7 +80,7 @@ export default function BuildSentence({ item, hints = {}, onCorrect, onWrong }) 
     <div className="flex flex-1 flex-col gap-5">
       <div>
         <p className="exercise-instruction">{item.instruction}</p>
-        <p className="mt-3 rounded-lg border border-[#e3ded2] bg-white px-4 py-3 text-center text-base font-bold italic text-[#46524a] shadow-sm">
+        <p className="mt-3 rounded-lg border border-[#e3ded2] bg-white px-4 py-3 text-center text-lg font-black italic text-[#46524a] shadow-sm">
           "{item.spanish_translation}"
         </p>
       </div>

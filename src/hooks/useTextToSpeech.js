@@ -68,7 +68,7 @@ export function useTextToSpeech(text) {
     )
   }
 
-  const speak = useCallback(() => {
+  const speak = useCallback((isSlow = false) => {
     if (!isSupported || !text) return
 
     // Cancel any ongoing speech first
@@ -76,7 +76,7 @@ export function useTextToSpeech(text) {
 
     const utterance = new SpeechSynthesisUtterance(toNahuatSpeechText(text))
     utterance.lang  = 'es-SV'
-    utterance.rate  = 0.78
+    utterance.rate  = isSlow ? 0.52 : 0.78
     utterance.pitch = 1.0
 
     // Assign voice if already loaded; voices may load async on first call

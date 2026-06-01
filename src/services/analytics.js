@@ -208,11 +208,13 @@ export async function saveConsent(participantId, consentVersion, consentText) {
   if (DEMO_MODE) return
   try {
     const hashedText = await hashText(consentText)
-    await supabase.from('consent_records').insert({
+    const { error } = await supabase.from('consent_records').insert({
       participant_id: participantId,
       consent_version: consentVersion,
       consent_text_hash: hashedText,
     })
+
+    if (error) throw error
   } catch (e) {
     logError('saveConsent', e)
   }
@@ -240,7 +242,7 @@ export async function saveQuestionnaireResponse(
 ) {
   if (DEMO_MODE) return
   try {
-    await supabase.from('questionnaire_responses').upsert(
+    const { error } = await supabase.from('questionnaire_responses').upsert(
       {
         participant_id: participantId,
         session_id: sessionId,
@@ -254,6 +256,8 @@ export async function saveQuestionnaireResponse(
       },
       { onConflict: 'participant_id,phase,item_code' }
     )
+
+    if (error) throw error
   } catch (e) {
     logError('saveQuestionnaireResponse', e)
   }
@@ -267,10 +271,12 @@ export async function saveQuestionnaireResponse(
 async function upsertTimeline(participantId, patch) {
   if (DEMO_MODE) return
   try {
-    await supabase.from('intervention_timeline').upsert(
+    const { error } = await supabase.from('intervention_timeline').upsert(
       { participant_id: participantId, ...patch },
       { onConflict: 'participant_id' }
     )
+
+    if (error) throw error
   } catch (e) {
     logError('upsertTimeline', e)
   }

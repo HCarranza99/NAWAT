@@ -1,6 +1,6 @@
 import { Heart } from 'lucide-react'
 
-export default function LivesBar({ lives, max = 3 }) {
+export default function LivesBar({ lives, max = 5 }) {
   return (
     <div
       className="flex shrink-0 items-center gap-1.5 rounded-md border border-[#e3ded2] bg-white px-3 py-2 shadow-sm"

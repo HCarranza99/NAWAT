@@ -17,15 +17,15 @@ export default function Matching({ item, onComplete }) {
   const [matched, setMatched] = useState([])
   const [wrongFlash, setWrongFlash] = useState(false)
 
-  useEffect(() => {
-    if (!selNahuat || !selSpanish) return
-
-    const pair = item.pairs.find((p) => p.nahuat === selNahuat)
-    if (pair?.spanish === selSpanish) {
-      setMatched((current) => [...current, selNahuat])
+  const resolvePair = (nahuat, spanish) => {
+    const pair = item.pairs.find((p) => p.nahuat === nahuat)
+    if (pair?.spanish === spanish) {
+      setMatched((current) => [...current, nahuat])
       setSelNahuat(null)
       setSelSpanish(null)
     } else {
+      setSelNahuat(nahuat)
+      setSelSpanish(spanish)
       setWrongFlash(true)
       setTimeout(() => {
         setWrongFlash(false)
@@ -33,7 +33,25 @@ export default function Matching({ item, onComplete }) {
         setSelSpanish(null)
       }, 750)
     }
-  }, [selNahuat, selSpanish, item.pairs])
+  }
+
+  const handleNahuatClick = (word) => {
+    if (isMatchedNahuat(word) || wrongFlash) return
+    if (selSpanish) {
+      resolvePair(word, selSpanish)
+    } else {
+      setSelNahuat(word)
+    }
+  }
+
+  const handleSpanishClick = (word) => {
+    if (isMatchedSpanish(word) || wrongFlash) return
+    if (selNahuat) {
+      resolvePair(selNahuat, word)
+    } else {
+      setSelSpanish(word)
+    }
+  }
 
   useEffect(() => {
     if (matched.length === item.pairs.length) {
@@ -76,7 +94,7 @@ export default function Matching({ item, onComplete }) {
                 isMatchedNahuat(word),
                 wrongFlash && selNahuat === word,
               )}`}
-              onClick={() => !isMatchedNahuat(word) && !wrongFlash && setSelNahuat(word)}
+              onClick={() => handleNahuatClick(word)}
               disabled={isMatchedNahuat(word)}
             >
               {word}
@@ -93,7 +111,7 @@ export default function Matching({ item, onComplete }) {
                 isMatchedSpanish(word),
                 wrongFlash && selSpanish === word,
               )}`}
-              onClick={() => !isMatchedSpanish(word) && !wrongFlash && setSelSpanish(word)}
+              onClick={() => handleSpanishClick(word)}
               disabled={isMatchedSpanish(word)}
             >
               {word}

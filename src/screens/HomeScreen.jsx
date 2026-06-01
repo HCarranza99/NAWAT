@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'motion/react'
+import { motion, AnimatePresence } from 'motion/react'
 import {
-  ArrowRight,
   BookOpen,
   Clock3,
   Flame,
@@ -11,14 +10,16 @@ import {
   ShieldCheck,
   Sparkles,
   Trophy,
+  Play,
 } from 'lucide-react'
 
 import sections from '../data/sections'
 import useGameStore, { PHASES } from '../store/useGameStore'
 import { GAME_CONFIG } from '../data/gameConfig'
 import { INTERVENTION_MS } from '../data/questionnaires'
-import { useLivesRecharge } from '../hooks/useLivesRecharge'
 import TorogozBadge from '../components/ui/TorogozBadge'
+import MascotTutorial from '../components/ui/MascotTutorial'
+import Torogoz from '../components/ui/Torogoz'
 
 function formatClock(ms) {
   const totalSec = Math.max(0, Math.ceil(ms / 1000))
@@ -52,15 +53,32 @@ function ProgressRail({ value }) {
   )
 }
 
+const TOROGOZ_GREETINGS = [
+  { nahuat: '¡Yawi!', spanish: '¡Vamos a aprender!' },
+  { nahuat: '¡Tikweli!', spanish: '¡Tú puedes hacerlo!' },
+  { nahuat: '¡Ximomachti!', spanish: '¡A estudiar se ha dicho!' },
+  { nahuat: '¡Nawat tiweli!', spanish: '¡Puedes hablar Náhuat!' },
+  { nahuat: '¡Piyali!', spanish: '¡Hola! ¿Listo para aprender?' },
+]
+
 export default function HomeScreen() {
   const navigate = useNavigate()
-  const { xp, lives, streak, sectionProgress, resetLives, participantName } = useGameStore()
-  const { timeLeftStr } = useLivesRecharge()
+  const { xp, lives, streak, sectionProgress, resetLives, participantName, onboardingSeen, setOnboardingSeen } = useGameStore()
 
   const firstName = participantName ? participantName.split(' ')[0] : 'Estudiante'
 
   const studyPhase = useGameStore((s) => s.studyPhase)
   const pretestCompletedAt = useGameStore((s) => s.pretestCompletedAt)
+
+  const [showTutorial, setShowTutorial] = useState(false)
+  const [greeting] = useState(() => TOROGOZ_GREETINGS[Math.floor(Math.random() * TOROGOZ_GREETINGS.length)])
+
+  useEffect(() => {
+    const activeLearningPhase = studyPhase === PHASES.PLAYING || studyPhase === PHASES.FREE
+    if (activeLearningPhase && !onboardingSeen) {
+      setShowTutorial(true)
+    }
+  }, [studyPhase, onboardingSeen])
 
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -160,7 +178,7 @@ export default function HomeScreen() {
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2.5">
-          <Metric icon={Heart} label="Vidas" value={lives === 0 && timeLeftStr ? timeLeftStr : lives} tone="text-[#ff8b8b]" />
+          <Metric icon={Heart} label="Vidas" value={lives} tone="text-[#ff8b8b]" />
           <Metric icon={Flame} label="Racha" value={`${streak} d`} tone="text-[#ffb15f]" />
           {msLeft != null && (
             <div className="col-span-2">
@@ -172,19 +190,22 @@ export default function HomeScreen() {
 
       <main className="space-y-3 px-5 pt-4">
         {lives === 0 && (
-          <section className="flex items-center justify-between gap-3 rounded-lg border border-[#e63946]/25 bg-[#fff0f1] px-4 py-3">
-            <div>
+          <section className="grid grid-cols-[1fr_86px] items-center gap-3 rounded-lg border border-[#e63946]/25 bg-[#fff0f1] px-4 py-3">
+            <div className="min-w-0">
               <p className="text-sm font-extrabold text-[#b91c1c]">Sin vidas</p>
-              <p className="text-xs font-medium text-[#b91c1c]/70">
-                {timeLeftStr ? `Recarga en ${timeLeftStr}` : 'Recuperando pronto'}
+              <p className="mt-1 text-xs font-medium leading-snug text-[#b91c1c]/75">
+                Recupera tus vidas para seguir practicando.
               </p>
+              <button
+                className="mt-3 rounded-md bg-[#b91c1c] px-4 py-2 text-sm font-extrabold text-white transition active:scale-95"
+                onClick={resetLives}
+              >
+                Recuperar vidas
+              </button>
             </div>
-            <button
-              className="rounded-md bg-[#b91c1c] px-4 py-2 text-sm font-extrabold text-white transition active:scale-95"
-              onClick={resetLives}
-            >
-              Recuperar
-            </button>
+            <div className="pointer-events-none justify-self-end">
+              <Torogoz emotion="tired" size={86} />
+            </div>
           </section>
         )}
 
@@ -205,44 +226,62 @@ export default function HomeScreen() {
 
           {nextLessonData ? (
             <motion.button
-              whileTap={lives > 0 ? { scale: 0.985 } : {}}
+              whileTap={lives > 0 ? { scale: 0.98 } : {}}
               onClick={() => {
                 if (lives === 0) return
                 navigate(`/section/${nextLessonData.section.id}/${nextLessonData.isBoss ? 'boss' : `lesson/${nextLessonData.lesson.id}`}`)
               }}
               disabled={lives === 0}
-              className="group w-full overflow-hidden rounded-lg border border-[#e3ded2] bg-white text-left shadow-[0_10px_28px_rgba(37,48,42,0.07)] transition disabled:cursor-not-allowed disabled:opacity-65"
+              style={{
+                background: `radial-gradient(circle at 75% 20%, ${nextLessonData.section.color || '#f4a261'}22 0, transparent 45%), #102f29`,
+              }}
+              className="group relative w-full overflow-hidden rounded-[2rem] border border-white/10 p-5 text-left shadow-[0_20px_45px_rgba(16,47,41,0.25)] transition-all duration-300 hover:border-[#f4a261]/35 hover:shadow-[0_20px_50px_rgba(244,162,97,0.15),0_20px_45px_rgba(16,47,41,0.3)] disabled:cursor-not-allowed disabled:opacity-65"
             >
-              <div className="grid h-[106px] grid-cols-[72px_1fr]">
-                <div className="relative h-full bg-[#f0ede5]">
-                  <img
-                    src={`/assets/images/section${nextLessonData.section.id}.png`}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
-                </div>
-                <div className="flex min-w-0 flex-col justify-between overflow-hidden p-2.5">
-                  <div>
-                    <span className="inline-flex items-center gap-1 rounded-sm bg-[#fff1de] px-1.5 py-0.5 text-[0.54rem] font-black uppercase tracking-[0.12em] text-[#b95a18]">
-                      {nextLessonData.isBoss ? <ShieldCheck className="h-2.5 w-2.5" /> : <BookOpen className="h-2.5 w-2.5" />}
-                      {nextLessonData.isBoss ? 'Reto final' : 'Siguiente lección'}
+              <div className="grid grid-cols-[1fr_100px] items-center gap-4">
+                <div className="z-10">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f4a261]/18 border border-[#f4a261]/25 px-3 py-1 text-[0.6rem] font-black uppercase tracking-[0.16em] text-[#f4a261]">
+                    {nextLessonData.isBoss ? <ShieldCheck className="h-3.5 w-3.5" /> : <BookOpen className="h-3.5 w-3.5" />}
+                    {nextLessonData.isBoss ? 'RETO FINAL' : 'SIGUIENTE LECCIÓN'}
+                    <span className="relative flex h-1.5 w-1.5 ml-0.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f4a261] opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#f4a261]"></span>
                     </span>
-                    <h3 className="mt-1 text-base font-black leading-[1.05] tracking-normal text-[#17211d]">
-                      {nextLessonData.lesson.title}
-                    </h3>
-                    <p className="mt-0.5 line-clamp-1 text-[0.68rem] font-semibold leading-snug text-[#6d756e]">
-                      {nextLessonData.lesson.description}
-                    </p>
-                  </div>
-                  <div className="mt-1.5 flex items-center justify-between">
-                    <span className="text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-[#6d756e]">
+                  </span>
+                  
+                  <h3 className="mt-3.5 text-[1.4rem] font-black leading-tight tracking-normal text-white drop-shadow-xs">
+                    {nextLessonData.lesson.title}
+                  </h3>
+                  
+                  <p className="mt-1.5 text-xs font-semibold leading-relaxed text-white/60 line-clamp-2 max-w-[230px]">
+                    {nextLessonData.lesson.description}
+                  </p>
+                  
+                  <div className="mt-5 flex items-center gap-3.5">
+                    <span className="text-xs font-black uppercase tracking-[0.14em] text-[#9ddfc6]">
                       +{nextLessonData.lesson.xpReward} XP
                     </span>
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[#1f7a57] text-white shadow-[0_8px_18px_rgba(31,122,87,0.22)] transition group-hover:translate-x-1">
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </span>
+                    <div className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f4a261] px-6 py-3 text-xs font-black text-[#102f29] shadow-[0_4px_0_#c47330,0_8px_20px_rgba(244,162,97,0.35)] transition-all duration-150 transform group-hover:scale-[1.03] group-active:translate-y-[4px] group-active:shadow-[0_0px_0_#c47330,0_4px_10px_rgba(244,162,97,0.2)]">
+                      ¡APRENDER AHORA!
+                      <Play className="h-3 w-3 fill-current" />
+                    </div>
                   </div>
+                </div>
+
+                {/* Globo de diálogo (Speech Bubble) del Torogoz */}
+                <div className="absolute right-4 top-4 z-20 max-w-[155px] rounded-2xl border border-white/10 bg-white/95 px-3.5 py-2 text-left shadow-[0_8px_25px_rgba(0,0,0,0.22)] backdrop-blur-sm transition-all duration-300 scale-95 origin-top-right group-hover:scale-100">
+                  <p className="text-[0.62rem] font-black uppercase tracking-wider text-[#102f29]">
+                    {greeting.nahuat}
+                  </p>
+                  <p className="mt-0.5 text-[0.68rem] font-bold leading-tight text-[#2d4d44]">
+                    {greeting.spanish}
+                  </p>
+                  {/* Flechita del globo apuntando hacia abajo al Torogoz */}
+                  <div className="absolute bottom-[-5px] right-[24px] h-2.5 w-2.5 rotate-45 bg-white/95 border-b border-r border-white/10"></div>
+                </div>
+
+                {/* Integración del Torogoz 3D asomándose de forma espectacular */}
+                <div className="absolute -right-3 -bottom-1 drop-shadow-[0_12px_24px_rgba(0,0,0,0.35)] pointer-events-none transition group-hover:translate-y-1">
+                  <Torogoz emotion={nextLessonData.isBoss ? 'proud' : 'explaining'} size={135} />
                 </div>
               </div>
             </motion.button>
@@ -268,6 +307,17 @@ export default function HomeScreen() {
           </div>
         </section>
       </main>
+
+      <AnimatePresence>
+        {showTutorial && (
+          <MascotTutorial
+            onClose={() => {
+              setOnboardingSeen(true)
+              setShowTutorial(false)
+            }}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

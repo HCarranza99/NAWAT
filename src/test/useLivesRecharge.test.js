@@ -14,7 +14,7 @@ beforeEach(() => {
   vi.useFakeTimers()
   useGameStore.setState({
     xp: 0,
-    lives: 3,
+    lives: 5,
     livesLastLostAt: null,
     streak: 0,
     lastPlayedDate: null,
@@ -52,7 +52,7 @@ describe('useLivesRecharge', () => {
     expect(result.current.timeLeftStr).toBe(expected)
   })
 
-  it('auto-resets lives to 3 when recharge time elapses', () => {
+  it('auto-resets lives to 5 when recharge time elapses', () => {
     const now = new Date('2026-04-28T12:00:00Z')
     vi.setSystemTime(now)
     useGameStore.setState({ lives: 0, livesLastLostAt: now.toISOString() })
@@ -66,7 +66,7 @@ describe('useLivesRecharge', () => {
     })
 
     const state = useGameStore.getState()
-    expect(state.lives).toBe(3)
+    expect(state.lives).toBe(5)
     expect(state.livesLastLostAt).toBeNull()
   })
 

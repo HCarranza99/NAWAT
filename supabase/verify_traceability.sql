@@ -9,7 +9,7 @@
 -- ── 1. Resumen global: ¿hay datos? ──────────────────────────────────────────
 SELECT 'participants'             AS tabla, COUNT(*) AS filas FROM participants
 UNION ALL SELECT 'consent_records',         COUNT(*) FROM consent_records
-UNION ALL SELECT 'questionnaire_items',     COUNT(*) FROM questionnaire_items   -- esperado: 52
+UNION ALL SELECT 'questionnaire_items',     COUNT(*) FROM questionnaire_items   -- esperado: 57
 UNION ALL SELECT 'questionnaire_responses', COUNT(*) FROM questionnaire_responses
 UNION ALL SELECT 'intervention_timeline',   COUNT(*) FROM intervention_timeline
 UNION ALL SELECT 'sessions',                COUNT(*) FROM sessions
@@ -26,7 +26,7 @@ WHERE code = 'post_a1';
 -- Cada participante debería tener:
 --   • 1 consent_record
 --   • 35 respuestas en pretest
---   • 15–17 respuestas en postest (post_d1/post_d2 son opcionales)
+--   • 20–22 respuestas en postest (post_d1/post_d2 son opcionales)
 --   • 1 intervention_timeline con los 3 timestamps si completó
 SELECT
   p.id AS participant_id,
@@ -102,14 +102,14 @@ SELECT * FROM v_dataset_wide ORDER BY participant_created_at DESC;
 SELECT
   p.first_name || ' ' || p.last_name AS nombre,
   w.pre_d1 AS pre_interes_nahuat,
-  w.post_c1_interes,
-  w.post_c1_interes - w.pre_d1 AS delta_interes,
+  w.post_b1_interes_nahuat,
+  w.delta_interes_nahuat,
   w.pre_c8 AS pre_gamificacion,
-  w.post_c2_gamificacion,
+  w.post_b7_gamificacion,
   w.pre_e3_tiempo_dispuesto,
-  w.post_c5_tiempo_dispuesto,
+  w.post_b10_tiempo_dispuesto,
   w.sus_score
 FROM v_dataset_wide w
 JOIN participants p ON p.id = w.participant_id
 WHERE w.posttest_completed_at IS NOT NULL
-ORDER BY delta_interes DESC NULLS LAST;
+ORDER BY delta_interes_nahuat DESC NULLS LAST;

@@ -11,7 +11,7 @@ import useGameStore from '../store/useGameStore'
 beforeEach(() => {
   useGameStore.setState({
     xp: 0,
-    lives: 3,
+    lives: 5,
     livesLastLostAt: null,
     streak: 0,
     lastPlayedDate: null,
@@ -86,33 +86,33 @@ describe('useGameStore — section progress', () => {
 
 describe('useGameStore — lives', () => {
 
-  it('starts with 3 lives', () => {
-    expect(useGameStore.getState().lives).toBe(3)
+  it('starts with 5 lives', () => {
+    expect(useGameStore.getState().lives).toBe(5)
   })
 
   it('loseLife decrements by 1', () => {
     useGameStore.getState().loseLife()
-    expect(useGameStore.getState().lives).toBe(2)
+    expect(useGameStore.getState().lives).toBe(4)
   })
 
   it('lives cannot go below 0', () => {
     const { loseLife } = useGameStore.getState()
-    loseLife(); loseLife(); loseLife(); loseLife()
+    loseLife(); loseLife(); loseLife(); loseLife(); loseLife(); loseLife()
     expect(useGameStore.getState().lives).toBe(0)
   })
 
   it('sets livesLastLostAt when lives reach 0', () => {
     const { loseLife } = useGameStore.getState()
-    loseLife(); loseLife(); loseLife()
+    loseLife(); loseLife(); loseLife(); loseLife(); loseLife()
     expect(useGameStore.getState().livesLastLostAt).toBeTruthy()
   })
 
-  it('resetLives restores to 3', () => {
+  it('resetLives restores to 5', () => {
     const { loseLife, resetLives } = useGameStore.getState()
-    loseLife(); loseLife(); loseLife()
+    loseLife(); loseLife(); loseLife(); loseLife(); loseLife()
     resetLives()
     const state = useGameStore.getState()
-    expect(state.lives).toBe(3)
+    expect(state.lives).toBe(5)
     expect(state.livesLastLostAt).toBeNull()
   })
 })
@@ -136,7 +136,7 @@ describe('useGameStore — resetProgress', () => {
 
     const after = useGameStore.getState()
     expect(after.xp).toBe(0)
-    expect(after.lives).toBe(3)
+    expect(after.lives).toBe(5)
     expect(after.lessonProgress).toEqual({})
     expect(after.sectionProgress).toEqual({})
     // Identity preserved

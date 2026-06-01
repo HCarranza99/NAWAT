@@ -82,10 +82,10 @@ const section1 = {
           {
             id: "s1-l1-4",
             type: "multiple_choice_text",
-            nahuat_word: "Kwawit",
-            spanish_translation: "Contiene el sonido Kw",
-            pronunciation: "kwa-wit",
-            pronunciationText: "kua uit",
+            nahuat_word: "Kw",
+            spanish_translation: "Sonido kw",
+            pronunciation: "kwa",
+            pronunciationText: "kua",
             instruction: "¿Cuál palabra tiene el sonido Kw?",
             options: [
               { id: "a", text: "Kwawit", correct: true },
@@ -217,10 +217,10 @@ const section1 = {
           {
             id: "s1-l2-5",
             type: "multiple_choice_text",
-            nahuat_word: "Niawa",
-            spanish_translation: "Adiós (me voy)",
-            pronunciation: "nia-wa",
-            pronunciationText: "nia ua",
+            nahuat_word: "Adiós (me voy)",
+            spanish_translation: "¿Cómo se dice al partir?",
+            pronunciation: "a-diós me voy",
+            pronunciationText: "adiós me voy",
             instruction: "Ana sale de la tienda. ¿Qué dice?",
             options: [
               { id: "a", text: "Shiawa", correct: false },
@@ -233,10 +233,10 @@ const section1 = {
           {
             id: "s1-l2-6",
             type: "multiple_choice_text",
-            nahuat_word: "Shiawa",
-            spanish_translation: "Adiós (me quedo)",
-            pronunciation: "shia-wa",
-            pronunciationText: "sia ua",
+            nahuat_word: "Adiós (me quedo)",
+            spanish_translation: "¿Cómo se dice al quedarse?",
+            pronunciation: "a-diós me quedo",
+            pronunciationText: "adiós me quedo",
             instruction: "Juan se queda. Su amigo se va. ¿Qué dice Juan?",
             options: [
               { id: "a", text: "Niawa", correct: false },
@@ -357,10 +357,10 @@ const section1 = {
           {
             id: "s1-l3-6",
             type: "multiple_choice_text",
-            nahuat_word: "Padiush",
-            spanish_translation: "Gracias",
-            pronunciation: "pa-diush",
-            pronunciationText: "pa diush",
+            nahuat_word: "¡Gracias!",
+            spanish_translation: "¿Cómo se dice en Náhuat?",
+            pronunciation: "gracias",
+            pronunciationText: "gracias",
             instruction: "Alguien te da un regalo. ¿Qué dices?",
             options: [
               { id: "a", text: "Tesu", correct: false },
@@ -373,10 +373,10 @@ const section1 = {
           {
             id: "s1-l3-7",
             type: "multiple_choice_text",
-            nahuat_word: "Tesu datka",
-            spanish_translation: "De nada",
-            pronunciation: "te-su dat-ka",
-            pronunciationText: "te su dat ka",
+            nahuat_word: "¡De nada!",
+            spanish_translation: "¿Cómo se dice en Náhuat?",
+            pronunciation: "de nada",
+            pronunciationText: "de nada",
             instruction: "Tu amigo dice \"Padiush\". ¿Qué respondes?",
             options: [
               { id: "a", text: "Padiush", correct: false },
@@ -489,10 +489,10 @@ const section1 = {
           {
             id: "s1-l4-5",
             type: "multiple_choice_text",
-            nahuat_word: "Ninemi yek",
-            spanish_translation: "Estoy bien",
-            pronunciation: "ni-ne-mi yek",
-            pronunciationText: "ni ne mi iek",
+            nahuat_word: "Estoy bien",
+            spanish_translation: "¿Cómo se dice en Náhuat?",
+            pronunciation: "estoy bien",
+            pronunciationText: "estoy bien",
             instruction: "Alguien pregunta \"¿Ken tinemi?\". ¿Cómo respondes que estás bien?",
             options: [
               { id: "a", text: "Niawa", correct: false },
@@ -505,10 +505,10 @@ const section1 = {
           {
             id: "s1-l4-6",
             type: "multiple_choice_text",
-            nahuat_word: "Tesu ninemi yek",
-            spanish_translation: "No estoy bien",
-            pronunciation: "te-su ni-ne-mi yek",
-            pronunciationText: "te su ni ne mi iek",
+            nahuat_word: "No estoy bien",
+            spanish_translation: "¿Cómo se dice en Náhuat?",
+            pronunciation: "no estoy bien",
+            pronunciationText: "no estoy bien",
             instruction: "María está enferma. ¿Cómo responde a \"¿Ken tinemi?\"?",
             options: [
               { id: "a", text: "Ninemi yek", correct: false },
@@ -571,7 +571,7 @@ const section1 = {
           id: "s1-b-1",
           type: "multiple_choice_text",
           nahuat_word: "Kwawit",
-          spanish_translation: "Contiene el sonido Kw",
+          spanish_translation: "Árbol / Leña",
           pronunciation: "kwa-wit",
           pronunciationText: "kua uit",
           instruction: "¿Qué sonido especial tiene esta palabra?",
@@ -616,10 +616,10 @@ const section1 = {
         {
           id: "s1-b-4",
           type: "multiple_choice_text",
-          nahuat_word: "Niawa",
-          spanish_translation: "Adiós (me voy)",
-          pronunciation: "nia-wa",
-          pronunciationText: "nia ua",
+          nahuat_word: "Adiós (me voy)",
+          spanish_translation: "¿Cómo se dice al partir?",
+          pronunciation: "a-diós me voy",
+          pronunciationText: "adiós me voy",
           instruction: "Pedro sale de la casa. ¿Qué dice?",
           options: [
             { id: "a", text: "Shiawa", correct: false },

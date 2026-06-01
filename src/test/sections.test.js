@@ -8,7 +8,7 @@
 import { describe, it, expect } from 'vitest'
 import sections from '../data/sections'
 
-const VALID_TYPES = ['flashcard', 'multiple_choice_text', 'matching', 'build_sentence']
+const VALID_TYPES = ['flashcard', 'multiple_choice_text', 'matching', 'build_sentence', 'active_recall', 'multiple_choice_image']
 
 describe('Sections data integrity', () => {
 

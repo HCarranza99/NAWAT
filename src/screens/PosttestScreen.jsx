@@ -32,10 +32,13 @@ export default function PosttestScreen() {
             <span className="onboarding-icon">⏱️</span>
             <h1 className="onboarding-title">¡Tiempo cumplido!</h1>
             <p className="onboarding-text">
-              Para continuar utilizando la app, responde este cuestionario final sobre tu experiencia.
+              Ya completaste la fase 2: usar NAWAT durante 10 minutos. Ahora empieza la fase 3: el cuestionario final.
             </p>
             <p className="onboarding-text">
-              <strong>{POSTTEST_ITEMS.length} preguntas</strong> — toma unos 3 minutos.
+              Este paso es necesario para comparar tus respuestas antes y después de usar la app. Tu participación solo será válida si completas este cuestionario.
+            </p>
+            <p className="onboarding-text">
+              <strong>{POSTTEST_ITEMS.length} preguntas</strong> — toma unos 5 minutos.
             </p>
           </div>
         </div>
@@ -57,7 +60,10 @@ export default function PosttestScreen() {
             <span className="onboarding-icon">🎉</span>
             <h1 className="onboarding-title">¡Gracias por participar!</h1>
             <p className="onboarding-text">
-              Has completado el estudio. A partir de ahora la app queda libre para que sigas aprendiendo náhuat a tu ritmo.
+              Has completado las tres fases del estudio: cuestionario inicial, uso de la app por 10 minutos y cuestionario final.
+            </p>
+            <p className="onboarding-text">
+              Ahora tu participación queda registrada como válida. A partir de este momento la app queda libre para que sigas aprendiendo náhuat a tu ritmo.
             </p>
           </div>
         </div>

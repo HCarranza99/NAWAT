@@ -9,10 +9,13 @@ import { logExerciseResponse } from '../../services/analytics'
 import ProgressBar from './ProgressBar'
 import LivesBar from './LivesBar'
 import FeedbackModal from './FeedbackModal'
+import Torogoz from './Torogoz'
 import Flashcard from '../exercises/Flashcard'
 import MultipleChoiceText from '../exercises/MultipleChoiceText'
 import Matching from '../exercises/Matching'
 import BuildSentence from '../exercises/BuildSentence'
+import ActiveRecall from '../exercises/ActiveRecall'
+import MultipleChoiceImage from '../exercises/MultipleChoiceImage'
 
 export default function LessonRunner({
   lesson,
@@ -43,6 +46,46 @@ export default function LessonRunner({
     .slice(0, 5)
 
   const xpForType = (type) => GAME_CONFIG.itemTypes[type]?.xp ?? 10
+
+  const getExerciseGuide = () => {
+    switch (current.type) {
+      case 'flashcard':
+        return {
+          emotion: 'reading',
+          text: 'Memoriza la palabra y su pronunciación, luego indica si la recordabas.',
+        }
+      case 'multiple_choice_text':
+        return {
+          emotion: 'thinking',
+          text: 'Elige la traducción correcta al español entre las opciones.',
+        }
+      case 'matching':
+        return {
+          emotion: 'explaining',
+          text: 'Toca una palabra en náhuat y su par en español para unirlas.',
+        }
+      case 'build_sentence':
+        return {
+          emotion: 'thinking',
+          text: 'Toca las palabras en orden para construir la frase correcta.',
+        }
+      case 'active_recall':
+        return {
+          emotion: 'reading',
+          text: 'Escribe la traducción exacta al náhuat en la caja de texto.',
+        }
+      case 'multiple_choice_image':
+        return {
+          emotion: 'surprised',
+          text: 'Observa la imagen y elige la respuesta que mejor corresponde.',
+        }
+      default:
+        return {
+          emotion: 'explaining',
+          text: 'Resuelve el ejercicio para continuar con la lección.',
+        }
+    }
+  }
 
   const recordExerciseResponse = (exercise, isCorrect) => {
     logExerciseResponse(
@@ -100,6 +143,23 @@ export default function LessonRunner({
               </div>
 
               <div className="space-y-4 p-4">
+                <div className="grid grid-cols-[1fr_112px] items-center gap-3 rounded-lg border border-[#9ddfc6]/35 bg-[#eef8f2] p-3">
+                  <div>
+                    <p className="text-[0.64rem] font-black uppercase tracking-[0.14em] text-[#1f7a57]">
+                      Tu guía
+                    </p>
+                    <p className="mt-1 text-sm font-bold leading-snug text-[#102f29]">
+                      {isBoss
+                        ? 'Respira, revisa con calma y demuestra todo lo que aprendiste.'
+                        : 'Te acompaño en esta lección. Lee, escucha y responde a tu ritmo.'}
+                    </p>
+                  </div>
+                  <div className="relative flex h-24 items-end justify-center">
+                    <div className="absolute bottom-1 h-9 w-20 rounded-full bg-[#102f29]/10 blur-md" />
+                    <Torogoz emotion={isBoss ? 'proud' : 'greeting'} size={108} />
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-md border border-[#e3ded2] bg-[#fbfaf7] p-3">
                     <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#6d756e]">Ejercicios</p>
@@ -235,6 +295,10 @@ export default function LessonRunner({
         return <Matching item={current} onComplete={handleMatchingComplete} />
       case 'build_sentence':
         return <BuildSentence item={current} hints={hints} onCorrect={handleCorrect} onWrong={handleWrong} />
+      case 'active_recall':
+        return <ActiveRecall item={current} onCorrect={handleCorrect} onWrong={handleWrong} />
+      case 'multiple_choice_image':
+        return <MultipleChoiceImage item={current} onCorrect={handleCorrect} onWrong={handleWrong} />
       default:
         return (
           <div className="rounded-lg border border-[#e3ded2] bg-white p-5 text-center text-sm font-semibold text-[#6d756e]">
@@ -245,6 +309,7 @@ export default function LessonRunner({
   }
 
   const progress = currentIndex / items.length
+  const exerciseGuide = getExerciseGuide()
 
   return (
     <div className={`screen relative bg-[#f7f5ef] ${feedback ? 'pb-44' : 'pb-5'}`}>
@@ -278,6 +343,16 @@ export default function LessonRunner({
         <div className="mb-4 flex items-center gap-2 text-[0.68rem] font-black uppercase tracking-[0.16em] text-[#6d756e]">
           <CheckCircle2 className="h-4 w-4 text-[#1f7a57]" />
           {lesson.title}
+        </div>
+        {/* Banner de instrucción animada y premium */}
+        <div className="mb-4 grid grid-cols-[72px_1fr] items-center gap-3 rounded-xl border border-[#9ddfc6]/35 bg-[#eef8f2]/70 p-3 text-xs font-black leading-relaxed text-[#102f29] shadow-xs animate-practice-hint-fade">
+          <div className="relative flex h-16 items-end justify-center">
+            <div className="absolute bottom-1 h-8 w-12 rounded-full bg-[#102f29]/10 blur-md" />
+            <Torogoz emotion={exerciseGuide.emotion} size={70} />
+          </div>
+          <p>
+            {exerciseGuide.text}
+          </p>
         </div>
         {renderExercise()}
       </main>

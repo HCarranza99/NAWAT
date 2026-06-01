@@ -48,5 +48,14 @@ export default defineConfig([
         afterAll: 'readonly',
       },
     },
+  },
+  {
+    files: ['playwright.config.js', 'tests/**/*.{js,jsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
   }
 ])

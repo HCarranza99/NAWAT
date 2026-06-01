@@ -65,12 +65,13 @@ const GameStateSchema = z.object({
   pretestCompletedAt: z.string().nullable().catch(null),
   posttestCompletedAt: z.string().nullable().catch(null),
   xp: z.number().min(0).catch(0),
-  lives: z.number().min(0).max(3).catch(3),
+  lives: z.number().min(0).max(5).catch(5),
   livesLastLostAt: z.string().nullable().catch(null),
   streak: z.number().min(0).catch(0),
   lastPlayedDate: z.union([z.string(), z.number()]).nullable().catch(null),
   lessonProgress: z.record(z.any()).catch({}),
   sectionProgress: z.record(z.any()).catch({}),
+  onboardingSeen: z.boolean().catch(false),
 }).passthrough()
 
 const useGameStore = create(
@@ -86,16 +87,18 @@ const useGameStore = create(
       pretestCompletedAt: null,
       posttestCompletedAt: null,
       xp: 0,
-      lives: 3,
+      lives: 5,
       livesLastLostAt: null,
       streak: 0,
       lastPlayedDate: null,
       lessonProgress: {},
       sectionProgress: {},
+      onboardingSeen: false,
 
       setParticipant: (id, fullName) => set({ participantId: id, participantName: fullName }),
       setSessionId: (id) => set({ currentSessionId: id }),
       setAuthUser: (userId) => set({ authUserId: userId, isGuestMode: userId === null }),
+      setOnboardingSeen: (seen) => set({ onboardingSeen: seen }),
 
       mergeCloudProgress: (cloudState) => set((state) => {
         if (!cloudState) return {}
@@ -111,6 +114,7 @@ const useGameStore = create(
             studyPhase: cloudState.studyPhase ?? state.studyPhase,
             pretestCompletedAt: cloudState.pretestCompletedAt ?? state.pretestCompletedAt,
             posttestCompletedAt: cloudState.posttestCompletedAt ?? state.posttestCompletedAt,
+            onboardingSeen: cloudState.onboardingSeen ?? state.onboardingSeen,
           }
         }
         return {}
@@ -132,7 +136,14 @@ const useGameStore = create(
           livesLastLostAt: newLives === 0 ? new Date().toISOString() : state.livesLastLostAt,
         }
       }),
-      resetLives: () => set({ lives: 3, livesLastLostAt: null }),
+      resetLives: () => set({ lives: 5, livesLastLostAt: null }),
+      gainLife: (amount = 1) => set((state) => {
+        const newLives = Math.min(5, state.lives + amount)
+        return {
+          lives: newLives,
+          livesLastLostAt: newLives > 0 ? null : state.livesLastLostAt,
+        }
+      }),
 
       recordPlay: () => set((state) => {
         const dayNumber = (d) => Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000)
@@ -201,12 +212,13 @@ const useGameStore = create(
 
       resetProgress: () => set({
         xp: 0,
-        lives: 3,
+        lives: 5,
         livesLastLostAt: null,
         streak: 0,
         lastPlayedDate: null,
         lessonProgress: {},
         sectionProgress: {},
+        onboardingSeen: false,
       }),
     }),
     {

@@ -162,9 +162,11 @@ export async function saveProgressToCloud(gameState) {
   try {
     const { data: { user }, error: userErr } = await supabase.auth.getUser()
     if (userErr || !user) return
-    await supabase
+    const { error } = await supabase
       .from('user_profiles')
       .upsert(gameStateToProfile(user.id, gameState), { onConflict: 'id' })
+
+    if (error) throw error
   } catch (e) {
     logError('saveProgressToCloud', e)
     // silencioso — el usuario sigue jugando offline

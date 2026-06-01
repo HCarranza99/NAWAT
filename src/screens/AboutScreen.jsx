@@ -10,12 +10,17 @@ const SLIDES = [
   {
     icon: '🔬',
     title: 'Sobre este estudio',
-    body: 'Estamos evaluando si una aplicación interactiva como NAWAT puede despertar el interés de estudiantes universitarios por aprender náhuat. Tus respuestas y tu uso de la app aportan datos para responder esa pregunta de forma rigurosa.',
+    body: 'Estamos evaluando si una aplicación interactiva como NAWAT puede despertar el interés de estudiantes universitarios por aprender náhuat. Para saberlo, compararemos tus respuestas antes y después de usar la app.',
+  },
+  {
+    icon: '⏱️',
+    title: 'Fases del estudio',
+    body: 'Primero responderás un cuestionario inicial. Después usarás NAWAT durante 10 minutos. Al terminar ese tiempo, responderás un cuestionario final. Tu participación solo es válida si completas las tres fases en ese orden.',
   },
   {
     icon: '🙏',
     title: 'Tu participación importa',
-    body: 'Responde con sinceridad — no hay respuestas correctas ni incorrectas. Lo importante es tu opinión honesta sobre tu experiencia y tu interés. Gracias por ser parte del estudio.',
+    body: 'Responde con sinceridad. No hay respuestas correctas ni incorrectas. Lo importante es tu opinión honesta en cada fase para que la comparación del estudio sea válida.',
   },
 ]
 
