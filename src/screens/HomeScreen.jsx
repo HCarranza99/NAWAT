@@ -20,7 +20,6 @@ import { INTERVENTION_MS } from '../data/questionnaires'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import MascotTutorial from '../components/ui/MascotTutorial'
 import Torogoz from '../components/ui/Torogoz'
-import StudyProgressBanner from '../components/ui/StudyProgressBanner'
 
 function formatClock(ms) {
   const totalSec = Math.max(0, Math.ceil(ms / 1000))
@@ -61,6 +60,49 @@ const TOROGOZ_GREETINGS = [
   { nahuat: '¡Nawat tiweli!', spanish: '¡Puedes hablar Náhuat!' },
   { nahuat: '¡Piyali!', spanish: '¡Hola! ¿Listo para aprender?' },
 ]
+
+function StudyTimerBubble({ msLeft }) {
+  const [expanded, setExpanded] = useState(false)
+  const minutesLeft = Math.max(1, Math.ceil(msLeft / 60000))
+
+  return (
+    <motion.button
+      type="button"
+      drag
+      dragConstraints={{ left: -260, right: 0, top: -560, bottom: 0 }}
+      dragElastic={0.08}
+      dragMomentum={false}
+      whileTap={{ scale: 0.96 }}
+      onTap={() => setExpanded((value) => !value)}
+      className="fixed bottom-24 right-4 z-40 max-w-[calc(100vw-32px)] touch-none rounded-full border border-[#9ddfc6]/40 bg-[#102f29] px-3 py-2 text-left text-white shadow-[0_14px_34px_rgba(16,47,41,0.28)]"
+      aria-label={`Tiempo restante de estudio: ${formatClock(msLeft)}`}
+    >
+      <div className="flex items-center gap-2">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#9ddfc6]/18 text-[#9ddfc6]">
+          <Clock3 className="h-4 w-4" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[0.56rem] font-black uppercase leading-none tracking-[0.14em] text-white/55">
+            Estudio 1/3
+          </p>
+          <p className="mt-1 text-sm font-black leading-none tabular-nums">{formatClock(msLeft)}</p>
+        </div>
+      </div>
+      <AnimatePresence>
+        {expanded && (
+          <motion.p
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: 'auto', marginTop: 8 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            className="max-w-[220px] overflow-hidden text-xs font-bold leading-snug text-white/80"
+          >
+            Sigue usando la app por {minutesLeft} min más. Al terminar se abrirá el cuestionario final.
+          </motion.p>
+        )}
+      </AnimatePresence>
+    </motion.button>
+  )
+}
 
 export default function HomeScreen() {
   const navigate = useNavigate()
@@ -142,7 +184,7 @@ export default function HomeScreen() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="h-[100svh] overflow-hidden bg-[#f7f5ef] text-foreground"
+      className="min-h-[100svh] bg-[#f7f5ef] pb-28 text-foreground"
     >
       <header className="relative overflow-hidden bg-[#102f29] px-4 pb-4 pt-4 text-white">
         <div className="flex items-center justify-between gap-4">
@@ -181,19 +223,10 @@ export default function HomeScreen() {
         <div className="mt-3 grid grid-cols-2 gap-2">
           <Metric icon={Heart} label="Vidas" value={lives} tone="text-[#ff8b8b]" />
           <Metric icon={Flame} label="Racha" value={`${streak} d`} tone="text-[#ffb15f]" />
-          {msLeft != null && (
-            <div className="col-span-2">
-              <Metric icon={Clock3} label="Tiempo de estudio" value={formatClock(msLeft)} tone="text-[#9ddfc6]" />
-            </div>
-          )}
         </div>
       </header>
 
       <main className="space-y-2 px-4 pt-3">
-        {studyPhase === PHASES.PLAYING && (
-          <StudyProgressBanner completed={1} current="practice" />
-        )}
-
         {lives === 0 && (
           <section className="grid grid-cols-[1fr_86px] items-center gap-3 rounded-lg border border-[#e63946]/25 bg-[#fff0f1] px-4 py-3">
             <div className="min-w-0">
@@ -316,6 +349,8 @@ export default function HomeScreen() {
           </div>
         </section>
       </main>
+
+      {msLeft != null && <StudyTimerBubble msLeft={msLeft} />}
 
       <AnimatePresence>
         {showTutorial && (
