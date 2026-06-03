@@ -1,20 +1,27 @@
 import { LIKERT_5_LABELS, LIKERT_5_SHORT_LABELS } from '../../data/questionnaires'
 
 /**
- * Ítem Likert 1–5 — fila segmentada con número y etiqueta breve en cada botón.
- * Las etiquetas textuales bajo cada número reemplazan un gradiente de color
- * para evitar sesgar al usuario en ítems con polaridad alternada (SUS).
+ * Item Likert 1-5.
  *
- * answer = { valueNumeric: 1|2|3|4|5 } o null
+ * Default: compact 5-column scale used in most questionnaires.
+ * Vertical: full-label options used for SUS, where careful reading matters.
  */
-const btnBase =
-  'flex flex-col items-center justify-center gap-1 px-0.5 pt-2.5 pb-2 rounded-sm border-2 transition-all min-h-[82px] active:translate-y-0.5 active:shadow-none'
+const gridButtonBase =
+  'flex min-h-[82px] flex-col items-center justify-center gap-1 rounded-sm border-2 px-0.5 pt-2.5 pb-2 transition-all active:translate-y-0.5 active:shadow-none'
 
-export default function LikertItem({ answer, onChange }) {
+const verticalButtonBase =
+  'flex min-h-[54px] w-full items-center gap-3 rounded-md border-2 px-3 py-2.5 text-left transition-all active:translate-y-0.5 active:shadow-none'
+
+export default function LikertItem({ answer, onChange, layout = 'grid' }) {
   const selected = answer?.valueNumeric ?? null
+  const isVertical = layout === 'vertical'
 
   return (
-    <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label="Selecciona una opción del 1 al 5">
+    <div
+      className={isVertical ? 'flex flex-col gap-2' : 'grid grid-cols-5 gap-1.5'}
+      role="radiogroup"
+      aria-label="Selecciona una opcion del 1 al 5"
+    >
       {[1, 2, 3, 4, 5].map((n) => {
         const isSelected = selected === n
         const tone = isSelected
@@ -27,18 +34,35 @@ export default function LikertItem({ answer, onChange }) {
             type="button"
             role="radio"
             aria-checked={isSelected}
-            aria-label={`${n} — ${LIKERT_5_LABELS[n]}`}
-            className={`${btnBase} ${tone}`}
+            aria-label={`${n} - ${LIKERT_5_LABELS[n]}`}
+            className={`${isVertical ? verticalButtonBase : gridButtonBase} ${tone}`}
             onClick={() => onChange({ valueNumeric: n, valueText: null, valueOther: null })}
           >
-            <span className="text-[1.2rem] font-extrabold leading-none tabular-nums">{n}</span>
-            <span
-              className={`text-[0.64rem] font-semibold leading-[1.2] text-center whitespace-pre-line tracking-[0.1px] ${
-                isSelected ? 'text-primary' : 'text-muted-foreground'
-              }`}
-            >
-              {LIKERT_5_SHORT_LABELS[n]}
-            </span>
+            {isVertical ? (
+              <>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-white/70 text-[1rem] font-extrabold leading-none tabular-nums">
+                  {n}
+                </span>
+                <span
+                  className={`text-[0.9rem] font-bold leading-snug ${
+                    isSelected ? 'text-primary' : 'text-foreground'
+                  }`}
+                >
+                  {LIKERT_5_LABELS[n]}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-[1.2rem] font-extrabold leading-none tabular-nums">{n}</span>
+                <span
+                  className={`whitespace-pre-line text-center text-[0.64rem] font-semibold leading-[1.2] tracking-[0.1px] ${
+                    isSelected ? 'text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                  {LIKERT_5_SHORT_LABELS[n]}
+                </span>
+              </>
+            )}
           </button>
         )
       })}

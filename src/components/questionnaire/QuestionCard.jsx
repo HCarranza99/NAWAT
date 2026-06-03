@@ -17,6 +17,7 @@ function getMascotEmotion(item) {
  */
 export default function QuestionCard({ item, answer, onChange, sectionLabel }) {
   const mascotEmotion = getMascotEmotion(item)
+  const isSusItem = /^sus_c\d+$/.test(item.code)
 
   return (
     <div className="flex flex-col gap-5" data-testid="question-card">
@@ -53,7 +54,7 @@ export default function QuestionCard({ item, answer, onChange, sectionLabel }) {
 
       <div className="flex flex-col gap-3">
         {item.item_type === 'likert_5' && (
-          <LikertItem answer={answer} onChange={onChange} />
+          <LikertItem answer={answer} onChange={onChange} layout={isSusItem ? 'vertical' : 'grid'} />
         )}
         {item.item_type === 'single_choice' && (
           <SingleChoiceItem item={item} answer={answer} onChange={onChange} />
