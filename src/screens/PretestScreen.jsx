@@ -4,6 +4,7 @@ import useGameStore from '../store/useGameStore'
 import { INTERVENTION_MINUTES, PRETEST_ITEMS } from '../data/questionnaires'
 import { markPretestCompleted } from '../services/analytics'
 import QuestionnaireRunner from '../components/questionnaire/QuestionnaireRunner'
+import StudyProgressBanner from '../components/ui/StudyProgressBanner'
 
 export default function PretestScreen() {
   const [started, setStarted] = useState(false)
@@ -24,6 +25,7 @@ export default function PretestScreen() {
     return (
       <div className="screen bg-[#f7f5ef] px-6 py-8">
         <main className="flex flex-1 flex-col justify-between gap-6">
+          <StudyProgressBanner completed={1} current="practice" />
           <section className="rounded-lg border border-[#e3ded2] bg-white p-5 shadow-[0_16px_42px_rgba(37,48,42,0.08)]">
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#fff1de] text-[#b95a18]">
               <Clock3 className="h-6 w-6" />
@@ -56,6 +58,7 @@ export default function PretestScreen() {
   if (!started) {
     return (
       <div className="screen px-7 pt-12 pb-10 justify-between bg-background">
+        <StudyProgressBanner completed={0} current="pretest" />
         <div className="onboarding-body-wrap">
           <div className="onboarding-slide">
             <span className="onboarding-icon">📝</span>

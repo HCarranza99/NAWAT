@@ -3,6 +3,7 @@ import useGameStore from '../store/useGameStore'
 import { POSTTEST_ITEMS } from '../data/questionnaires'
 import { markPosttestUnlocked, markPosttestCompleted } from '../services/analytics'
 import QuestionnaireRunner from '../components/questionnaire/QuestionnaireRunner'
+import StudyProgressBanner from '../components/ui/StudyProgressBanner'
 
 export default function PosttestScreen() {
   const [phase, setPhase] = useState('gate') // 'gate' → 'running' → 'done'
@@ -27,6 +28,7 @@ export default function PosttestScreen() {
   if (phase === 'gate') {
     return (
       <div className="screen px-7 pt-12 pb-10 justify-between bg-background">
+        <StudyProgressBanner completed={2} current="posttest" />
         <div className="onboarding-body-wrap">
           <div className="onboarding-slide">
             <span className="onboarding-icon">⏱️</span>
@@ -55,6 +57,7 @@ export default function PosttestScreen() {
   if (phase === 'done') {
     return (
       <div className="screen px-7 pt-12 pb-10 justify-between bg-background">
+        <StudyProgressBanner completed={3} current="complete" />
         <div className="onboarding-body-wrap">
           <div className="onboarding-slide">
             <span className="onboarding-icon">🎉</span>

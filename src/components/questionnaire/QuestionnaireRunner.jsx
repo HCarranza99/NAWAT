@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import useGameStore from '../../store/useGameStore'
 import { saveQuestionnaireResponse } from '../../services/analytics'
 import ProgressBar from '../ui/ProgressBar'
+import StudyProgressBanner from '../ui/StudyProgressBanner'
 import QuestionCard from './QuestionCard'
 
 const SECTION_LABELS = {
@@ -103,6 +104,8 @@ export default function QuestionnaireRunner({ items, phase, onComplete }) {
   const progress = index / items.length
   const valid = isAnswerValid(item, answer)
   const showSusIntro = phase === 'posttest' && item.code === 'sus_c1' && !susIntroSeen
+  const studyCompleted = phase === 'posttest' ? 2 : 0
+  const studyCurrent = phase === 'posttest' ? 'posttest' : 'pretest'
 
   const sectionLabel = useMemo(() => {
     const map = phase === 'pretest' ? SECTION_LABELS : POSTTEST_SECTION_LABELS
@@ -171,6 +174,10 @@ export default function QuestionnaireRunner({ items, phase, onComplete }) {
         <span className="min-w-12 text-right text-[0.82rem] font-bold tabular-nums text-muted-foreground">
           {index + 1}/{items.length}
         </span>
+      </div>
+
+      <div className="px-5 pb-2">
+        <StudyProgressBanner completed={studyCompleted} current={studyCurrent} />
       </div>
 
       <div className="flex flex-1 flex-col px-5 pt-2 pb-4">

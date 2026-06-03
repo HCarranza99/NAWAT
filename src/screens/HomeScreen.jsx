@@ -20,6 +20,7 @@ import { INTERVENTION_MS } from '../data/questionnaires'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import MascotTutorial from '../components/ui/MascotTutorial'
 import Torogoz from '../components/ui/Torogoz'
+import StudyProgressBanner from '../components/ui/StudyProgressBanner'
 
 function formatClock(ms) {
   const totalSec = Math.max(0, Math.ceil(ms / 1000))
@@ -189,6 +190,10 @@ export default function HomeScreen() {
       </header>
 
       <main className="space-y-2 px-4 pt-3">
+        {studyPhase === PHASES.PLAYING && (
+          <StudyProgressBanner completed={1} current="practice" />
+        )}
+
         {lives === 0 && (
           <section className="grid grid-cols-[1fr_86px] items-center gap-3 rounded-lg border border-[#e63946]/25 bg-[#fff0f1] px-4 py-3">
             <div className="min-w-0">
