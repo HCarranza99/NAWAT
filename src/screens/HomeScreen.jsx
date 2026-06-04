@@ -113,15 +113,11 @@ export default function HomeScreen() {
   const studyPhase = useGameStore((s) => s.studyPhase)
   const pretestCompletedAt = useGameStore((s) => s.pretestCompletedAt)
 
-  const [showTutorial, setShowTutorial] = useState(false)
+  const [tutorialDismissed, setTutorialDismissed] = useState(false)
   const [greeting] = useState(() => TOROGOZ_GREETINGS[Math.floor(Math.random() * TOROGOZ_GREETINGS.length)])
 
-  useEffect(() => {
-    const activeLearningPhase = studyPhase === PHASES.PLAYING || studyPhase === PHASES.FREE
-    if (activeLearningPhase && !onboardingSeen) {
-      setShowTutorial(true)
-    }
-  }, [studyPhase, onboardingSeen])
+  const activeLearningPhase = studyPhase === PHASES.PLAYING || studyPhase === PHASES.FREE
+  const showTutorial = activeLearningPhase && !onboardingSeen && !tutorialDismissed
 
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -357,7 +353,7 @@ export default function HomeScreen() {
           <MascotTutorial
             onClose={() => {
               setOnboardingSeen(true)
-              setShowTutorial(false)
+              setTutorialDismissed(true)
             }}
           />
         )}

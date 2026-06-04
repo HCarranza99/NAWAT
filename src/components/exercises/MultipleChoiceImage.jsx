@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { CheckCircle2, Volume2, XCircle } from 'lucide-react'
 import { useTextToSpeech } from '../../hooks/useTextToSpeech'
 

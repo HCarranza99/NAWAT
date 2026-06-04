@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { ArrowRight, Flame, Medal, RotateCcw, Star, Target, Trophy, Zap } from 'lucide-react'
 
 import useGameStore from '../store/useGameStore'
@@ -19,18 +19,16 @@ export default function ResultScreen() {
   const { state } = useLocation()
   const navigate = useNavigate()
   const streak = useGameStore((store) => store.streak)
+  const sectionProgress = useGameStore((store) => store.sectionProgress)
 
   if (!state) {
-    navigate('/', { replace: true })
-    return null
+    return <Navigate to="/" replace />
   }
 
   const { lessonId, lessonTitle, score, xpEarned, isBoss, sectionId, returnTo } = state
   const pct = Math.round(score * 100)
   const stars = score >= 0.9 ? 3 : score >= 0.7 ? 2 : 1
   const passed = score >= 0.5
-
-  const sectionProgress = useGameStore((store) => store.sectionProgress)
 
   const findNextLesson = () => {
     for (let sIdx = 0; sIdx < sections.length; sIdx++) {

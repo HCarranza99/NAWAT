@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { motion } from 'motion/react'
 import { CheckCircle2, HelpCircle, Volume2, XCircle } from 'lucide-react'
 import { useTextToSpeech } from '../../hooks/useTextToSpeech'
 
