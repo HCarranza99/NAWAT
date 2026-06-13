@@ -66,7 +66,7 @@ export default function ResultScreen() {
   const nextLesson = findNextLesson()
 
   return (
-    <div className="screen justify-between bg-[#f7f5ef] px-5 py-5">
+    <div className="screen justify-between bg-[#f7f5ef] px-5 py-5 lg:mx-auto lg:w-full lg:max-w-[560px] lg:py-10">
       <main className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
         <div className="relative flex items-center justify-center">
           {passed && (

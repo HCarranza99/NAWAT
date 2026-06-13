@@ -20,6 +20,7 @@ import { INTERVENTION_MS } from '../data/questionnaires'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import MascotTutorial from '../components/ui/MascotTutorial'
 import Torogoz from '../components/ui/Torogoz'
+import { useIsDesktop } from '../hooks/useMediaQuery'
 
 function formatClock(ms) {
   const totalSec = Math.max(0, Math.ceil(ms / 1000))
@@ -106,6 +107,7 @@ function StudyTimerBubble({ msLeft }) {
 
 export default function HomeScreen() {
   const navigate = useNavigate()
+  const isDesktop = useIsDesktop()
   const { xp, lives, streak, sectionProgress, resetLives, participantName, onboardingSeen, setOnboardingSeen } = useGameStore()
 
   const firstName = participantName ? participantName.split(' ')[0] : 'Estudiante'
@@ -180,8 +182,9 @@ export default function HomeScreen() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-[100svh] bg-[#f7f5ef] pb-28 text-foreground"
+      className="min-h-[100svh] bg-[#f7f5ef] pb-28 text-foreground lg:pb-0"
     >
+      {!isDesktop && (
       <header className="brand-header px-4 pb-6 pt-5">
         <div className="relative z-10 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -221,10 +224,21 @@ export default function HomeScreen() {
           <Metric icon={Flame} label="Racha" value={`${streak} d`} tone="text-[#ffb15f]" />
         </div>
       </header>
+      )}
 
-      <main className="space-y-2 px-4 pt-3">
+      <main className="space-y-2 px-4 pt-3 lg:mx-auto lg:max-w-[940px] lg:grid lg:grid-cols-[1.55fr_1fr] lg:items-start lg:gap-6 lg:space-y-0 lg:px-10 lg:pt-10">
+        {/* Encabezado solo de escritorio */}
+        {isDesktop && (
+        <div className="lg:col-span-2 lg:mb-2">
+          <p className="text-[0.66rem] font-black uppercase tracking-[0.2em] text-[#6d756e]">Aprendizaje diario</p>
+          <h1 className="mt-1 text-3xl font-black tracking-tight text-[#17211d]">
+            ¡Hola, {firstName}! <span className="text-[#1f7a57]">Sigamos aprendiendo</span>
+          </h1>
+        </div>
+        )}
+
         {lives === 0 && (
-          <section className="grid grid-cols-[1fr_86px] items-center gap-3 rounded-lg border border-[#e63946]/25 bg-[#fff0f1] px-4 py-3">
+          <section className="grid grid-cols-[1fr_86px] items-center gap-3 rounded-lg border border-[#e63946]/25 bg-[#fff0f1] px-4 py-3 lg:col-span-2">
             <div className="min-w-0">
               <p className="text-sm font-extrabold text-[#b91c1c]">Sin vidas</p>
               <p className="mt-1 text-xs font-medium leading-snug text-[#b91c1c]/75">
@@ -328,7 +342,7 @@ export default function HomeScreen() {
           )}
         </section>
 
-        <section className="grid grid-cols-2 gap-2">
+        <section className="grid grid-cols-2 gap-2 lg:grid-cols-1 lg:gap-3">
           <div className="surface-card flex items-center gap-2.5 p-3">
             <BookOpen className="h-[18px] w-[18px] shrink-0 text-[#1f7a57]" />
             <div className="min-w-0">

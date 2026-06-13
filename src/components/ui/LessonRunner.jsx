@@ -106,7 +106,7 @@ export default function LessonRunner({
 
   if (phase === 'intro') {
     return (
-      <div className="screen bg-[#f7f5ef] px-5 py-5">
+      <div className="screen bg-[#f7f5ef] px-5 py-5 lg:mx-auto lg:w-full lg:max-w-[660px] lg:px-0">
         <div className="flex justify-end">
           <button
             className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#d8ddd5] bg-white text-[#46524a] shadow-sm transition active:scale-95"
@@ -313,7 +313,7 @@ export default function LessonRunner({
   const exerciseGuide = getExerciseGuide()
 
   return (
-    <div className={`screen relative bg-[#f7f5ef] ${feedback ? 'pb-44' : 'pb-5'}`}>
+    <div className={`screen relative bg-[#f7f5ef] lg:mx-auto lg:w-full lg:max-w-[660px] ${feedback ? 'pb-44' : 'pb-5'}`}>
       <header className="sticky top-0 z-20 border-b border-[#e3ded2] bg-[#f7f5ef]/95 px-4 py-3 backdrop-blur">
         <div className="flex items-center gap-3">
           <button

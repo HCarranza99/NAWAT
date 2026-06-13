@@ -15,6 +15,8 @@ import SectionsScreen from './screens/SectionsScreen'
 import SectionLessonScreen from './screens/SectionLessonScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import BottomNav from './components/ui/BottomNav'
+import DesktopSidebar from './components/ui/DesktopSidebar'
+import { useIsDesktop } from './hooks/useMediaQuery'
 import { startSession, endSession } from './services/analytics'
 import { saveProgressToCloud } from './services/auth'
 import { useAuth } from './hooks/useAuth'
@@ -114,24 +116,29 @@ export default function App() {
     return () => clearInterval(id)
   }, [authUserId])
 
+  // Rutas compartidas entre demo y modo de estudio
+  const appRoutes = (
+    <Routes>
+      <Route path="/" element={<HomeScreen />} />
+      {/* Legacy lesson routes */}
+      <Route path="/lesson/:id" element={<LessonScreen />} />
+      <Route path="/result" element={<ResultScreen />} />
+      {/* Section-based routes */}
+      <Route path="/sections" element={<SectionsScreen />} />
+      <Route path="/section/:sectionId/lesson/:lessonId" element={<SectionLessonScreen />} />
+      <Route path="/section/:sectionId/boss" element={<SectionLessonScreen />} />
+      <Route path="/profile" element={<ProfileScreen />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
+
   // ── Routing por fase del estudio ─────────────────────────────
   const renderByPhase = () => {
     // In demo mode, skip straight to the app
     if (DEMO_MODE) {
       return (
         <BrowserRouter basename="/demo">
-          <Routes>
-            <Route path="/" element={<HomeScreen />} />
-            {/* Legacy lesson routes */}
-            <Route path="/lesson/:id" element={<LessonScreen />} />
-            <Route path="/result" element={<ResultScreen />} />
-            {/* Section-based routes */}
-            <Route path="/sections" element={<SectionsScreen />} />
-            <Route path="/section/:sectionId/lesson/:lessonId" element={<SectionLessonScreen />} />
-            <Route path="/section/:sectionId/boss" element={<SectionLessonScreen />} />
-            <Route path="/profile" element={<ProfileScreen />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <AppChrome>{appRoutes}</AppChrome>
           <DemoBanner />
           <BottomNav />
         </BrowserRouter>
@@ -142,37 +149,52 @@ export default function App() {
     // (evita flash de ConsentScreen para usuarios ya autenticados)
     if (authLoading) return null
 
-    if (studyPhase === PHASES.CONSENT) return <ConsentScreen />
-    if (studyPhase === PHASES.ABOUT) return <AboutScreen />
-    if (studyPhase === PHASES.PRACTICE) return <PracticeScreen />
-    if (studyPhase === PHASES.PRETEST) return <PretestScreen />
-    if (studyPhase === PHASES.POSTTEST) return <PosttestScreen />
-    if (studyPhase === PHASES.ACCOUNT_PROMPT) return <AccountPromptScreen />
+    // Fases de onboarding: flujo de una sola columna (marco móvil centrado)
+    const onboarding =
+      studyPhase === PHASES.CONSENT ? <ConsentScreen /> :
+      studyPhase === PHASES.ABOUT ? <AboutScreen /> :
+      studyPhase === PHASES.PRACTICE ? <PracticeScreen /> :
+      studyPhase === PHASES.PRETEST ? <PretestScreen /> :
+      studyPhase === PHASES.POSTTEST ? <PosttestScreen /> :
+      studyPhase === PHASES.ACCOUNT_PROMPT ? <AccountPromptScreen /> :
+      null
 
-    // 'playing' o 'free' → app con router normal
+    if (onboarding) return <div className="app-shell">{onboarding}</div>
+
+    // 'playing' o 'free' → app con router normal + chrome responsivo
     return (
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomeScreen />} />
-          {/* Legacy lesson routes */}
-          <Route path="/lesson/:id" element={<LessonScreen />} />
-          <Route path="/result" element={<ResultScreen />} />
-          {/* Section-based routes */}
-          <Route path="/sections" element={<SectionsScreen />} />
-          <Route path="/section/:sectionId/lesson/:lessonId" element={<SectionLessonScreen />} />
-          <Route path="/section/:sectionId/boss" element={<SectionLessonScreen />} />
-          <Route path="/profile" element={<ProfileScreen />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <AppChrome>{appRoutes}</AppChrome>
         <BottomNav />
       </BrowserRouter>
     )
   }
 
+  return <ErrorBoundary>{renderByPhase()}</ErrorBoundary>
+}
+
+/* ── Marco responsivo: móvil (columna) vs escritorio (sidebar) ──── */
+function AppChrome({ children }) {
+  const location = useLocation()
+  const isDesktop = useIsDesktop()
+  // Modo enfocado: durante lecciones/resultado se oculta todo el chrome
+  const focused = location.pathname.startsWith('/section/') ||
+    location.pathname.startsWith('/lesson/') ||
+    location.pathname === '/result'
+
+  const showSidebar = isDesktop && !focused
+
   return (
-    <ErrorBoundary>
-      <div className="app-shell">{renderByPhase()}</div>
-    </ErrorBoundary>
+    <div className="mx-auto flex w-full max-w-[480px] bg-surface-cream shadow-[0_0_60px_rgba(0,0,0,0.18)] lg:min-h-svh lg:max-w-[1280px] lg:shadow-[0_0_80px_rgba(0,0,0,0.4)]">
+      {showSidebar && <DesktopSidebar />}
+      <div
+        className={`min-w-0 flex-1 ${
+          focused ? 'lg:min-h-svh' : 'lg:h-svh lg:overflow-y-auto'
+        }`}
+      >
+        {children}
+      </div>
+    </div>
   )
 }
 

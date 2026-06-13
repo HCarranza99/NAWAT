@@ -16,6 +16,7 @@ import sections from '../data/sections'
 import useGameStore from '../store/useGameStore'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import Torogoz from '../components/ui/Torogoz'
+import { useIsDesktop } from '../hooks/useMediaQuery'
 
 function SectionGlyph({ sectionId, color }) {
   const icons = [Sprout, Map, Play, Crown, Check]
@@ -44,6 +45,7 @@ function ProgressBar({ value, color }) {
 
 export default function SectionsScreen() {
   const navigate = useNavigate()
+  const isDesktop = useIsDesktop()
   const { sectionProgress, lives } = useGameStore()
   const [expandedSection, setExpandedSection] = useState(() => sections[0]?.id ?? null)
 
@@ -77,7 +79,8 @@ export default function SectionsScreen() {
   }
 
   return (
-    <div className="screen bg-[#f7f5ef] pb-28">
+    <div className="screen bg-[#f7f5ef] pb-28 lg:pb-12">
+      {!isDesktop && (
       <header className="brand-header px-5 pb-6 pt-5">
         <div className="relative z-10 flex items-center gap-3">
           <TorogozBadge size={48} />
@@ -88,7 +91,15 @@ export default function SectionsScreen() {
           </div>
         </div>
       </header>
-      <main className="space-y-3 px-5 pt-5">
+      )}
+      <main className="space-y-3 px-5 pt-5 lg:mx-auto lg:max-w-[820px] lg:px-8 lg:pt-9">
+        {isDesktop && (
+        <div className="mb-3">
+          <p className="text-[0.66rem] font-black uppercase tracking-[0.2em] text-[#6d756e]">Ruta de aprendizaje</p>
+          <h1 className="mt-1 text-3xl font-black tracking-tight text-[#17211d]">Secciones</h1>
+          <p className="mt-1.5 text-sm font-medium text-[#6d756e]">Tu camino para aprender el idioma</p>
+        </div>
+        )}
         {sections.map((section, sectionIndex) => {
           const unlocked = isSectionUnlocked(sectionIndex)
           const stats = getSectionStats(section)

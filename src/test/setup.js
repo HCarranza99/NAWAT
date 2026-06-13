@@ -1,5 +1,20 @@
 import '@testing-library/jest-dom'
 
+// Mock matchMedia (jsdom no lo implementa). Por defecto no coincide,
+// de modo que los tests corren con el layout móvil.
+if (typeof globalThis.matchMedia !== 'function') {
+  globalThis.matchMedia = (query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })
+}
+
 // Mock Web Speech API
 globalThis.speechSynthesis = {
   speak: vi.fn(),

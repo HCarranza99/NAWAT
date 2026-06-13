@@ -74,8 +74,8 @@ export default function ProfileScreen() {
   }
 
   return (
-    <div className="screen bg-[#f7f5ef] pb-28">
-      <header className="brand-header px-5 pb-6 pt-5">
+    <div className="screen bg-[#f7f5ef] pb-28 lg:pb-12">
+      <header className="brand-header px-5 pb-6 pt-5 lg:hidden">
         <div className="relative z-10 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <TorogozBadge size={54} />
@@ -125,8 +125,18 @@ export default function ProfileScreen() {
         </div>
       </header>
 
-      <main className="space-y-5 px-5 pt-5">
-        <section className="grid grid-cols-2 gap-3">
+      <main className="space-y-5 px-5 pt-5 lg:mx-auto lg:max-w-[900px] lg:px-8 lg:pt-9">
+        <div className="hidden lg:mb-1 lg:flex lg:items-center lg:justify-between">
+          <div>
+            <p className="text-[0.66rem] font-black uppercase tracking-[0.2em] text-[#6d756e]">Perfil</p>
+            <h1 className="mt-1 text-3xl font-black tracking-tight text-[#17211d]">{participantName || 'Estudiante'}</h1>
+            <p className="mt-1.5 text-sm font-medium text-[#6d756e]">Nivel {level}</p>
+          </div>
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f7b076] to-[#f4a261] text-[#102f29] shadow-[0_10px_22px_rgba(244,162,97,0.32)]">
+            <Medal className="h-8 w-8" />
+          </div>
+        </div>
+        <section className="grid grid-cols-2 gap-3 lg:grid-cols-3">
           <StatCard icon={Zap} value={xp} label="XP total" tone="text-[#1f7a57]" />
           <StatCard icon={Flame} value={streak} label="Racha" tone="text-[#c77918]" />
           <StatCard icon={Star} value={totalStars} label="Estrellas" tone="text-[#d89a1d]" />
