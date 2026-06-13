@@ -30,7 +30,7 @@ function formatClock(ms) {
 
 function Metric({ icon: Icon, label, value, tone = 'text-foreground' }) {
   return (
-    <div className="flex items-center gap-2 rounded-md border border-white/12 bg-white/10 px-2.5 py-1.5 backdrop-blur">
+    <div className="glass-chip flex items-center gap-2 px-3 py-2">
       <Icon className={`h-4 w-4 ${tone}`} />
       <div className="min-w-0">
         <p className="text-[0.58rem] font-bold uppercase leading-none tracking-[0.14em] text-white/55">{label}</p>
@@ -182,8 +182,8 @@ export default function HomeScreen() {
       animate={{ opacity: 1 }}
       className="min-h-[100svh] bg-[#f7f5ef] pb-28 text-foreground"
     >
-      <header className="relative overflow-hidden bg-[#102f29] px-4 pb-4 pt-4 text-white">
-        <div className="flex items-center justify-between gap-4">
+      <header className="brand-header px-4 pb-6 pt-5">
+        <div className="relative z-10 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <TorogozBadge size={44} />
             <div>
@@ -194,20 +194,20 @@ export default function HomeScreen() {
               <h1 className="mt-0.5 text-[1.8rem] font-black leading-none tracking-normal">Náhuat</h1>
             </div>
           </div>
-          <div className="rounded-md border border-white/12 bg-white/10 px-2.5 py-2 text-right backdrop-blur">
+          <div className="glass-chip px-3 py-2 text-right">
             <p className="text-[0.56rem] font-bold uppercase tracking-[0.14em] text-white/55">Nivel</p>
             <p className="text-lg font-black leading-none">{level}</p>
           </div>
         </div>
 
-        <div className="mt-3 rounded-lg border border-white/10 bg-white/[0.07] p-3.5 shadow-[0_14px_34px_rgba(0,0,0,0.2)]">
+        <div className="relative z-10 mt-3 rounded-2xl border border-white/10 bg-white/[0.08] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_14px_34px_rgba(0,0,0,0.2)]">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-[0.82rem] font-semibold text-white/68">Hola, {firstName}</p>
-              <p className="mt-1 text-[2rem] font-black leading-none tracking-normal">{xpInLevel}</p>
+              <p className="mt-1 text-[2.1rem] font-black leading-none tracking-normal">{xpInLevel}</p>
               <p className="mt-0.5 text-[0.66rem] font-bold uppercase tracking-[0.14em] text-white/50">de {xpPerLevel} XP</p>
             </div>
-            <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-[#f4a261] text-[#102f29]">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f7b076] to-[#f4a261] text-[#102f29] shadow-[0_8px_18px_rgba(244,162,97,0.35)]">
               <Trophy className="h-7 w-7" />
             </div>
           </div>
@@ -216,7 +216,7 @@ export default function HomeScreen() {
           </div>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="relative z-10 mt-3 grid grid-cols-2 gap-2">
           <Metric icon={Heart} label="Vidas" value={lives} tone="text-[#ff8b8b]" />
           <Metric icon={Flame} label="Racha" value={`${streak} d`} tone="text-[#ffb15f]" />
         </div>
@@ -329,14 +329,14 @@ export default function HomeScreen() {
         </section>
 
         <section className="grid grid-cols-2 gap-2">
-          <div className="flex items-center gap-2.5 rounded-md border border-[#e3ded2] bg-white p-2.5 shadow-sm">
+          <div className="surface-card flex items-center gap-2.5 p-3">
             <BookOpen className="h-[18px] w-[18px] shrink-0 text-[#1f7a57]" />
             <div className="min-w-0">
               <p className="text-lg font-black leading-none text-[#17211d]">{completedLessons}</p>
               <p className="mt-0.5 text-[0.58rem] font-bold uppercase tracking-[0.1em] text-[#6d756e]">de {totalLessons} lecciones</p>
             </div>
           </div>
-          <div className="flex items-center gap-2.5 rounded-md border border-[#e3ded2] bg-white p-2.5 shadow-sm">
+          <div className="surface-card flex items-center gap-2.5 p-3">
             <Trophy className="h-[18px] w-[18px] shrink-0 text-[#c77918]" />
             <div className="min-w-0">
               <p className="text-lg font-black leading-none text-[#17211d]">{xp}</p>

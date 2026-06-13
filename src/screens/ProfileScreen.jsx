@@ -24,7 +24,7 @@ import { usePwaInstall } from '../hooks/usePwaInstall'
 
 function StatCard({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
   return (
-    <div className="rounded-lg border border-[#e3ded2] bg-white p-3 shadow-sm">
+    <div className="surface-card p-3.5">
       <Icon className={`h-5 w-5 ${tone}`} />
       <p className="mt-3 text-2xl font-black leading-none text-[#17211d] tabular-nums">{value}</p>
       <p className="mt-1 text-[0.64rem] font-bold uppercase tracking-[0.12em] text-[#6d756e]">{label}</p>
@@ -75,8 +75,8 @@ export default function ProfileScreen() {
 
   return (
     <div className="screen bg-[#f7f5ef] pb-28">
-      <header className="bg-[#102f29] px-5 pb-5 pt-5 text-white">
-        <div className="flex items-center justify-between gap-4">
+      <header className="brand-header px-5 pb-6 pt-5">
+        <div className="relative z-10 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <TorogozBadge size={54} />
             <div className="min-w-0">
@@ -88,12 +88,12 @@ export default function ProfileScreen() {
             </div>
           </div>
 
-          <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-[#f4a261] text-[#102f29]">
+          <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f7b076] to-[#f4a261] text-[#102f29] shadow-[0_8px_18px_rgba(244,162,97,0.35)]">
             <Medal className="h-7 w-7" />
           </div>
         </div>
 
-        <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.07] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.18)]">
+        <div className="relative z-10 mt-5 rounded-2xl border border-white/10 bg-white/[0.08] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_18px_45px_rgba(0,0,0,0.18)]">
           <div className="mb-3 flex items-center justify-between">
             <p className="text-sm font-extrabold text-white">Progreso de nivel</p>
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/55">{xpInLevel}/{xpPerLevel} XP</p>
@@ -103,7 +103,7 @@ export default function ProfileScreen() {
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between gap-2">
+        <div className="relative z-10 mt-3 flex items-center justify-between gap-2">
           <div className={`inline-flex min-w-0 items-center gap-2 rounded-md border px-3 py-2 text-xs font-extrabold ${
             isGuestMode
               ? 'border-white/15 bg-white/8 text-white/72'
@@ -167,10 +167,7 @@ export default function ProfileScreen() {
 
         <section className="space-y-2">
           {canInstall && (
-            <button
-              className="flex w-full items-center justify-center gap-2 rounded-md bg-[#1f7a57] px-4 py-3 text-sm font-extrabold text-white shadow-[0_8px_18px_rgba(31,122,87,0.2)] transition active:scale-[0.99]"
-              onClick={install}
-            >
+            <button className="btn-3d btn-3d-primary text-sm" onClick={install}>
               <Download className="h-4 w-4" />
               Instalar app
             </button>
@@ -188,7 +185,7 @@ export default function ProfileScreen() {
 
           {!isGuestMode && (
             <button
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d8ddd5] bg-white px-4 py-3 text-sm font-extrabold text-[#17211d] shadow-sm transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-3d btn-3d-soft text-sm"
               onClick={handleLogout}
               disabled={loggingOut}
             >

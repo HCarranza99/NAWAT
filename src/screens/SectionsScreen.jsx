@@ -78,8 +78,8 @@ export default function SectionsScreen() {
 
   return (
     <div className="screen bg-[#f7f5ef] pb-28">
-      <header className="bg-[#102f29] px-5 pb-5 pt-5 text-white">
-        <div className="flex items-center gap-3">
+      <header className="brand-header px-5 pb-6 pt-5">
+        <div className="relative z-10 flex items-center gap-3">
           <TorogozBadge size={48} />
           <div>
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#9ddfc6]">Ruta de aprendizaje</p>

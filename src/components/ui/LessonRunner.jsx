@@ -119,12 +119,13 @@ export default function LessonRunner({
 
         <main className="flex flex-1 flex-col justify-between gap-5">
           <section className="pt-4">
-            <div className="overflow-hidden rounded-lg border border-[#e3ded2] bg-white shadow-[0_16px_42px_rgba(37,48,42,0.08)]">
-              <div className="relative h-40 bg-[#102f29]">
+            <div className="surface-card-lg overflow-hidden">
+              <div className="relative h-40" style={{ background: 'linear-gradient(165deg, #16463a 0%, #102f29 70%)' }}>
                 <div
-                  className="absolute inset-0 opacity-18"
-                  style={{ background: `radial-gradient(circle at 24% 20%, ${lesson.color || '#f4a261'} 0, transparent 36%)` }}
+                  className="absolute inset-0 opacity-25"
+                  style={{ background: `radial-gradient(circle at 24% 20%, ${lesson.color || '#f4a261'} 0, transparent 40%)` }}
                 />
+                <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                 <div className="relative flex h-full flex-col justify-between p-5 text-white">
                   <div className="flex items-center justify-between">
                     <span className="inline-flex items-center gap-2 rounded-md border border-white/12 bg-white/10 px-3 py-2 text-[0.68rem] font-black uppercase tracking-[0.14em] text-white/72">
@@ -201,7 +202,7 @@ export default function LessonRunner({
           </section>
 
           <button
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1f7a57] px-5 py-4 text-base font-black text-white shadow-[0_10px_24px_rgba(31,122,87,0.22)] transition active:scale-[0.99]"
+            className="btn-3d btn-3d-primary"
             onClick={async () => {
               lessonStartRef.current = Date.now()
               exerciseStartRef.current = Date.now()

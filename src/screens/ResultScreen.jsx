@@ -1,4 +1,5 @@
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
+import { motion } from 'motion/react'
 import { ArrowRight, Flame, Medal, RotateCcw, Star, Target, Trophy, Zap } from 'lucide-react'
 
 import useGameStore from '../store/useGameStore'
@@ -7,7 +8,7 @@ import sections from '../data/sections'
 
 function ResultStat({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
   return (
-    <div className="rounded-lg border border-[#e3ded2] bg-white p-4 text-left shadow-sm">
+    <div className="surface-card p-4 text-left">
       <Icon className={`h-5 w-5 ${tone}`} />
       <p className="mt-3 text-2xl font-black leading-none text-[#17211d]">{value}</p>
       <p className="mt-1 text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#6d756e]">{label}</p>
@@ -67,25 +68,54 @@ export default function ResultScreen() {
   return (
     <div className="screen justify-between bg-[#f7f5ef] px-5 py-5">
       <main className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
-        <div className="relative">
+        <div className="relative flex items-center justify-center">
+          {passed && (
+            <>
+              <motion.span
+                aria-hidden
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+                className="absolute h-52 w-52 rounded-full bg-[radial-gradient(circle,rgba(244,162,97,0.28),transparent_62%)]"
+              />
+              <motion.span
+                aria-hidden
+                initial={{ rotate: 0, opacity: 0 }}
+                animate={{ rotate: 360, opacity: 0.5 }}
+                transition={{ rotate: { duration: 22, repeat: Infinity, ease: 'linear' }, opacity: { duration: 0.8 } }}
+                className="absolute h-44 w-44 rounded-full"
+                style={{ background: 'conic-gradient(from 0deg, transparent, rgba(157,223,198,0.35), transparent 40%)' }}
+              />
+            </>
+          )}
           <div className="absolute inset-x-0 bottom-2 mx-auto h-12 w-36 rounded-full bg-[#102f29]/10 blur-xl" />
-          <Torogoz emotion={passed ? (isBoss ? 'achievement' : 'celebrate') : 'sad'} size={132} />
+          <motion.div
+            initial={{ scale: 0.7, y: 8, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 16 }}
+            className="relative"
+          >
+            <Torogoz emotion={passed ? (isBoss ? 'achievement' : 'celebrate') : 'sad'} size={132} />
+          </motion.div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2.5">
           {Array.from({ length: 3 }, (_, index) => {
             const earned = index < stars
             return (
-              <span
+              <motion.span
                 key={index}
-                className={`flex h-11 w-11 items-center justify-center rounded-md border ${
+                initial={{ scale: 0, rotate: -30 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 0.25 + index * 0.16, type: 'spring', stiffness: 320, damping: 14 }}
+                className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${
                   earned
-                    ? 'border-[#f4a261]/45 bg-[#fff8ec] text-[#c77918]'
+                    ? 'border-[#f4a261]/45 bg-gradient-to-b from-[#fff8ec] to-[#ffeccf] text-[#c77918] shadow-[0_8px_18px_rgba(244,162,97,0.28)]'
                     : 'border-[#e3ded2] bg-white text-[#cfd6d1]'
                 }`}
               >
                 <Star className={`h-6 w-6 ${earned ? 'fill-current' : ''}`} />
-              </span>
+              </motion.span>
             )
           })}
         </div>
@@ -122,10 +152,10 @@ export default function ResultScreen() {
         )}
       </main>
 
-      <footer className="space-y-2.5">
+      <footer className="space-y-3">
         {!passed && sectionId && (
           <button
-            className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d8ddd5] bg-white px-4 py-3.5 text-base font-black text-[#17211d] shadow-sm transition active:scale-[0.99]"
+            className="btn-3d btn-3d-soft"
             onClick={() => {
               if (isBoss) {
                 navigate(`/section/${sectionId}/boss`)
@@ -140,7 +170,7 @@ export default function ResultScreen() {
         )}
         {!passed && !sectionId && (
           <button
-            className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d8ddd5] bg-white px-4 py-3.5 text-base font-black text-[#17211d] shadow-sm transition active:scale-[0.99]"
+            className="btn-3d btn-3d-soft"
             onClick={() => navigate(`/lesson/${lessonId}`)}
           >
             <RotateCcw className="h-5 w-5" />
@@ -151,7 +181,7 @@ export default function ResultScreen() {
         {passed && nextLesson ? (
           <>
             <button
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1f7a57] px-4 py-4 text-base font-black text-white shadow-[0_10px_24px_rgba(31,122,87,0.28)] transition active:scale-[0.99] border-2 border-[#52b788]"
+              className="btn-3d btn-3d-primary"
               onClick={() => {
                 if (nextLesson.isBoss) {
                   navigate(`/section/${nextLesson.section.id}/boss`)
@@ -160,11 +190,11 @@ export default function ResultScreen() {
                 }
               }}
             >
-              Siguiente Lección
+              Siguiente lección
               <ArrowRight className="h-5 w-5" />
             </button>
             <button
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d8ddd5] bg-white px-4 py-3 text-sm font-bold text-[#6d756e] transition active:scale-[0.99]"
+              className="w-full py-2 text-sm font-bold text-[#6d756e] transition active:scale-[0.99]"
               onClick={() => navigate('/')}
             >
               Volver al inicio
@@ -174,7 +204,7 @@ export default function ResultScreen() {
           <>
             {returnTo === '/sections' && (
               <button
-                className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d8ddd5] bg-white px-4 py-3.5 text-base font-black text-[#17211d] shadow-sm transition active:scale-[0.99]"
+                className="btn-3d btn-3d-soft"
                 onClick={() => navigate('/sections')}
               >
                 Ver secciones
@@ -182,7 +212,7 @@ export default function ResultScreen() {
               </button>
             )}
             <button
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1f7a57] px-4 py-4 text-base font-black text-white shadow-[0_10px_24px_rgba(31,122,87,0.22)] transition active:scale-[0.99]"
+              className="btn-3d btn-3d-primary"
               onClick={() => navigate('/')}
             >
               Volver al inicio

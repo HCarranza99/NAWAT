@@ -39,9 +39,9 @@ export default function FeedbackModal({ type, correctAnswer, onContinue, noLives
 
   return (
     <div className="fixed bottom-0 left-1/2 z-50 w-full max-w-[480px] -translate-x-1/2 px-4 pb-4">
-      <div className={`animate-feedback-slide-up rounded-lg border p-4 shadow-[0_20px_55px_rgba(37,48,42,0.22)] ${tone.panel}`}>
+      <div className={`animate-feedback-slide-up rounded-[1.6rem] border p-4 shadow-[0_-2px_0_rgba(255,255,255,0.6)_inset,0_24px_60px_rgba(37,48,42,0.28)] ${tone.panel}`}>
         <div className="flex items-start gap-3">
-          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-md ${tone.iconWrap}`}>
+          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${tone.iconWrap}`}>
             <Icon className="h-6 w-6" />
           </div>
           <div className="min-w-0 flex-1">
@@ -54,7 +54,7 @@ export default function FeedbackModal({ type, correctAnswer, onContinue, noLives
         </div>
 
         <button
-          className={`mt-4 flex w-full items-center justify-center gap-2 rounded-md px-4 py-3.5 text-base font-black transition active:scale-[0.99] ${tone.button}`}
+          className={`mt-4 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-base font-black transition-transform duration-100 active:translate-y-0.5 ${tone.button}`}
           onClick={onContinue}
         >
           {showNoLives ? 'Volver a secciones' : 'Continuar'}

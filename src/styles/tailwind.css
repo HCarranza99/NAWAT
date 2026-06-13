@@ -27,6 +27,30 @@
   --nahuat-wrong: #E63946;
   --nahuat-wrong-bg: #FFE0E3;
 
+  /* ── Sistema de profundidad y marca (rediseño 2026) ──
+     Semantiza los hexadecimales repetidos en pantallas para
+     una identidad coherente y “app grande”. */
+  --brand-forest: #102f29;   /* verde profundo de cabeceras */
+  --brand-forest-2: #16463a; /* tope del gradiente de cabecera */
+  --brand-pine: #1f7a57;     /* verde de acción */
+  --brand-pine-deep: #155c41;/* sombra inferior del botón verde */
+  --brand-mint: #9ddfc6;     /* menta de acento sobre verde */
+  --brand-gold: #f4a261;     /* dorado de acento/CTA */
+  --brand-gold-deep: #c47330;/* sombra inferior del botón dorado */
+  --surface-cream: #f7f5ef;  /* fondo crema de pantallas */
+  --surface-raise: #fbfaf7;  /* superficie elevada sutil */
+  --ink: #17211d;            /* texto principal */
+  --ink-soft: #46524a;       /* texto secundario */
+  --ink-muted: #6d756e;      /* texto terciario */
+  --hairline: #e3ded2;       /* borde sutil sobre crema */
+
+  /* Elevación: tres niveles + glow de marca */
+  --elev-1: 0 1px 2px rgba(16,47,41,0.04), 0 4px 12px rgba(16,47,41,0.05);
+  --elev-2: 0 2px 6px rgba(16,47,41,0.06), 0 12px 30px rgba(16,47,41,0.08);
+  --elev-3: 0 8px 18px rgba(16,47,41,0.10), 0 24px 56px rgba(16,47,41,0.14);
+  --glow-pine: 0 12px 30px rgba(31,122,87,0.28);
+  --glow-gold: 0 12px 30px rgba(244,162,97,0.30);
+
   /* shadcn semantic tokens */
   --background: var(--nahuat-bg);
   --foreground: var(--nahuat-text);
@@ -131,10 +155,33 @@
   --color-nahuat-wrong: var(--nahuat-wrong);
   --color-nahuat-wrong-bg: var(--nahuat-wrong-bg);
 
+  /* Marca semántica expuesta a Tailwind (bg-brand-forest, text-ink, etc.) */
+  --color-brand-forest: var(--brand-forest);
+  --color-brand-forest-2: var(--brand-forest-2);
+  --color-brand-pine: var(--brand-pine);
+  --color-brand-pine-deep: var(--brand-pine-deep);
+  --color-brand-mint: var(--brand-mint);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-gold-deep: var(--brand-gold-deep);
+  --color-surface-cream: var(--surface-cream);
+  --color-surface-raise: var(--surface-raise);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-hairline: var(--hairline);
+
+  /* Sombras semánticas (shadow-e1/e2/e3, shadow-glow-pine, shadow-glow-gold) */
+  --shadow-e1: var(--elev-1);
+  --shadow-e2: var(--elev-2);
+  --shadow-e3: var(--elev-3);
+  --shadow-glow-pine: var(--glow-pine);
+  --shadow-glow-gold: var(--glow-gold);
+
   --radius-sm: calc(var(--radius) - 6px);   /* 10px */
   --radius-md: calc(var(--radius) - 4px);   /* 12px */
   --radius-lg: var(--radius);               /* 16px */
   --radius-xl: calc(var(--radius) + 4px);   /* 20px */
+  --radius-2xl: calc(var(--radius) + 12px); /* 28px */
 
   --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
 }
@@ -173,6 +220,47 @@
 
   .btn-secondary {
     @apply bg-card text-primary border-2 border-primary;
+  }
+
+  /* ── Botones táctiles 3D (rediseño 2026) ──────────────────────
+     Borde inferior sólido que se “hunde” al presionar, como en las
+     mejores apps de aprendizaje. Reutilizables vía .btn-3d + variante. */
+  .btn-3d {
+    @apply relative inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-base font-extrabold;
+    letter-spacing: 0.1px;
+    transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+    will-change: transform;
+  }
+  .btn-3d:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-3d-primary {
+    background: linear-gradient(180deg, #24895f 0%, var(--brand-pine) 100%);
+    color: #fff;
+    box-shadow: 0 5px 0 var(--brand-pine-deep), var(--glow-pine);
+  }
+  .btn-3d-primary:not(:disabled):active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 var(--brand-pine-deep), 0 4px 12px rgba(31,122,87,0.18);
+  }
+
+  .btn-3d-gold {
+    background: linear-gradient(180deg, #f7b076 0%, var(--brand-gold) 100%);
+    color: var(--brand-forest);
+    box-shadow: 0 5px 0 var(--brand-gold-deep), var(--glow-gold);
+  }
+  .btn-3d-gold:not(:disabled):active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 var(--brand-gold-deep), 0 4px 12px rgba(244,162,97,0.2);
+  }
+
+  .btn-3d-soft {
+    @apply bg-white text-ink;
+    box-shadow: 0 4px 0 #e0dccf, var(--elev-1);
+    border: 1px solid var(--hairline);
+  }
+  .btn-3d-soft:not(:disabled):active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #e0dccf;
   }
 }
 
@@ -522,7 +610,9 @@ button {
   display: flex;
   justify-content: center;
   align-items: stretch;
-  background: linear-gradient(135deg, #e8e0d8 0%, #d5cec6 50%, #e2dbd3 100%);
+  background:
+    radial-gradient(120% 80% at 50% -10%, #1d4d40 0%, transparent 55%),
+    linear-gradient(160deg, #20413a 0%, #16302b 45%, #0f2722 100%);
   min-height: 100svh;
 }
 
@@ -531,10 +621,76 @@ button {
   .app-shell {
     @apply relative w-full min-h-[100svh] overflow-x-hidden bg-background;
     max-width: 480px;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 30px 80px rgba(0, 0, 0, 0.45);
   }
 
   .card-premium {
     @apply bg-white rounded-[40px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/5;
+  }
+
+  /* ── Cabecera de marca premium ────────────────────────────────
+     Gradiente verde con esquinas inferiores redondeadas, brillo
+     de menta superior y línea de realce. Da el look de “app grande”. */
+  .brand-header {
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    background:
+      radial-gradient(130% 90% at 88% -20%, rgba(157,223,198,0.22) 0%, transparent 50%),
+      linear-gradient(165deg, var(--brand-forest-2) 0%, var(--brand-forest) 70%);
+    border-bottom-left-radius: 1.9rem;
+    border-bottom-right-radius: 1.9rem;
+    box-shadow: var(--elev-2);
+  }
+  /* Realce superior fino tipo cristal */
+  .brand-header::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  }
+  /* Textura sutil de puntos para profundidad */
+  .brand-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 16px 16px;
+    pointer-events: none;
+    mask-image: linear-gradient(180deg, rgba(0,0,0,0.5), transparent 70%);
+    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.5), transparent 70%);
+  }
+
+  /* Superficie elevada estándar sobre crema */
+  .surface-card {
+    @apply rounded-2xl border border-hairline bg-white;
+    box-shadow: var(--elev-1);
+  }
+  .surface-card-lg {
+    @apply rounded-[1.6rem] border border-hairline bg-white;
+    box-shadow: var(--elev-2);
+  }
+
+  /* Chip glassy sobre la cabecera verde */
+  .glass-chip {
+    @apply rounded-xl border border-white/12 bg-white/10 backdrop-blur;
+  }
+}
+
+/* Entrada en cascada para listas (stagger sutil) */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@layer components {
+  .rise-in { animation: rise-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }
