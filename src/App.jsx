@@ -14,6 +14,7 @@ import ResultScreen from './screens/ResultScreen'
 import SectionsScreen from './screens/SectionsScreen'
 import SectionLessonScreen from './screens/SectionLessonScreen'
 import ProfileScreen from './screens/ProfileScreen'
+import LogrosScreen from './screens/LogrosScreen'
 import BottomNav from './components/ui/BottomNav'
 import DesktopSidebar from './components/ui/DesktopSidebar'
 import { useIsDesktop } from './hooks/useMediaQuery'
@@ -128,6 +129,7 @@ export default function App() {
       <Route path="/section/:sectionId/lesson/:lessonId" element={<SectionLessonScreen />} />
       <Route path="/section/:sectionId/boss" element={<SectionLessonScreen />} />
       <Route path="/profile" element={<ProfileScreen />} />
+      <Route path="/logros" element={<LogrosScreen />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
@@ -185,7 +187,7 @@ function AppChrome({ children }) {
   const showSidebar = isDesktop && !focused
 
   return (
-    <div className="mx-auto flex w-full max-w-[480px] bg-surface-cream shadow-[0_0_60px_rgba(0,0,0,0.18)] lg:min-h-svh lg:max-w-[1280px] lg:shadow-[0_0_80px_rgba(0,0,0,0.4)]">
+    <div className="mx-auto flex w-full max-w-[480px] bg-surface-cream shadow-[0_0_60px_rgba(0,0,0,0.18)] lg:min-h-svh lg:max-w-[1440px] lg:shadow-[0_0_80px_rgba(0,0,0,0.4)]">
       {showSidebar && <DesktopSidebar />}
       <div
         className={`min-w-0 flex-1 ${

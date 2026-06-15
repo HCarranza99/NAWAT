@@ -21,6 +21,7 @@ import TorogozBadge from '../components/ui/TorogozBadge'
 import MascotTutorial from '../components/ui/MascotTutorial'
 import Torogoz from '../components/ui/Torogoz'
 import { useIsDesktop } from '../hooks/useMediaQuery'
+import HomeDesktop from './HomeDesktop'
 
 function formatClock(ms) {
   const totalSec = Math.max(0, Math.ceil(ms / 1000))
@@ -226,7 +227,10 @@ export default function HomeScreen() {
       </header>
       )}
 
-      <main className="space-y-2 px-4 pt-3 lg:mx-auto lg:max-w-[940px] lg:grid lg:grid-cols-[1.55fr_1fr] lg:items-start lg:gap-6 lg:space-y-0 lg:px-10 lg:pt-10">
+      {isDesktop && <HomeDesktop greeting={greeting} />}
+
+      {!isDesktop && (
+      <main className="space-y-2 px-4 pt-3">
         {/* Encabezado solo de escritorio */}
         {isDesktop && (
         <div className="lg:col-span-2 lg:mb-2">
@@ -359,6 +363,7 @@ export default function HomeScreen() {
           </div>
         </section>
       </main>
+      )}
 
       {msLeft != null && <StudyTimerBubble msLeft={msLeft} />}
 
