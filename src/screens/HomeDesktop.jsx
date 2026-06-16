@@ -9,38 +9,7 @@ import sections from '../data/sections'
 import useGameStore from '../store/useGameStore'
 import { GAME_CONFIG } from '../data/gameConfig'
 import Torogoz from '../components/ui/Torogoz'
-
-/* Encuentra la siguiente lección disponible siguiendo el progreso. */
-function findNextLesson(sectionProgress) {
-  for (let sIdx = 0; sIdx < sections.length; sIdx++) {
-    const section = sections[sIdx]
-    if (sIdx > 0) {
-      const prevProg = sectionProgress[sections[sIdx - 1].id]
-      if (!prevProg?.bossCompleted) continue
-    }
-    const prog = sectionProgress[section.id] || { lessonsCompleted: {}, bossCompleted: false }
-    for (let lIdx = 0; lIdx < section.lessons.length; lIdx++) {
-      const lesson = section.lessons[lIdx]
-      if (lIdx > 0 && !prog.lessonsCompleted?.[section.lessons[lIdx - 1].id]?.completed) break
-      if (!prog.lessonsCompleted?.[lesson.id]?.completed) return { section, lesson, isBoss: false }
-    }
-    const allDone = section.lessons.every((l) => prog.lessonsCompleted?.[l.id]?.completed)
-    if (allDone && !prog.bossCompleted && section.boss) return { section, lesson: section.boss, isBoss: true }
-  }
-  return null
-}
-
-/* Índice global (1-based) de una lección dentro de todas las secciones. */
-function globalLessonIndex(targetLesson) {
-  let idx = 0
-  for (const section of sections) {
-    for (const lesson of section.lessons) {
-      idx += 1
-      if (lesson.id === targetLesson.id) return idx
-    }
-  }
-  return idx
-}
+import { findNextLesson, globalLessonIndex } from '../lib/lessonPath'
 
 function StatCard({ icon: Icon, label, value, iconWrap, extra }) {
   return (
