@@ -15,14 +15,24 @@ import { DEMO_MODE } from '../store/useGameStore'
 /**
  * Crea un participante en Supabase y retorna su UUID.
  * Si falla, genera un UUID local para no bloquear el onboarding.
+ *
+ * @param {string|null} firstName
+ * @param {string|null} lastName
+ * @param {'study'|'free'} cohort - 'study' = entró por /estudio y consintió;
+ *        'free' = uso general de la población (sin protocolo).
  */
-export async function createParticipant(firstName, lastName) {
+export async function createParticipant(firstName, lastName, cohort = 'free') {
   if (DEMO_MODE) return 'demo-user'
   const participantId = crypto.randomUUID()
   try {
     const { error } = await supabase
       .from('participants')
-      .insert({ id: participantId, first_name: firstName, last_name: lastName })
+      .insert({
+        id: participantId,
+        first_name: firstName ?? null,
+        last_name: lastName ?? null,
+        cohort,
+      })
 
     if (error) throw error
     return participantId

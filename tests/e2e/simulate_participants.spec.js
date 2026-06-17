@@ -69,7 +69,7 @@ for (let i = 1; i <= participantCount; i += 1) {
 
     await resetBrowserStorage(context)
     await page.clock.install()
-    await page.goto('/')
+    await page.goto('/estudio')
 
     await expect(page.getByRole('heading', { name: 'Bienvenido al estudio Aprende Nawat' })).toBeVisible({ timeout: 15_000 })
     await page.getByLabel('Nombre').fill(`E2E${i}`)

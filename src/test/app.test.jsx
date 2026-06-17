@@ -11,6 +11,7 @@ import sections from '../data/sections'
 
 // Mock analytics to prevent real Supabase calls
 vi.mock('../services/analytics', () => ({
+  createParticipant: vi.fn().mockResolvedValue('mock-participant-id'),
   startSession: vi.fn().mockResolvedValue('mock-session-id'),
   endSession: vi.fn(),
   markPretestCompleted: vi.fn(),

@@ -18,7 +18,7 @@ import LogrosScreen from './screens/LogrosScreen'
 import BottomNav from './components/ui/BottomNav'
 import DesktopSidebar from './components/ui/DesktopSidebar'
 import { useIsDesktop } from './hooks/useMediaQuery'
-import { startSession, endSession } from './services/analytics'
+import { startSession, endSession, createParticipant } from './services/analytics'
 import { saveProgressToCloud } from './services/auth'
 import { useAuth } from './hooks/useAuth'
 import { INTERVENTION_MS } from './data/questionnaires'
@@ -31,6 +31,22 @@ export default function App() {
   const pretestCompletedAt = useGameStore((s) => s.pretestCompletedAt)
   const triggerPosttest = useGameStore((s) => s.triggerPosttest)
   const authUserId = useGameStore((s) => s.authUserId)
+  const enrolledInStudy = useGameStore((s) => s.enrolledInStudy)
+  const setParticipant = useGameStore((s) => s.setParticipant)
+  const studyThanks = useGameStore((s) => s.studyThanks)
+  const dismissStudyThanks = useGameStore((s) => s.dismissStudyThanks)
+
+  // Modo libre: crea un participante anónimo (cohorte 'free') para registrar
+  // telemetría de la población general. Los participantes del estudio obtienen
+  // su participante en el consentimiento (cohorte 'study'), así que aquí se omiten.
+  useEffect(() => {
+    if (DEMO_MODE || participantId || enrolledInStudy) return
+    let cancelled = false
+    createParticipant(null, null, 'free').then((id) => {
+      if (!cancelled && id) setParticipant(id, null)
+    })
+    return () => { cancelled = true }
+  }, [participantId, enrolledInStudy, setParticipant])
 
   // Inicializar observador de sesión de Supabase Auth (skip in demo mode)
   const { isLoading: authLoading } = useAuth()
@@ -172,7 +188,36 @@ export default function App() {
     )
   }
 
-  return <ErrorBoundary>{renderByPhase()}</ErrorBoundary>
+  return (
+    <ErrorBoundary>
+      {renderByPhase()}
+      {studyThanks && <StudyThanksNotice onClose={dismissStudyThanks} />}
+    </ErrorBoundary>
+  )
+}
+
+/* ── Aviso: el participante ya completó el estudio ────────────────── */
+function StudyThanksNotice({ onClose }) {
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/45 p-5 backdrop-blur-sm">
+      <div className="w-full max-w-[360px] rounded-[1.6rem] border border-hairline bg-white p-6 text-center shadow-[0_24px_60px_rgba(16,47,41,0.3)]">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#52b788] to-[#1f7a57] text-white shadow-[0_10px_22px_rgba(31,122,87,0.3)]">
+          <span className="text-3xl">🌿</span>
+        </div>
+        <h2 className="mt-4 text-xl font-black text-[#17211d]">¡Ya completaste el estudio!</h2>
+        <p className="mt-2 text-sm font-medium leading-snug text-[#6d756e]">
+          Gracias por tu participación. Tus respuestas ya fueron registradas; no necesitas
+          volver a contestar. Puedes seguir aprendiendo náhuat con total libertad.
+        </p>
+        <button
+          onClick={onClose}
+          className="btn-3d btn-3d-primary mt-5"
+        >
+          Seguir aprendiendo
+        </button>
+      </div>
+    </div>
+  )
 }
 
 /* ── Marco responsivo: móvil (columna) vs escritorio (sidebar) ──── */
