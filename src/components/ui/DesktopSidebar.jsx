@@ -38,7 +38,7 @@ export default function DesktopSidebar() {
             <Sparkles className="h-3 w-3" />
             Aprende
           </p>
-          <h1 className="mt-0.5 text-2xl font-black leading-none">Náhuat</h1>
+          <h1 className="mt-0.5 text-2xl font-black leading-none">Nawat</h1>
         </div>
       </button>
 

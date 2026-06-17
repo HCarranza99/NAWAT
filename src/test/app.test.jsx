@@ -91,7 +91,7 @@ describe('Navigation — Home Screen', () => {
   it('renders HomeScreen at root path', async () => {
     render(<App />)
     await waitFor(() => {
-      expect(screen.getByText('Náhuat')).toBeInTheDocument()
+      expect(screen.getByText('Nawat')).toBeInTheDocument()
     })
   })
 

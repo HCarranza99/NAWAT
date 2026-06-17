@@ -84,7 +84,7 @@ export default function HomeDesktop({ greeting }) {
               <Sparkles className="h-4 w-4 text-[#f4a261]" /> ¡Hola, {firstName}!
             </p>
             <h1 className="mt-1 text-[2.6rem] font-black leading-[1.05] tracking-tight text-[#17211d]">
-              Tu aventura <span className="text-[#1f7a57]">Náhuat</span> continúa
+              Tu aventura <span className="text-[#1f7a57]">Nawat</span> continúa
             </h1>
           </header>
 

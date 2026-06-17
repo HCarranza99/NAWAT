@@ -48,7 +48,7 @@ export default function ConsentScreen() {
       <div className="flex flex-col gap-6">
         <div className="onboarding-slide">
           <span className="onboarding-icon">🌿</span>
-          <h1 className="onboarding-title">Bienvenido al estudio NAWAT</h1>
+          <h1 className="onboarding-title">Bienvenido al estudio Aprende Nawat</h1>
           <p className="onboarding-text">
             Queremos conocer si una app interactiva puede ayudar a despertar el interés por aprender náhuat.
           </p>

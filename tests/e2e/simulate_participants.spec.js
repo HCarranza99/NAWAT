@@ -71,7 +71,7 @@ for (let i = 1; i <= participantCount; i += 1) {
     await page.clock.install()
     await page.goto('/')
 
-    await expect(page.getByRole('heading', { name: 'Bienvenido al estudio NAWAT' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Bienvenido al estudio Aprende Nawat' })).toBeVisible({ timeout: 15_000 })
     await page.getByLabel('Nombre').fill(`E2E${i}`)
     await page.getByLabel('Apellido').fill(faker.person.lastName())
     await page.getByLabel(/Acepto participar/).check()

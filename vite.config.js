@@ -21,8 +21,8 @@ export default defineConfig({
       },
       includeAssets: ['icon.svg', 'favicon.svg', 'favicon.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png'],
       manifest: {
-        name: 'Sistema Náhuat',
-        short_name: 'Náhuat',
+        name: 'Aprende Nawat',
+        short_name: 'Aprende Nawat',
         description: 'Aprende el idioma Náhuat del pueblo Pipil de El Salvador',
         theme_color: '#2D6A4F',
         background_color: '#FFF8F0',
