@@ -37,25 +37,23 @@ export default function HomeMobile({ greeting }) {
 
   return (
     <div className="space-y-2.5 px-4 pb-20 pt-4">
-      {/* ── Header ── */}
-      <header className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <TorogozBadge size={48} />
+      {/* ── Header + stats (Nivel · Vidas · Racha) ── */}
+      <header className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <TorogozBadge size={44} />
           <div>
-            <p className="flex items-center gap-1 text-[0.62rem] font-black uppercase tracking-[0.18em] text-[#1f7a57]">
+            <p className="flex items-center gap-1 text-[0.6rem] font-black uppercase tracking-[0.18em] text-[#1f7a57]">
               <Leaf className="h-3 w-3" /> Aprende
             </p>
             <h1 className="mt-0.5 text-2xl font-black leading-none text-[#17211d]">Nawat</h1>
           </div>
         </div>
         <div className="flex items-center gap-2 rounded-2xl border border-hairline bg-white px-3 py-2 shadow-[var(--elev-1)]">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#dff3e7] text-[#1f7a57]">
-            <Mountain className="h-4 w-4" />
-          </span>
-          <div className="pr-0.5 text-right">
-            <p className="text-[0.54rem] font-bold uppercase tracking-[0.14em] text-[#6d756e]">Nivel</p>
-            <p className="text-lg font-black leading-none text-[#17211d]">{level}</p>
-          </div>
+          <TopStat icon={Mountain} value={level} iconClass="text-[#1f7a57]" />
+          <span className="h-4 w-px bg-hairline" />
+          <TopStat icon={Heart} value={lives} iconClass="fill-[#e63946] text-[#e63946]" />
+          <span className="h-4 w-px bg-hairline" />
+          <TopStat icon={Flame} value={streak} iconClass="text-[#f4a261]" />
         </div>
       </header>
 
@@ -68,55 +66,6 @@ export default function HomeMobile({ greeting }) {
           <span>Tu aventura <span className="text-[#1f7a57]">continúa</span></span>
           <Sparkles className="mt-1 h-5 w-5 shrink-0 text-[#f4a261]" />
         </h2>
-      </div>
-
-      {/* ── Tarjeta XP ── */}
-      <div
-        className="relative overflow-hidden rounded-[1.8rem] border border-white/10 p-4 text-white shadow-[0_18px_40px_rgba(16,47,41,0.28)]"
-        style={{ background: 'radial-gradient(circle at 86% 12%, rgba(157,223,198,0.18) 0, transparent 45%), linear-gradient(160deg,#16463a 0%, #102f29 72%)' }}
-      >
-        <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-        <div className="relative z-10 flex items-start justify-between">
-          <div>
-            <p className="text-[2.4rem] font-black leading-none">{xpInLevel}</p>
-            <p className="mt-0.5 text-lg font-black tracking-wide text-[#9ddfc6]">XP</p>
-          </div>
-          <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#f4a261]/45 bg-[#0c2620] text-[#f4a261] shadow-[0_0_28px_rgba(244,162,97,0.5)]">
-            <Trophy className="h-7 w-7" />
-          </div>
-        </div>
-        <div className="relative z-10 mt-3 h-2.5 overflow-visible rounded-full bg-white/14">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${levelPct}%` }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="relative h-full rounded-full bg-gradient-to-r from-[#52b788] to-[#9ddfc6] shadow-[0_0_10px_rgba(157,223,198,0.7)]"
-          >
-            <Sparkles className="absolute -right-1 -top-[7px] h-3.5 w-3.5 text-[#fff4cf]" />
-          </motion.div>
-        </div>
-        <p className="relative z-10 mt-2 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-white/50">de {xpPerLevel} XP</p>
-
-        <div className="relative z-10 mt-3 grid grid-cols-2 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06]">
-          <div className="flex items-center gap-2.5 p-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e63946]/18 text-[#ff8b8b]">
-              <Heart className="h-4 w-4 fill-current" />
-            </span>
-            <div>
-              <p className="text-[0.58rem] font-bold uppercase tracking-[0.14em] text-white/50">Vidas</p>
-              <p className="text-base font-black leading-none">{lives}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5 border-l border-white/10 p-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f4a261]/18 text-[#ffb15f]">
-              <Flame className="h-4 w-4" />
-            </span>
-            <div>
-              <p className="text-[0.58rem] font-bold uppercase tracking-[0.14em] text-white/50">Racha</p>
-              <p className="text-base font-black leading-none">{streak} d</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* ── Sin vidas ── */}
@@ -177,6 +126,33 @@ export default function HomeMobile({ greeting }) {
         </div>
       )}
 
+      {/* ── Tarjeta XP (delgada, debajo de la lección) ── */}
+      <div
+        className="relative overflow-hidden rounded-[1.6rem] border border-white/10 p-4 text-white shadow-[0_16px_34px_rgba(16,47,41,0.24)]"
+        style={{ background: 'radial-gradient(circle at 90% 0%, rgba(157,223,198,0.16) 0, transparent 45%), linear-gradient(160deg,#16463a 0%, #102f29 72%)' }}
+      >
+        <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-baseline gap-1.5">
+            <p className="text-[2rem] font-black leading-none">{xpInLevel}</p>
+            <p className="text-base font-black tracking-wide text-[#9ddfc6]">/ {xpPerLevel} XP</p>
+          </div>
+          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#f4a261]/45 bg-[#0c2620] text-[#f4a261] shadow-[0_0_22px_rgba(244,162,97,0.45)]">
+            <Trophy className="h-5 w-5" />
+          </span>
+        </div>
+        <div className="relative z-10 mt-2.5 h-2.5 overflow-visible rounded-full bg-white/14">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${levelPct}%` }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className="relative h-full rounded-full bg-gradient-to-r from-[#52b788] to-[#9ddfc6] shadow-[0_0_10px_rgba(157,223,198,0.7)]"
+          >
+            <Sparkles className="absolute -right-1 -top-[7px] h-3.5 w-3.5 text-[#fff4cf]" />
+          </motion.div>
+        </div>
+      </div>
+
       {/* ── Ruta de hoy ── */}
       <section className="surface-card-lg p-4">
         <div className="mb-3 flex items-center gap-2">
@@ -205,6 +181,15 @@ export default function HomeMobile({ greeting }) {
       </section>
 
     </div>
+  )
+}
+
+function TopStat({ icon: Icon, value, iconClass }) {
+  return (
+    <span className="flex items-center gap-1">
+      <Icon className={`h-[18px] w-[18px] ${iconClass}`} />
+      <span className="text-sm font-black tabular-nums text-[#17211d]">{value}</span>
+    </span>
   )
 }
 
