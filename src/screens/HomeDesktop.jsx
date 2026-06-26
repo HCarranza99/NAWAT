@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import {
   ArrowRight, BookOpen, Calendar, Check, ChevronRight, Clock3, Crown,
-  Flag, Flame, Heart, Lock, Play, Sparkles, Star, Trophy,
+  Flag, Flame, Heart, Lock, Sparkles, Star, Trophy,
 } from 'lucide-react'
 
 import sections from '../data/sections'
