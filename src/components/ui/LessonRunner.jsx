@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { ArrowRight, BookOpen, CheckCircle2, Crown, Heart, RotateCcw, X } from 'lucide-react'
+import { ArrowRight, BookOpen, CheckCircle2, Crown, Heart, RotateCcw, Sparkles, X } from 'lucide-react'
 
 import { GAME_CONFIG } from '../../data/gameConfig'
 import useGameStore from '../../store/useGameStore'
@@ -10,6 +10,7 @@ import { logExerciseResponse } from '../../services/analytics'
 import ProgressBar from './ProgressBar'
 import LivesBar from './LivesBar'
 import FeedbackModal from './FeedbackModal'
+import TutorChat from './TutorChat'
 import Torogoz from './Torogoz'
 import Flashcard from '../exercises/Flashcard'
 import MultipleChoiceText from '../exercises/MultipleChoiceText'
@@ -38,6 +39,7 @@ export default function LessonRunner({
 
   const [failedItems, setFailedItems] = useState([])
   const [retryMode, setRetryMode] = useState(false)
+  const [tutorOpen, setTutorOpen] = useState(false)
 
   const attemptIdRef = useRef(null)
   const lessonStartRef = useRef(null)
@@ -340,6 +342,14 @@ export default function LessonRunner({
               {currentIndex + 1}/{items.length} ejercicios
             </p>
           </div>
+          <button
+            className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-md border border-[#1f7a57]/25 bg-[#eef8f2] px-2.5 text-[#1f7a57] shadow-sm transition active:scale-95"
+            onClick={() => setTutorOpen(true)}
+            aria-label="Abrir el tutor"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span className="text-[0.68rem] font-black uppercase tracking-[0.08em]">Tutor</span>
+          </button>
           <LivesBar lives={lives} />
         </div>
       </header>
@@ -377,6 +387,8 @@ export default function LessonRunner({
           noLives={lives === 0}
         />
       )}
+
+      <TutorChat lesson={lesson} open={tutorOpen} onClose={() => setTutorOpen(false)} />
     </div>
   )
 }
