@@ -85,7 +85,7 @@ export default function LessonRunner({
       case 'matching':
         return {
           emotion: 'explaining',
-          text: 'Toca una palabra en náhuat y su par en español para unirlas.',
+          text: 'Toca cada palabra y su par para unirlas.',
         }
       case 'build_sentence':
         return {
@@ -243,7 +243,7 @@ export default function LessonRunner({
 
   const finishLesson = (finalScore) => {
     const totalItems = exercises.length
-    const ratio = totalItems > 0 ? finalScore.correct / totalItems : 0
+    const ratio = totalItems > 0 ? Math.min(1, finalScore.correct / totalItems) : 0
     playComplete()
     onComplete(ratio, finalScore.xp, attemptIdRef.current, lessonStartRef.current)
   }

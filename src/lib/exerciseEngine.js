@@ -38,8 +38,6 @@ const shuffle = (arr, rng) => {
 
 const norm = (s = '') => s.toLowerCase().trim()
 const isWord = (it) => it?.nahuat_word && it?.spanish_translation
-const WORD_TYPES = new Set(['flashcard', 'multiple_choice_text'])
-const SPECIAL_TYPES = new Set(['build_sentence', 'active_recall', 'multiple_choice_image'])
 
 /** Opciones de opción múltiple: la correcta + distractores del pool. */
 function mcOptions(word, pool, rng) {
@@ -117,55 +115,44 @@ export function buildExercises(lesson, { seed = 1, sectionWords = [] } = {}) {
   const rng = mulberry32(seed)
   const items = lesson?.items || []
 
-  // Vocabulario base (de flashcards y opción múltiple) y ejercicios especiales.
+  // Vocabulario LIMPIO = solo flashcards: ahí `nahuat_word` es náhuat real y
+  // `pronunciation` es guía real. Los demás ejercicios (opción múltiple, matching,
+  // frases…) se CONSERVAN tal cual — algunos artesanales vienen "invertidos"
+  // (nahuat_word contiene el español), así que no se re-derivan para no ensuciarlos.
   const words = []
   const seen = new Set()
-  const special = []
+  const kept = []
   for (const it of items) {
-    if (WORD_TYPES.has(it.type) && isWord(it)) {
+    if (it.type === 'flashcard' && isWord(it)) {
       const k = norm(it.nahuat_word)
       if (!seen.has(k)) { seen.add(k); words.push(it) }
-    } else if (SPECIAL_TYPES.has(it.type) || it.type === 'matching') {
-      special.push(it)
+    } else if (it.type !== 'flashcard') {
+      kept.push(it)
     }
   }
 
-  // Pool de distractores: palabras de la sección (o las de la lección).
+  if (words.length === 0) return items // sin flashcards: deja la lección como está
+
   const distractPool = (sectionWords.length ? sectionWords : words).filter(isWord)
 
-  if (words.length === 0) {
-    // Lección sin vocabulario (p. ej. solo frases): deja los especiales.
-    return special.length ? shuffle(special, rng) : items
+  // Cada palabra → Verdadero/Falso u Opción múltiple (aleatorio). Cobertura completa.
+  const perWord = shuffle(words, rng).map((w, i) => (
+    rng() < 0.5
+      ? buildTrueFalse(w, distractPool, rng, `ex-tf${i}-${seed}`)
+      : buildMultipleChoice(w, distractPool, rng, `ex-mc${i}-${seed}`)
+  ))
+
+  // Extras (reforzando, sin consumir el vocabulario base): un emparejamiento y una
+  // ronda relámpago si hay suficientes palabras.
+  const extras = []
+  if (words.length >= 4) {
+    const grp = shuffle(words, rng).slice(0, 5)
+    const withPron = grp.every((w) => w.pronunciation) && rng() < 0.5
+    extras.push(buildMatching(grp, `ex-match-${seed}`, { pronunciation: withPron }))
+    extras.push(buildLightning(shuffle(words, rng).slice(0, 6), distractPool, rng, `ex-lightning-${seed}`))
   }
 
-  const shuffledWords = shuffle(words, rng)
-  const exercises = []
-  let used = 0
-
-  // 1) Un emparejamiento (mitad de las veces con pronunciación, mitad con significado).
-  if (shuffledWords.length >= 4) {
-    const group = shuffledWords.slice(used, used + 5)
-    const withPron = group.every((w) => w.pronunciation) && rng() < 0.5
-    exercises.push(buildMatching(group, `ex-match-${seed}`, { pronunciation: withPron }))
-    used += group.length
-  }
-
-  // 2) Una ronda relámpago si aún queda vocabulario.
-  if (shuffledWords.length - used >= 3) {
-    const group = shuffledWords.slice(used, used + 6)
-    exercises.push(buildLightning(group, distractPool, rng, `ex-lightning-${seed}`))
-    used += group.length
-  }
-
-  // 3) El vocabulario restante: cada palabra es Verdadero/Falso u Opción múltiple (aleatorio).
-  for (let i = used; i < shuffledWords.length; i++) {
-    const w = shuffledWords[i]
-    const id = `ex-w${i}-${seed}`
-    exercises.push(rng() < 0.5
-      ? buildTrueFalse(w, distractPool, rng, id)
-      : buildMultipleChoice(w, distractPool, rng, id))
-  }
-
-  // 4) Intercala los ejercicios especiales artesanales y baraja todo.
-  return shuffle([...exercises, ...special], rng)
+  const all = shuffle([...perWord, ...extras, ...kept], rng)
+  // Tope para que no sea eterno (pero sin recortar por debajo de lo que trae la lección).
+  return all.slice(0, Math.min(all.length, 12))
 }
