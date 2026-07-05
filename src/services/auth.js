@@ -8,7 +8,7 @@
 
 import { supabase } from '../lib/supabase'
 import { logError } from '../lib/logger'
-import { PHASES } from '../store/useGameStore'
+import { PHASES, STUDY_OPEN } from '../store/useGameStore'
 
 // ── Autenticación ─────────────────────────────────────────────────
 
@@ -149,7 +149,9 @@ function profileToGameState(row) {
     sectionProgress: row.section_progress ?? {},
     lessonProgress: row.lesson_progress ?? {},
     srs: row.srs ?? {},
-    studyPhase: row.study_phase ?? PHASES.CONSENT,
+    // Estudio cerrado: la nube nunca re-atasca a un usuario en una fase de
+    // protocolo (ver STUDY_OPEN). Con el estudio abierto se respeta la fase guardada.
+    studyPhase: STUDY_OPEN ? (row.study_phase ?? PHASES.CONSENT) : PHASES.FREE,
     pretestCompletedAt: row.pretest_completed_at ?? null,
     posttestCompletedAt: row.posttest_completed_at ?? null,
   }
