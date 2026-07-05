@@ -31,7 +31,7 @@ export default function ConsentScreen() {
     const ln = lastName.trim()
 
     try {
-      const id = await createParticipant(fn, ln)
+      const id = await createParticipant(fn, ln, 'study')
       setParticipant(id, `${fn} ${ln}`)
       await saveConsent(id, CONSENT_VERSION, CONSENT_TEXT)
       acceptConsent()

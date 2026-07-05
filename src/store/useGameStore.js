@@ -44,6 +44,24 @@ if (demoLocation.enabled) {
  */
 export const DEMO_MODE = demoLocation.enabled
 
+/**
+ * El estudio se reparte como aprendenawat.com/estudio (o ?estudio=true para
+ * enlaces que apuntan a la raíz). Entrar por ahí marca el dispositivo como
+ * participante del estudio. El reconocimiento posterior desde el enlace normal
+ * (aprendenawat.com) se basa en el flag persistido `enrolledInStudy`.
+ */
+export function resolveStudyEntry(location = window.location) {
+  const url = new URL(location.href)
+  const pathMatch = url.pathname.match(/^\/estudio(?=\/|$)/i)
+  const queryFlag = url.searchParams.get('estudio') === 'true'
+  return { enrollNow: Boolean(pathMatch || queryFlag) }
+}
+
+const studyEntry = DEMO_MODE ? { enrollNow: false } : resolveStudyEntry()
+
+/** Verdadero si esta carga llegó por el enlace del estudio (/estudio). */
+export const STUDY_LINK_ENTRY = studyEntry.enrollNow
+
 export const PHASES = Object.freeze({
   CONSENT: 'consent',
   ABOUT: 'about',
@@ -60,10 +78,11 @@ const GameStateSchema = z.object({
   participantName: z.string().nullable().catch(null),
   authUserId: z.string().nullable().catch(null),
   isGuestMode: z.boolean().catch(true),
-  studyPhase: z.string().catch(PHASES.CONSENT),
+  studyPhase: z.string().catch(PHASES.FREE),
   consentAcceptedAt: z.string().nullable().catch(null),
   pretestCompletedAt: z.string().nullable().catch(null),
   posttestCompletedAt: z.string().nullable().catch(null),
+  enrolledInStudy: z.boolean().catch(false),
   xp: z.number().min(0).catch(0),
   lives: z.number().min(0).max(3).catch(3),
   livesLastLostAt: z.string().nullable().catch(null),
@@ -83,7 +102,11 @@ const useGameStore = create(
       authUserId: null,
       isGuestMode: true,
       currentSessionId: null,
-      studyPhase: DEMO_MODE ? PHASES.FREE : PHASES.CONSENT,
+      // Por defecto la app es de acceso libre. Solo quien entra por /estudio
+      // (o ya está inscrito y persistido) arranca el protocolo en CONSENT.
+      studyPhase: DEMO_MODE ? PHASES.FREE : (STUDY_LINK_ENTRY ? PHASES.CONSENT : PHASES.FREE),
+      enrolledInStudy: !DEMO_MODE && STUDY_LINK_ENTRY,
+      studyThanks: false,
       consentAcceptedAt: null,
       pretestCompletedAt: null,
       posttestCompletedAt: null,
@@ -130,6 +153,18 @@ const useGameStore = create(
       triggerPosttest: () => set({ studyPhase: PHASES.POSTTEST }),
       completePosttest: () => set({ studyPhase: PHASES.ACCOUNT_PROMPT, posttestCompletedAt: new Date().toISOString() }),
       goFree: () => set({ studyPhase: PHASES.FREE }),
+
+      // Inscribe el dispositivo en el estudio. Si aún no empezó, arranca el
+      // consentimiento; si ya está en curso, conserva la fase actual (reanuda).
+      enrollInStudy: () => set((state) => {
+        if (state.posttestCompletedAt) return { enrolledInStudy: true, studyThanks: true }
+        const alreadyStarted = state.enrolledInStudy || state.consentAcceptedAt
+        return {
+          enrolledInStudy: true,
+          ...(alreadyStarted ? {} : { studyPhase: PHASES.CONSENT }),
+        }
+      }),
+      dismissStudyThanks: () => set({ studyThanks: false }),
 
       addXP: (amount) => set((state) => ({ xp: state.xp + amount })),
 
@@ -235,8 +270,22 @@ const useGameStore = create(
     }),
     {
       name: DEMO_MODE ? 'nahuat-demo-v1' : 'nahuat-game-v1',
-      version: 1,
+      version: 3,
       migrate: (state) => {
+        // Compatibilidad: los usuarios previos (sin el flag) se consideran
+        // inscritos en el estudio si ya habían aceptado el consentimiento.
+        if (state && state.enrolledInStudy === undefined) {
+          state.enrolledInStudy = state.consentAcceptedAt != null
+        }
+        // v3: la recolección de datos del estudio terminó. Cualquier dispositivo
+        // que haya quedado detenido en una fase del protocolo (consentimiento,
+        // pretest, postest, etc.) sin completarlo se libera a acceso libre para
+        // que pueda usar la app. Se conservan sus datos (enrolledInStudy y las
+        // marcas de tiempo) por si el estudio se reanuda. No afecta a dispositivos
+        // nuevos: migrate solo corre sobre estado ya persistido.
+        if (state && state.studyPhase && state.studyPhase !== PHASES.FREE) {
+          state.studyPhase = PHASES.FREE
+        }
         const parsed = GameStateSchema.safeParse(state)
         return parsed.success ? parsed.data : state
       },
@@ -244,12 +293,30 @@ const useGameStore = create(
         if (err && state) state.resetProgress()
       },
       partialize: (state) => {
+        // currentSessionId y studyThanks son transitorios: no se persisten.
         // eslint-disable-next-line no-unused-vars
-        const { currentSessionId, ...rest } = state
+        const { currentSessionId, studyThanks, ...rest } = state
         return rest
       },
     }
   )
 )
+
+// ── Entrada por el enlace del estudio (/estudio) ──────────────────────
+// Marca o reanuda la inscripción y normaliza la URL a la raíz para que el
+// router corra en '/'. El reconocimiento desde el enlace normal (/) ocurre
+// solo, porque `enrolledInStudy` y `studyPhase` quedan persistidos.
+if (STUDY_LINK_ENTRY) {
+  useGameStore.getState().enrollInStudy()
+
+  const url = new URL(window.location.href)
+  url.pathname = url.pathname.replace(/^\/estudio(?=\/|$)/i, '') || '/'
+  url.searchParams.delete('estudio')
+  const target = `${url.pathname || '/'}${url.search}${url.hash}`
+  const current = `${window.location.pathname}${window.location.search}${window.location.hash}`
+  if (current !== target) {
+    window.history.replaceState(window.history.state, '', target)
+  }
+}
 
 export default useGameStore

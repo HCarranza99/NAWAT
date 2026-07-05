@@ -16,6 +16,9 @@ export function useMediaQuery(query) {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
     const mql = window.matchMedia(query)
     const handler = (event) => setMatches(event.matches)
+    // Sincroniza el valor al suscribirse (patrón de store externo): cubre el
+    // caso en que la media query cambió entre el render y el montaje del efecto.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMatches(mql.matches)
     mql.addEventListener('change', handler)
     return () => mql.removeEventListener('change', handler)

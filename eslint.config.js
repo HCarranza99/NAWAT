@@ -6,7 +6,7 @@ import react from 'eslint-plugin-react'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist', 'src/data/sections/generated.js']),
+  globalIgnores(['dist', 'dev-dist', 'src/data/sections/generated.js']),
   {
     files: ['**/*.{js,jsx}'],
     plugins: {

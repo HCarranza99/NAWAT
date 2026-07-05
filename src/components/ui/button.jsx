@@ -56,4 +56,8 @@ function Button({
   );
 }
 
+// Button (componente) y buttonVariants (helper de estilos) se exportan juntos por
+// convención de shadcn/ui; el warning de fast-refresh no aplica aquí porque este
+// archivo es una primitiva de UI estable, no un módulo con estado recargable.
+// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants }
