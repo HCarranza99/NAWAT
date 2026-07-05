@@ -45,6 +45,15 @@ if (demoLocation.enabled) {
 export const DEMO_MODE = demoLocation.enabled
 
 /**
+ * Interruptor maestro del estudio. La recolección de datos ya terminó, así que
+ * está CERRADO: `/estudio` no inicia el protocolo y ningún dispositivo queda
+ * retenido en él — todos entran en modo libre (ver `onRehydrateStorage`). Todo
+ * el código del estudio (pantallas, fases, cuestionarios) se conserva intacto:
+ * para reabrir el estudio basta con poner esto en `true`.
+ */
+export const STUDY_OPEN = false
+
+/**
  * El estudio se reparte como aprendenawat.com/estudio (o ?estudio=true para
  * enlaces que apuntan a la raíz). Entrar por ahí marca el dispositivo como
  * participante del estudio. El reconocimiento posterior desde el enlace normal
@@ -57,7 +66,8 @@ export function resolveStudyEntry(location = window.location) {
   return { enrollNow: Boolean(pathMatch || queryFlag) }
 }
 
-const studyEntry = DEMO_MODE ? { enrollNow: false } : resolveStudyEntry()
+// Con el estudio cerrado, ninguna entrada inscribe (enrollNow siempre false).
+const studyEntry = (DEMO_MODE || !STUDY_OPEN) ? { enrollNow: false } : resolveStudyEntry()
 
 /** Verdadero si esta carga llegó por el enlace del estudio (/estudio). */
 export const STUDY_LINK_ENTRY = studyEntry.enrollNow
@@ -102,8 +112,9 @@ const useGameStore = create(
       authUserId: null,
       isGuestMode: true,
       currentSessionId: null,
-      // Por defecto la app es de acceso libre. Solo quien entra por /estudio
-      // (o ya está inscrito y persistido) arranca el protocolo en CONSENT.
+      // Por defecto la app es de acceso libre. Con el estudio abierto, solo quien
+      // entra por /estudio arranca el protocolo en CONSENT; cerrado, siempre FREE
+      // (STUDY_LINK_ENTRY ya es false). Ver STUDY_OPEN.
       studyPhase: DEMO_MODE ? PHASES.FREE : (STUDY_LINK_ENTRY ? PHASES.CONSENT : PHASES.FREE),
       enrolledInStudy: !DEMO_MODE && STUDY_LINK_ENTRY,
       studyThanks: false,
@@ -277,20 +288,20 @@ const useGameStore = create(
         if (state && state.enrolledInStudy === undefined) {
           state.enrolledInStudy = state.consentAcceptedAt != null
         }
-        // v3: la recolección de datos del estudio terminó. Cualquier dispositivo
-        // que haya quedado detenido en una fase del protocolo (consentimiento,
-        // pretest, postest, etc.) sin completarlo se libera a acceso libre para
-        // que pueda usar la app. Se conservan sus datos (enrolledInStudy y las
-        // marcas de tiempo) por si el estudio se reanuda. No afecta a dispositivos
-        // nuevos: migrate solo corre sobre estado ya persistido.
-        if (state && state.studyPhase && state.studyPhase !== PHASES.FREE) {
-          state.studyPhase = PHASES.FREE
-        }
         const parsed = GameStateSchema.safeParse(state)
         return parsed.success ? parsed.data : state
       },
       onRehydrateStorage: () => (state, err) => {
-        if (err && state) state.resetProgress()
+        if (err && state) { state.resetProgress(); return }
+        // Estudio cerrado (STUDY_OPEN=false): en CADA carga se libera cualquier
+        // fase de protocolo persistida, de modo que ningún dispositivo quede
+        // retenido en el estudio (p. ej. atascado en consentimiento o postest).
+        // Es robusto: no depende de una migración de versión de una sola vez.
+        // Se conservan los datos de inscripción (enrolledInStudy y marcas de
+        // tiempo) por si el estudio se reabre.
+        if (!STUDY_OPEN && state && state.studyPhase !== PHASES.FREE) {
+          state.goFree()
+        }
       },
       partialize: (state) => {
         // currentSessionId y studyThanks son transitorios: no se persisten.
