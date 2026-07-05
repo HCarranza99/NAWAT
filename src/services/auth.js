@@ -166,11 +166,21 @@ export async function saveProgressToCloud(gameState) {
   try {
     const { data: { user }, error: userErr } = await supabase.auth.getUser()
     if (userErr || !user) return
-    const { error } = await supabase
+    const profile = gameStateToProfile(user.id, gameState)
+    let result = await supabase
       .from('user_profiles')
-      .upsert(gameStateToProfile(user.id, gameState), { onConflict: 'id' })
+      .upsert(profile, { onConflict: 'id' })
 
-    if (error) throw error
+    // Si el participant_id persistido no existe en `participants` (FK, 23503) —
+    // p. ej. estado local heredado de un build anterior — reintenta sin el
+    // enlace: lo importante es no perder el progreso del usuario (xp, secciones, srs).
+    if (result.error?.code === '23503') {
+      result = await supabase
+        .from('user_profiles')
+        .upsert({ ...profile, participant_id: null }, { onConflict: 'id' })
+    }
+
+    if (result.error) throw result.error
   } catch (e) {
     logError('saveProgressToCloud', e)
     // silencioso — el usuario sigue jugando offline

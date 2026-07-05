@@ -39,8 +39,11 @@ export async function createParticipant(firstName, lastName, cohort = 'free') {
     return participantId
   } catch (e) {
     logError('createParticipant', e)
-    // Fallback: UUID local si Supabase no está configurado o falla
-    return participantId
+    // NO devolver un UUID que no llegó a entrar en `participants`: quedaría
+    // huérfano y rompería la FK de user_profiles/sessions (Postgres 23503) en
+    // cada guardado. Sin participante, la app sigue en modo offline (App.jsx y
+    // startSession ya omiten la telemetría cuando participantId es null).
+    return null
   }
 }
 
