@@ -1,9 +1,10 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { ArrowRight, BookOpen, CheckCircle2, Crown, Heart, RotateCcw, Sparkles, X } from 'lucide-react'
 
 import { GAME_CONFIG } from '../../data/gameConfig'
 import useGameStore from '../../store/useGameStore'
 import { srsKeyForItem } from '../../lib/srs'
+import { buildExercises } from '../../lib/exerciseEngine'
 import { playCorrect, playWrong, playComplete } from '../../lib/sounds'
 import { logExerciseResponse } from '../../services/analytics'
 
@@ -12,8 +13,9 @@ import LivesBar from './LivesBar'
 import FeedbackModal from './FeedbackModal'
 import TutorChat from './TutorChat'
 import Torogoz from './Torogoz'
-import Flashcard from '../exercises/Flashcard'
 import MultipleChoiceText from '../exercises/MultipleChoiceText'
+import TrueFalse from '../exercises/TrueFalse'
+import LightningRound from '../exercises/LightningRound'
 import Matching from '../exercises/Matching'
 import BuildSentence from '../exercises/BuildSentence'
 import ActiveRecall from '../exercises/ActiveRecall'
@@ -22,6 +24,7 @@ import MultipleChoiceImage from '../exercises/MultipleChoiceImage'
 export default function LessonRunner({
   lesson,
   isBoss = false,
+  sectionWords = [],
   onStart = async () => null,
   onComplete = () => {},
   onExit = () => {},
@@ -45,7 +48,15 @@ export default function LessonRunner({
   const lessonStartRef = useRef(null)
   const exerciseStartRef = useRef(null)
 
-  const items = retryMode ? failedItems : lesson.items
+  // Secuencia de ejercicios generada POR INTENTO (semilla nueva en cada montaje):
+  // distinta mezcla de tipos y distinto orden cada vez que se repite la lección.
+  const [seed] = useState(() => (Date.now() >>> 0) ^ Math.floor(Math.random() * 0xffffffff))
+  const exercises = useMemo(() => {
+    const built = buildExercises(lesson, { seed, sectionWords })
+    return built.length ? built : lesson.items
+  }, [lesson, seed, sectionWords])
+
+  const items = retryMode ? failedItems : exercises
   const current = items[currentIndex]
 
   const previewWords = lesson.items
@@ -56,10 +67,15 @@ export default function LessonRunner({
 
   const getExerciseGuide = () => {
     switch (current.type) {
-      case 'flashcard':
+      case 'true_false':
         return {
-          emotion: 'reading',
-          text: 'Memoriza la palabra y su pronunciación, luego indica si la recordabas.',
+          emotion: 'thinking',
+          text: 'Decide si la traducción mostrada es verdadera o falsa.',
+        }
+      case 'lightning':
+        return {
+          emotion: 'surprised',
+          text: 'Ronda relámpago: responde rápido antes de que se acabe el tiempo.',
         }
       case 'multiple_choice_text':
         return {
@@ -171,7 +187,7 @@ export default function LessonRunner({
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-md border border-[#e3ded2] bg-[#fbfaf7] p-3">
                     <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#6d756e]">Ejercicios</p>
-                    <p className="mt-2 text-2xl font-black leading-none text-[#17211d]">{lesson.items.length}</p>
+                    <p className="mt-2 text-2xl font-black leading-none text-[#17211d]">{exercises.length}</p>
                   </div>
                   <div className="rounded-md border border-[#e3ded2] bg-[#fbfaf7] p-3">
                     <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#6d756e]">Vidas</p>
@@ -226,7 +242,7 @@ export default function LessonRunner({
   }
 
   const finishLesson = (finalScore) => {
-    const totalItems = lesson.items.length
+    const totalItems = exercises.length
     const ratio = totalItems > 0 ? finalScore.correct / totalItems : 0
     playComplete()
     onComplete(ratio, finalScore.xp, attemptIdRef.current, lessonStartRef.current)
@@ -280,12 +296,14 @@ export default function LessonRunner({
     goNext(score)
   }
 
-  const handleFlashcard = (knew) => {
-    if (knew) playCorrect()
-    const xp = xpForType('flashcard')
-    const updated = knew ? { correct: score.correct + 1, xp: score.xp + xp } : score
-    recordExerciseResponse(current, knew)
-    recordReview(srsKeyForItem(current), knew)
+  const handleLightningComplete = (passed, results) => {
+    if (passed) playComplete()
+    else playWrong()
+    const xp = passed ? xpForType('lightning') : 0
+    const updated = passed ? { correct: score.correct + 1, xp: score.xp + xp } : score
+    // Registra cada pregunta de la ronda en el SRS. No cuesta vidas (es un reto de ritmo).
+    results?.forEach((r) => recordReview(srsKeyForItem({ nahuat_word: r.nahuat_word }), r.correct))
+    recordExerciseResponse(current, passed)
     setScore(updated)
     goNext(updated)
   }
@@ -301,8 +319,10 @@ export default function LessonRunner({
 
   const renderExercise = () => {
     switch (current.type) {
-      case 'flashcard':
-        return <Flashcard item={current} onKnew={() => handleFlashcard(true)} onDidntKnow={() => handleFlashcard(false)} />
+      case 'true_false':
+        return <TrueFalse item={current} onCorrect={handleCorrect} onWrong={handleWrong} />
+      case 'lightning':
+        return <LightningRound item={current} onComplete={handleLightningComplete} />
       case 'multiple_choice_text':
         return <MultipleChoiceText item={current} onCorrect={handleCorrect} onWrong={handleWrong} />
       case 'matching':

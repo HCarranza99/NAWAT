@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import useGameStore from '../store/useGameStore'
@@ -23,6 +24,22 @@ export default function SectionLessonScreen() {
     recordPlay, participantId, currentSessionId
   } = useGameStore()
 
+  // Vocabulario de toda la sección: alimenta los distractores del motor de
+  // ejercicios (opciones falsas, verdadero/falso) y, más adelante, "clasifica por tema".
+  const sectionWords = useMemo(() => {
+    const seen = new Set()
+    const words = []
+    for (const l of section?.lessons || []) {
+      for (const it of l.items || []) {
+        if (it.nahuat_word && it.spanish_translation) {
+          const k = it.nahuat_word.toLowerCase().trim()
+          if (!seen.has(k)) { seen.add(k); words.push(it) }
+        }
+      }
+    }
+    return words
+  }, [section])
+
   if (!section || !lessonData) {
     // El vocabulario ampliado (secciones 6+) puede estar cargándose todavía.
     if (!ready) {
@@ -39,6 +56,7 @@ export default function SectionLessonScreen() {
     <LessonRunner
       lesson={lessonData}
       isBoss={isBoss}
+      sectionWords={sectionWords}
       onStart={async () => {
         return await startLessonAttempt(participantId, currentSessionId, lessonData)
       }}
