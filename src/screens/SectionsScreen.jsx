@@ -12,11 +12,11 @@ import {
   Sprout,
 } from 'lucide-react'
 
-import sections from '../data/sections'
 import useGameStore from '../store/useGameStore'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import Torogoz from '../components/ui/Torogoz'
 import { useIsDesktop } from '../hooks/useMediaQuery'
+import { useSections } from '../hooks/useSections'
 
 function SectionGlyph({ sectionId, color }) {
   const icons = [Sprout, Map, Play, Crown, Check]
@@ -46,7 +46,8 @@ function ProgressBar({ value, color }) {
 export default function SectionsScreen() {
   const navigate = useNavigate()
   const isDesktop = useIsDesktop()
-  const { sectionProgress, lives } = useGameStore()
+  const sections = useSections()
+  const { sectionProgress } = useGameStore()
   const [expandedSection, setExpandedSection] = useState(() => sections[0]?.id ?? null)
 
   const isSectionUnlocked = (sectionIndex) => {
@@ -166,7 +167,7 @@ export default function SectionsScreen() {
                     const lessonProgress = sectionProgress[section.id]?.lessonsCompleted?.[lesson.id]
                     const lessonCompleted = lessonProgress?.completed === true
                     const isActive = lessonUnlocked && !lessonCompleted
-                    const disabled = !lessonUnlocked || lives === 0
+                    const disabled = !lessonUnlocked
 
                     // Clases dinámicas de alto contraste para las lecciones
                     const getLessonCardClass = () => {
@@ -244,7 +245,7 @@ export default function SectionsScreen() {
                     const bossAvailable = stats.bossAvailable
                     const bossCompleted = stats.bossCompleted
                     const isBossActive = bossAvailable && !bossCompleted
-                    const disabled = !bossAvailable || lives === 0
+                    const disabled = !bossAvailable
 
                     const getBossCardClass = () => {
                       if (isBossActive) {
@@ -269,7 +270,7 @@ export default function SectionsScreen() {
                     return (
                       <button
                         className={getBossCardClass()}
-                        onClick={() => stats.bossAvailable && lives > 0 && navigate(`/section/${section.id}/boss`)}
+                        onClick={() => stats.bossAvailable && navigate(`/section/${section.id}/boss`)}
                         disabled={disabled}
                       >
                         <div className={getBossIconClass()}>

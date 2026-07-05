@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CheckCircle2, Volume2, XCircle } from 'lucide-react'
-import { useTextToSpeech } from '../../hooks/useTextToSpeech'
+import { useTextToSpeech, isTtsSafe } from '../../hooks/useTextToSpeech'
+import AudioPendingButton from '../ui/AudioPendingButton'
 
 const optionBase =
   'group min-h-[74px] rounded-lg border px-4 py-4 text-left text-sm font-black leading-snug transition active:scale-[0.99] disabled:cursor-not-allowed'
@@ -10,6 +11,7 @@ export default function MultipleChoiceImage({ item, onCorrect, onWrong }) {
   
   // TTS para la palabra correcta de la imagen (se reproduce al acertar)
   const { speak, isSpeaking, isSupported } = useTextToSpeech(item.pronunciationText || item.nahuat_word)
+  const ttsSafe = isTtsSafe(item.nahuat_word)
 
   const handleSelect = (option) => {
     if (selected) return
@@ -17,9 +19,12 @@ export default function MultipleChoiceImage({ item, onCorrect, onWrong }) {
     if (option.correct) {
       onCorrect()
       // Hablar la palabra correcta al seleccionar para reforzar aprendizaje auditivo
-      setTimeout(() => {
-        speak(false)
-      }, 100)
+      // (solo si el TTS puede reproducirla de forma fiable; ver isTtsSafe)
+      if (ttsSafe) {
+        setTimeout(() => {
+          speak(false)
+        }, 100)
+      }
     } else {
       onWrong()
     }
@@ -66,7 +71,7 @@ export default function MultipleChoiceImage({ item, onCorrect, onWrong }) {
             {item.pronunciation && (
               <span className="text-xs font-semibold text-[#6d756e]">/{item.pronunciation}/</span>
             )}
-            {isSupported && (
+            {isSupported && (ttsSafe ? (
               <button
                 className={`inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d8ddd5] bg-white text-[#1f7a57] transition hover:bg-[#eef8f2] active:scale-95 disabled:cursor-not-allowed ${isSpeaking ? 'animate-pulse' : ''}`}
                 onClick={() => speak(false)}
@@ -76,7 +81,9 @@ export default function MultipleChoiceImage({ item, onCorrect, onWrong }) {
               >
                 <Volume2 className="h-4 w-4" />
               </button>
-            )}
+            ) : (
+              <AudioPendingButton className="h-8 w-8" iconClassName="h-4 w-4" />
+            ))}
           </div>
         )}
       </section>

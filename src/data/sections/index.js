@@ -1,27 +1,15 @@
+import artisanalSections from './artisanal'
+import generatedSections from './generated'
+
 /**
- * Secciones del Sistema Náhuat
+ * Lista síncrona COMPLETA (artesanal 1–5 + generado 6–10).
  *
- * Cada sección se define en su propio archivo para facilitar
- * el mantenimiento, la revisión y la adición de nuevas secciones.
- *
- * Para agregar una sección nueva:
- *  1. Crea src/data/sections/section6.js (o el número que siga)
- *  2. Exporta el objeto de sección como default
- *  3. Impórtalo aquí y agrégalo al array
+ * En la app NO se importa este módulo directamente: las pantallas usan la carga
+ * diferida vía ./registry.js + el hook useSections() (así lo generado, ~1.2 MB,
+ * viaja en un chunk aparte que se carga en segundo plano). Este índice se conserva
+ * para pruebas y para cualquier uso que necesite todas las secciones de forma
+ * síncrona.
  */
-
-import section1 from './section1'
-import section2 from './section2'
-import section3 from './section3'
-import section4 from './section4'
-import section5 from './section5'
-
-const sections = [
-  section1,
-  section2,
-  section3,
-  section4,
-  section5,
-]
+const sections = [...artisanalSections, ...generatedSections]
 
 export default sections

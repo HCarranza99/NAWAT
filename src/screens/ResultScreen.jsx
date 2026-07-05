@@ -4,7 +4,8 @@ import { ArrowRight, Flame, Medal, RotateCcw, Star, Target, Trophy, Zap } from '
 
 import useGameStore from '../store/useGameStore'
 import Torogoz from '../components/ui/Torogoz'
-import sections from '../data/sections'
+import { computeStars, MIN_SCORE_TO_PASS } from '../data/gameConfig'
+import { useSections } from '../hooks/useSections'
 
 function ResultStat({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
   return (
@@ -19,6 +20,7 @@ function ResultStat({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
 export default function ResultScreen() {
   const { state } = useLocation()
   const navigate = useNavigate()
+  const sections = useSections()
   const streak = useGameStore((store) => store.streak)
   const sectionProgress = useGameStore((store) => store.sectionProgress)
 
@@ -26,10 +28,10 @@ export default function ResultScreen() {
     return <Navigate to="/" replace />
   }
 
-  const { lessonId, lessonTitle, score, xpEarned, isBoss, sectionId, returnTo } = state
+  const { lessonId, lessonTitle, score, xpEarned, isBoss, sectionId, returnTo, review } = state
   const pct = Math.round(score * 100)
-  const stars = score >= 0.9 ? 3 : score >= 0.7 ? 2 : 1
-  const passed = score >= 0.5
+  const stars = computeStars(score)
+  const passed = score >= MIN_SCORE_TO_PASS
 
   const findNextLesson = () => {
     for (let sIdx = 0; sIdx < sections.length; sIdx++) {
@@ -171,7 +173,7 @@ export default function ResultScreen() {
         {!passed && !sectionId && (
           <button
             className="btn-3d btn-3d-soft"
-            onClick={() => navigate(`/lesson/${lessonId}`)}
+            onClick={() => navigate(review ? '/review' : `/lesson/${lessonId}`)}
           >
             <RotateCcw className="h-5 w-5" />
             Intentar de nuevo

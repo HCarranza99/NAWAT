@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Check, HelpCircle, RotateCw, Volume2, X } from 'lucide-react'
 
-import { useTextToSpeech } from '../../hooks/useTextToSpeech'
+import { useTextToSpeech, isTtsSafe } from '../../hooks/useTextToSpeech'
+import AudioPendingButton from '../ui/AudioPendingButton'
 
 function SpeakButton({ text, pronunciationText, light = false }) {
   const { speak, isSpeaking, isSupported } = useTextToSpeech(pronunciationText || text)
   if (!isSupported) return null
+  if (!isTtsSafe(text)) return <AudioPendingButton light={light} />
 
   return (
     <button

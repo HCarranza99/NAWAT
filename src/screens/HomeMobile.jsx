@@ -1,8 +1,9 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import {
   ArrowRight, BookOpen, Check, Clock3, Crown, Flame, Heart, Leaf,
-  Lock, Mountain, Sparkles, Sprout, Star, Trophy,
+  Lock, Mountain, RotateCcw, Sparkles, Sprout, Star, Trophy,
 } from 'lucide-react'
 
 import useGameStore from '../store/useGameStore'
@@ -10,19 +11,24 @@ import { GAME_CONFIG } from '../data/gameConfig'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import Torogoz from '../components/ui/Torogoz'
 import { findNextLesson, buildSteps } from '../lib/lessonPath'
-import sections from '../data/sections'
+import { buildItemsByKey, reviewStats } from '../lib/srs'
+import { useSections } from '../hooks/useSections'
 
 export default function HomeMobile({ greeting }) {
   const navigate = useNavigate()
-  const { xp, lives, streak, sectionProgress, participantName, resetLives } = useGameStore()
+  const sections = useSections()
+  const { xp, streak, sectionProgress, srs, participantName } = useGameStore()
   const firstName = participantName ? participantName.split(' ')[0] : 'Estudiante'
+
+  const itemsByKey = useMemo(() => buildItemsByKey(sections), [sections])
+  const { seen: reviewSeen, due: reviewDue } = reviewStats(itemsByKey, srs)
 
   const xpPerLevel = GAME_CONFIG.xp.perLevel
   const level = Math.floor(xp / xpPerLevel) + 1
   const xpInLevel = xp % xpPerLevel
   const levelPct = Math.min(100, Math.round((xpInLevel / xpPerLevel) * 100))
 
-  const next = findNextLesson(sectionProgress)
+  const next = findNextLesson(sections, sectionProgress)
   const pathSection = next ? next.section : sections[sections.length - 1]
   const steps = buildSteps(pathSection, sectionProgress, next, 4)
 
@@ -30,7 +36,6 @@ export default function HomeMobile({ greeting }) {
   const heroMinutes = next ? Math.max(2, Math.round((next.lesson.items?.length || 6) * 0.6)) : 0
 
   const goNext = () => {
-    if (lives === 0) return
     if (!next) { navigate('/sections'); return }
     navigate(`/section/${next.section.id}/${next.isBoss ? 'boss' : `lesson/${next.lesson.id}`}`)
   }
@@ -51,7 +56,7 @@ export default function HomeMobile({ greeting }) {
         <div className="flex items-center gap-2 rounded-2xl border border-hairline bg-white px-3 py-2 shadow-[var(--elev-1)]">
           <TopStat icon={Mountain} value={level} iconClass="text-[#1f7a57]" />
           <span className="h-4 w-px bg-hairline" />
-          <TopStat icon={Heart} value={lives} iconClass="fill-[#e63946] text-[#e63946]" />
+          <TopStat icon={Heart} value={GAME_CONFIG.lives.max} iconClass="fill-[#e63946] text-[#e63946]" />
           <span className="h-4 w-px bg-hairline" />
           <TopStat icon={Flame} value={streak} iconClass="text-[#f4a261]" />
         </div>
@@ -68,24 +73,13 @@ export default function HomeMobile({ greeting }) {
         </h2>
       </div>
 
-      {/* ── Sin vidas ── */}
-      {lives === 0 && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-[#e63946]/25 bg-[#fff0f1] px-4 py-3">
-          <p className="text-sm font-extrabold text-[#b91c1c]">Te quedaste sin vidas</p>
-          <button onClick={resetLives} className="rounded-xl bg-[#b91c1c] px-3.5 py-2 text-xs font-black text-white transition active:scale-95">
-            Recuperar
-          </button>
-        </div>
-      )}
-
       {/* ── Siguiente lección ── */}
       {next ? (
         <motion.button
-          whileTap={lives > 0 ? { scale: 0.99 } : {}}
+          whileTap={{ scale: 0.99 }}
           onClick={goNext}
-          disabled={lives === 0}
           style={{ background: `radial-gradient(circle at 84% 16%, ${pathSection.color || '#f4a261'}26 0, transparent 48%), linear-gradient(160deg, #16463a 0%, #102f29 72%)` }}
-          className="group relative block w-full overflow-hidden rounded-[1.8rem] border border-white/10 p-4 text-left shadow-[0_18px_40px_rgba(16,47,41,0.26)] transition disabled:cursor-not-allowed disabled:opacity-70"
+          className="group relative block w-full overflow-hidden rounded-[1.8rem] border border-white/10 p-4 text-left shadow-[0_18px_40px_rgba(16,47,41,0.26)] transition"
         >
           <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           <div className="relative z-10 max-w-[64%]">
@@ -155,9 +149,20 @@ export default function HomeMobile({ greeting }) {
 
       {/* ── Ruta de hoy ── */}
       <section className="surface-card-lg p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <Leaf className="h-4 w-4 text-[#1f7a57]" />
-          <h3 className="text-base font-black tracking-tight text-[#17211d]">Ruta de hoy</h3>
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Leaf className="h-4 w-4 text-[#1f7a57]" />
+            <h3 className="text-base font-black tracking-tight text-[#17211d]">Ruta de hoy</h3>
+          </div>
+          {reviewSeen > 0 && (
+            <button
+              onClick={() => navigate('/review')}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#1f7a57]/25 bg-[#eef8f2] px-3 py-1.5 text-[0.66rem] font-black uppercase tracking-[0.08em] text-[#1f7a57] transition active:scale-95"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Repasar{reviewDue > 0 ? ` · ${reviewDue}` : ''}
+            </button>
+          )}
         </div>
         <div className="flex items-start">
           {steps.map((step, i) => (

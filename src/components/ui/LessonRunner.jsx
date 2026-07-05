@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen, CheckCircle2, Crown, Heart, RotateCcw, X } from '
 
 import { GAME_CONFIG } from '../../data/gameConfig'
 import useGameStore from '../../store/useGameStore'
+import { srsKeyForItem } from '../../lib/srs'
 import { playCorrect, playWrong, playComplete } from '../../lib/sounds'
 import { logExerciseResponse } from '../../services/analytics'
 
@@ -24,7 +25,11 @@ export default function LessonRunner({
   onComplete = () => {},
   onExit = () => {},
 }) {
-  const { lives, loseLife, participantId, currentSessionId } = useGameStore()
+  const { recordReview, participantId, currentSessionId } = useGameStore()
+
+  // Vidas POR INTENTO: arrancan llenas en cada montaje del runner (cada intento).
+  // No tocan el estado global; al agotarse, el intento termina y se reintenta.
+  const [lives, setLives] = useState(GAME_CONFIG.lives.max)
 
   const [phase, setPhase] = useState('intro')
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -218,6 +223,13 @@ export default function LessonRunner({
     )
   }
 
+  const finishLesson = (finalScore) => {
+    const totalItems = lesson.items.length
+    const ratio = totalItems > 0 ? finalScore.correct / totalItems : 0
+    playComplete()
+    onComplete(ratio, finalScore.xp, attemptIdRef.current, lessonStartRef.current)
+  }
+
   const goNext = (finalScore) => {
     const nextIndex = currentIndex + 1
     if (nextIndex >= items.length) {
@@ -226,11 +238,7 @@ export default function LessonRunner({
         setCurrentIndex(0)
         return
       }
-
-      const totalItems = lesson.items.length
-      const ratio = totalItems > 0 ? finalScore.correct / totalItems : 0
-      playComplete()
-      onComplete(ratio, finalScore.xp, attemptIdRef.current, lessonStartRef.current)
+      finishLesson(finalScore)
     } else {
       exerciseStartRef.current = Date.now()
       setCurrentIndex(nextIndex)
@@ -243,13 +251,15 @@ export default function LessonRunner({
     const updated = { correct: score.correct + 1, xp: score.xp + xp }
     setScore(updated)
     recordExerciseResponse(current, true)
+    recordReview(srsKeyForItem(current), true)
     setFeedback('correct')
   }
 
   const handleWrong = () => {
     playWrong()
-    loseLife()
+    setLives((n) => Math.max(0, n - 1))
     recordExerciseResponse(current, false)
+    recordReview(srsKeyForItem(current), false)
     if (isBoss && !retryMode) {
       setFailedItems((prev) => {
         if (prev.find((item) => item.id === current.id)) return prev
@@ -262,7 +272,7 @@ export default function LessonRunner({
   const handleContinue = () => {
     setFeedback(null)
     if (lives === 0) {
-      onExit()
+      finishLesson(score)
       return
     }
     goNext(score)
@@ -273,6 +283,7 @@ export default function LessonRunner({
     const xp = xpForType('flashcard')
     const updated = knew ? { correct: score.correct + 1, xp: score.xp + xp } : score
     recordExerciseResponse(current, knew)
+    recordReview(srsKeyForItem(current), knew)
     setScore(updated)
     goNext(updated)
   }

@@ -1,7 +1,9 @@
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
-import sections from '../data/sections'
+import { Loader2 } from 'lucide-react'
 import useGameStore from '../store/useGameStore'
 import LessonRunner from '../components/ui/LessonRunner'
+import { computeStars } from '../data/gameConfig'
+import { useSectionsReady } from '../hooks/useSections'
 import { startLessonAttempt, completeLessonAttempt } from '../services/analytics'
 
 export default function SectionLessonScreen() {
@@ -9,6 +11,7 @@ export default function SectionLessonScreen() {
   const navigate = useNavigate()
   const isBoss = !lessonId
 
+  const { sections, ready } = useSectionsReady()
   const sectionIdNum = parseInt(sectionId, 10)
   const section = !isNaN(sectionIdNum) ? sections.find((s) => s.id === sectionIdNum) : null
   const lessonData = isBoss
@@ -16,11 +19,21 @@ export default function SectionLessonScreen() {
     : section?.lessons.find((l) => l.id === lessonId)
 
   const {
-    lives, completeSectionLesson, completeSectionBoss,
+    completeSectionLesson, completeSectionBoss,
     recordPlay, participantId, currentSessionId
   } = useGameStore()
 
-  if (!section || !lessonData || lives === 0) return <Navigate to="/sections" replace />
+  if (!section || !lessonData) {
+    // El vocabulario ampliado (secciones 6+) puede estar cargándose todavía.
+    if (!ready) {
+      return (
+        <div className="screen items-center justify-center bg-[#f7f5ef]">
+          <Loader2 className="h-8 w-8 animate-spin text-[#1f7a57]" />
+        </div>
+      )
+    }
+    return <Navigate to="/sections" replace />
+  }
 
   return (
     <LessonRunner
@@ -31,7 +44,7 @@ export default function SectionLessonScreen() {
       }}
       onComplete={(ratio, xpEarned, attemptId, lessonStartMs) => {
         recordPlay()
-        const stars = ratio >= 0.9 ? 3 : ratio >= 0.7 ? 2 : ratio >= 0.5 ? 1 : 0
+        const stars = computeStars(ratio)
         
         if (isBoss) {
           completeSectionBoss(section.id, ratio, xpEarned)

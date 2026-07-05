@@ -43,6 +43,22 @@ export function toNahuatSpeechText(text = '') {
 }
 
 /**
+ * ¿Es razonable sintetizar esta palabra con una voz española?
+ *
+ * Devuelve false para palabras con sonidos que el español NO puede producir y
+ * que el motor termina deletreando — la africada `tz` (/ts/) y la lateral `tl`
+ * (/tɬ/). En esos casos un audio equivocado es peor que el silencio, así que se
+ * oculta el botón de audio hasta tener grabación de hablante.
+ *
+ * Se evalúa sobre la ortografía náhuat ORIGINAL (no sobre la cadena ya transcrita,
+ * donde `tz` ya se convirtió en `ts`). Otros sonidos (sh→s, kw→cua) se mantienen
+ * como aproximación tolerable.
+ */
+export function isTtsSafe(nahuatWord = '') {
+  return !/tz|tl/i.test(nahuatWord)
+}
+
+/**
  * useTextToSpeech(text)
  *
  * Wraps the Web Speech API (SpeechSynthesis) to pronounce a given text.

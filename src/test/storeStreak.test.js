@@ -175,14 +175,14 @@ describe('useGameStore — phase transitions', () => {
 
 describe('useGameStore — completeLesson (legacy)', () => {
 
-  it('grants 3 stars at score >= 0.9', () => {
+  it('grants 3 stars at score >= 0.95', () => {
     useGameStore.getState().completeLesson('lesson-1', 0.95, 50)
     const prog = useGameStore.getState().lessonProgress['lesson-1']
     expect(prog.stars).toBe(3)
     expect(prog.completed).toBe(true)
   })
 
-  it('grants 0 stars and completed=false when score < 0.5', () => {
+  it('grants 0 stars and completed=false below the 0.75 threshold', () => {
     useGameStore.getState().completeLesson('lesson-2', 0.3, 5)
     const prog = useGameStore.getState().lessonProgress['lesson-2']
     expect(prog.stars).toBe(0)

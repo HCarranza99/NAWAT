@@ -2,6 +2,7 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import lessons from '../data/lessons'
 import useGameStore from '../store/useGameStore'
 import { startLessonAttempt, completeLessonAttempt } from '../services/analytics'
+import { computeStars } from '../data/gameConfig'
 import LessonRunner from '../components/ui/LessonRunner'
 
 export default function LessonScreen() {
@@ -11,9 +12,9 @@ export default function LessonScreen() {
   const lessonIdNum = parseInt(id, 10)
   const lesson = !isNaN(lessonIdNum) ? lessons.find((l) => l.id === lessonIdNum) : null
 
-  const { lives, completeLesson, recordPlay, participantId, currentSessionId } = useGameStore()
+  const { completeLesson, recordPlay, participantId, currentSessionId } = useGameStore()
 
-  if (!lesson || lives === 0) return <Navigate to="/" replace />
+  if (!lesson) return <Navigate to="/" replace />
 
   return (
     <LessonRunner
@@ -23,7 +24,7 @@ export default function LessonScreen() {
         return await startLessonAttempt(participantId, currentSessionId, lesson)
       }}
       onComplete={(ratio, xpEarned, attemptId, lessonStartMs) => {
-        const stars = ratio >= 0.9 ? 3 : ratio >= 0.7 ? 2 : ratio >= 0.5 ? 1 : 0
+        const stars = computeStars(ratio)
         recordPlay()
         completeLesson(lesson.id, ratio, xpEarned)
         if (attemptId) {

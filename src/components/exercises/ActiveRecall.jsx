@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { CheckCircle2, HelpCircle, Volume2, XCircle } from 'lucide-react'
-import { useTextToSpeech } from '../../hooks/useTextToSpeech'
+import { useTextToSpeech, isTtsSafe } from '../../hooks/useTextToSpeech'
+import AudioPendingButton from '../ui/AudioPendingButton'
 
 function normalizeText(str = '') {
   return str
@@ -23,6 +24,7 @@ export default function ActiveRecall({ item, onCorrect, onWrong }) {
   const inputRef = useRef(null)
 
   const { speak, isSpeaking, isSupported } = useTextToSpeech(item.pronunciationText || item.nahuat_word)
+  const ttsSafe = isTtsSafe(item.nahuat_word)
 
   // Foco automático en el input
   useEffect(() => {
@@ -126,7 +128,7 @@ export default function ActiveRecall({ item, onCorrect, onWrong }) {
             </p>
             <div className="mt-1 flex items-center gap-2.5">
               <span className="text-base font-black text-foreground">{item.nahuat_word}</span>
-              {isSupported && (
+              {isSupported && (ttsSafe ? (
                 <div className="flex gap-1.5">
                   <button
                     className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-[#d8ddd5] bg-white text-[#1f7a57] shadow-xs hover:bg-[#eef8f2] active:scale-95"
@@ -145,7 +147,9 @@ export default function ActiveRecall({ item, onCorrect, onWrong }) {
                     <span className="text-sm">🐢</span>
                   </button>
                 </div>
-              )}
+              ) : (
+                <AudioPendingButton className="h-7 w-7" iconClassName="h-3.5 w-3.5" />
+              ))}
             </div>
           </div>
         </motion.div>

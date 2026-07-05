@@ -1,15 +1,17 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import {
   ArrowRight, BookOpen, Calendar, Check, ChevronRight, Clock3, Crown,
-  Flag, Flame, Heart, Lock, Play, Sparkles, Star, Trophy,
+  Flag, Flame, Heart, Lock, RotateCcw, Sparkles, Star, Trophy,
 } from 'lucide-react'
 
-import sections from '../data/sections'
 import useGameStore from '../store/useGameStore'
 import { GAME_CONFIG } from '../data/gameConfig'
 import Torogoz from '../components/ui/Torogoz'
 import { findNextLesson, globalLessonIndex } from '../lib/lessonPath'
+import { buildItemsByKey, reviewStats } from '../lib/srs'
+import { useSections } from '../hooks/useSections'
 
 function StatCard({ icon: Icon, label, value, iconWrap, extra }) {
   return (
@@ -28,8 +30,12 @@ function StatCard({ icon: Icon, label, value, iconWrap, extra }) {
 
 export default function HomeDesktop({ greeting }) {
   const navigate = useNavigate()
-  const { xp, lives, streak, sectionProgress, participantName } = useGameStore()
+  const sections = useSections()
+  const { xp, streak, sectionProgress, srs, participantName } = useGameStore()
   const firstName = participantName ? participantName.split(' ')[0] : 'Estudiante'
+
+  const itemsByKey = useMemo(() => buildItemsByKey(sections), [sections])
+  const { seen: reviewSeen, due: reviewDue } = reviewStats(itemsByKey, srs)
 
   const xpPerLevel = GAME_CONFIG.xp.perLevel
   const level = Math.floor(xp / xpPerLevel) + 1
@@ -44,7 +50,7 @@ export default function HomeDesktop({ greeting }) {
   }, 0)
   const lessonsPct = Math.round((completedLessons / totalLessons) * 100)
 
-  const next = findNextLesson(sectionProgress)
+  const next = findNextLesson(sections, sectionProgress)
 
   // Sección a mostrar en la ruta (la de la próxima lección, o la última)
   const pathSection = next ? next.section : sections[sections.length - 1]
@@ -58,7 +64,7 @@ export default function HomeDesktop({ greeting }) {
 
   const heroXp = next ? next.lesson.xpReward : 0
   const heroMinutes = next ? Math.max(2, Math.round((next.lesson.items?.length || 6) * 0.6)) : 0
-  const heroIndex = next && !next.isBoss ? globalLessonIndex(next.lesson) : null
+  const heroIndex = next && !next.isBoss ? globalLessonIndex(sections, next.lesson) : null
 
   const goNext = () => {
     if (!next) { navigate('/sections'); return }
@@ -93,9 +99,8 @@ export default function HomeDesktop({ greeting }) {
             <motion.button
               whileHover={{ y: -3 }}
               onClick={goNext}
-              disabled={lives === 0}
               style={{ background: `radial-gradient(circle at 82% 16%, ${pathSection.color || '#f4a261'}26 0, transparent 46%), linear-gradient(160deg, #16463a 0%, #102f29 72%)` }}
-              className="group relative block w-full overflow-hidden rounded-[2rem] border border-white/10 p-7 text-left shadow-[0_22px_50px_rgba(16,47,41,0.26)] transition disabled:cursor-not-allowed disabled:opacity-70"
+              className="group relative block w-full overflow-hidden rounded-[2rem] border border-white/10 p-7 text-left shadow-[0_22px_50px_rgba(16,47,41,0.26)] transition"
             >
               <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               <div className="relative z-10 max-w-[62%]">
@@ -225,13 +230,13 @@ export default function HomeDesktop({ greeting }) {
           <StatCard icon={Flame} label="Racha" value={`${streak} ${streak === 1 ? 'día' : 'días'}`} iconWrap="bg-[#ffe8d6] text-[#c77918]" />
           <StatCard
             icon={Heart}
-            label="Vidas"
-            value={lives}
+            label="Vidas por intento"
+            value={GAME_CONFIG.lives.max}
             iconWrap="bg-[#ffe0e3] text-[#d94848]"
             extra={
               <div className="mt-1.5 flex gap-1">
                 {Array.from({ length: GAME_CONFIG.lives.max }, (_, i) => (
-                  <Heart key={i} className={`h-3.5 w-3.5 ${i < lives ? 'fill-[#e63946] text-[#e63946]' : 'fill-[#e9e6df] text-[#e9e6df]'}`} />
+                  <Heart key={i} className="h-3.5 w-3.5 fill-[#e63946] text-[#e63946]" />
                 ))}
               </div>
             }
@@ -250,6 +255,25 @@ export default function HomeDesktop({ greeting }) {
               <motion.div initial={{ width: 0 }} animate={{ width: `${lessonsPct}%` }} transition={{ duration: 0.7, ease: 'easeOut' }} className="h-full rounded-full bg-[#52b788]" />
             </div>
           </div>
+
+          {/* Repaso espaciado */}
+          {reviewSeen > 0 && (
+            <button
+              onClick={() => navigate('/review')}
+              className="surface-card flex w-full items-center gap-3 p-3.5 text-left transition hover:bg-[#eef8f2]"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#dff3e7] text-[#1f7a57]">
+                <RotateCcw className="h-5 w-5" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[0.66rem] font-bold uppercase tracking-[0.12em] text-[#6d756e]">Repaso espaciado</p>
+                <p className="mt-0.5 text-sm font-black leading-tight text-[#17211d]">
+                  {reviewDue > 0 ? `${reviewDue} palabra${reviewDue === 1 ? '' : 's'} para repasar` : 'Refuerza lo aprendido'}
+                </p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-[#9aa39c]" />
+            </button>
+          )}
 
           {/* Reto diario */}
           <div className="relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-gradient-to-br from-[#16463a] to-[#102f29] p-4 text-white shadow-[0_16px_34px_rgba(16,47,41,0.25)]">

@@ -6,7 +6,7 @@ import react from 'eslint-plugin-react'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'src/data/sections/generated.js']),
   {
     files: ['**/*.{js,jsx}'],
     plugins: {
@@ -50,10 +50,18 @@ export default defineConfig([
     },
   },
   {
-    files: ['playwright.config.js', 'tests/**/*.{js,jsx}'],
+    files: ['playwright.config.js', 'vite.config.js', 'tests/**/*.{js,jsx}'],
     languageOptions: {
       globals: {
         ...globals.browser,
+        ...globals.node,
+      },
+    },
+  },
+  {
+    files: ['scripts/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: {
         ...globals.node,
       },
     },

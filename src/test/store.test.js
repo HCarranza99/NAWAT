@@ -11,7 +11,7 @@ import useGameStore from '../store/useGameStore'
 beforeEach(() => {
   useGameStore.setState({
     xp: 0,
-    lives: 5,
+    lives: 3,
     livesLastLostAt: null,
     streak: 0,
     lastPlayedDate: null,
@@ -28,13 +28,13 @@ describe('useGameStore — section progress', () => {
 
   it('completeSectionLesson stores score, stars, and adds XP', () => {
     const { completeSectionLesson } = useGameStore.getState()
-    completeSectionLesson(1, 's1-l1', 0.9, 50)
+    completeSectionLesson(1, 's1-l1', 0.95, 50)
 
     const state = useGameStore.getState()
     expect(state.xp).toBe(50)
     expect(state.sectionProgress[1].lessonsCompleted['s1-l1']).toEqual({
       completed: true,
-      score: 0.9,
+      score: 0.95,
       stars: 3,
     })
   })
@@ -42,33 +42,34 @@ describe('useGameStore — section progress', () => {
   it('assigns correct star tiers', () => {
     const { completeSectionLesson } = useGameStore.getState()
 
-    completeSectionLesson(1, 'a', 0.95, 10) // 3 stars
-    completeSectionLesson(1, 'b', 0.75, 10) // 2 stars
-    completeSectionLesson(1, 'c', 0.55, 10) // 1 star
-    completeSectionLesson(1, 'd', 0.3, 10)  // 0 stars
+    completeSectionLesson(1, 'a', 0.96, 10) // 3 stars (>=0.95)
+    completeSectionLesson(1, 'b', 0.88, 10) // 2 stars (>=0.85)
+    completeSectionLesson(1, 'c', 0.78, 10) // 1 star  (>=0.75)
+    completeSectionLesson(1, 'd', 0.6, 10)  // 0 stars (no aprueba)
 
     const prog = useGameStore.getState().sectionProgress[1].lessonsCompleted
     expect(prog['a'].stars).toBe(3)
     expect(prog['b'].stars).toBe(2)
     expect(prog['c'].stars).toBe(1)
+    expect(prog['c'].completed).toBe(true)
     expect(prog['d'].stars).toBe(0)
     expect(prog['d'].completed).toBe(false)
   })
 
   it('completeSectionBoss marks boss as completed', () => {
     const { completeSectionBoss } = useGameStore.getState()
-    completeSectionBoss(1, 0.8, 100)
+    completeSectionBoss(1, 0.9, 100)
 
     const state = useGameStore.getState()
     expect(state.xp).toBe(100)
     expect(state.sectionProgress[1].bossCompleted).toBe(true)
-    expect(state.sectionProgress[1].bossScore).toBe(0.8)
+    expect(state.sectionProgress[1].bossScore).toBe(0.9)
     expect(state.sectionProgress[1].bossStars).toBe(2)
   })
 
-  it('boss with score < 0.5 is not completed', () => {
+  it('boss with score below the 0.75 threshold is not completed', () => {
     const { completeSectionBoss } = useGameStore.getState()
-    completeSectionBoss(1, 0.3, 20)
+    completeSectionBoss(1, 0.6, 20)
 
     const state = useGameStore.getState()
     expect(state.sectionProgress[1].bossCompleted).toBe(false)
@@ -86,13 +87,13 @@ describe('useGameStore — section progress', () => {
 
 describe('useGameStore — lives', () => {
 
-  it('starts with 5 lives', () => {
-    expect(useGameStore.getState().lives).toBe(5)
+  it('starts with 3 lives', () => {
+    expect(useGameStore.getState().lives).toBe(3)
   })
 
   it('loseLife decrements by 1', () => {
     useGameStore.getState().loseLife()
-    expect(useGameStore.getState().lives).toBe(4)
+    expect(useGameStore.getState().lives).toBe(2)
   })
 
   it('lives cannot go below 0', () => {
@@ -107,12 +108,12 @@ describe('useGameStore — lives', () => {
     expect(useGameStore.getState().livesLastLostAt).toBeTruthy()
   })
 
-  it('resetLives restores to 5', () => {
+  it('resetLives restores to 3', () => {
     const { loseLife, resetLives } = useGameStore.getState()
     loseLife(); loseLife(); loseLife(); loseLife(); loseLife()
     resetLives()
     const state = useGameStore.getState()
-    expect(state.lives).toBe(5)
+    expect(state.lives).toBe(3)
     expect(state.livesLastLostAt).toBeNull()
   })
 })
@@ -136,7 +137,7 @@ describe('useGameStore — resetProgress', () => {
 
     const after = useGameStore.getState()
     expect(after.xp).toBe(0)
-    expect(after.lives).toBe(5)
+    expect(after.lives).toBe(3)
     expect(after.lessonProgress).toEqual({})
     expect(after.sectionProgress).toEqual({})
     // Identity preserved

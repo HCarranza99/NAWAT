@@ -8,7 +8,6 @@ import {
   Heart,
   LogOut,
   Medal,
-  RotateCcw,
   ShieldCheck,
   Star,
   Trophy,
@@ -16,11 +15,11 @@ import {
 } from 'lucide-react'
 
 import useGameStore, { PHASES } from '../store/useGameStore'
-import sections from '../data/sections'
 import { GAME_CONFIG } from '../data/gameConfig'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import { signOut } from '../services/auth'
 import { usePwaInstall } from '../hooks/usePwaInstall'
+import { useSections } from '../hooks/useSections'
 
 function StatCard({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
   return (
@@ -35,10 +34,11 @@ function StatCard({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
 export default function ProfileScreen() {
   const [loggingOut, setLoggingOut] = useState(false)
   const { canInstall, install } = usePwaInstall()
+  const sections = useSections()
   const {
-    xp, lives, streak, lastPlayedDate,
+    xp, streak, lastPlayedDate,
     sectionProgress,
-    participantName, resetLives,
+    participantName,
     isGuestMode, setAuthUser,
   } = useGameStore()
 
@@ -142,7 +142,7 @@ export default function ProfileScreen() {
           <StatCard icon={Star} value={totalStars} label="Estrellas" tone="text-[#d89a1d]" />
           <StatCard icon={BookOpen} value={totalLessonsCompleted} label="Lecciones" tone="text-[#2f6fb2]" />
           <StatCard icon={Trophy} value={totalSectionsCompleted} label="Secciones" tone="text-[#8d4ac3]" />
-          <StatCard icon={Heart} value={`${lives}/${GAME_CONFIG.lives.max}`} label="Vidas" tone="text-[#d94848]" />
+          <StatCard icon={Heart} value={GAME_CONFIG.lives.max} label="Vidas/intento" tone="text-[#d94848]" />
         </section>
 
         {totalSectionsCompleted > 0 && (
@@ -180,16 +180,6 @@ export default function ProfileScreen() {
             <button className="btn-3d btn-3d-primary text-sm" onClick={install}>
               <Download className="h-4 w-4" />
               Instalar app
-            </button>
-          )}
-
-          {lives === 0 && (
-            <button
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-[#d94848]/25 bg-[#fff0f1] px-4 py-3 text-sm font-extrabold text-[#b91c1c] transition active:scale-[0.99]"
-              onClick={resetLives}
-            >
-              <RotateCcw className="h-4 w-4" />
-              Recuperar vidas
             </button>
           )}
 

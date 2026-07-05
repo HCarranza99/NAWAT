@@ -4,10 +4,10 @@ import {
 } from 'lucide-react'
 
 import useGameStore from '../store/useGameStore'
-import sections from '../data/sections'
 import { GAME_CONFIG } from '../data/gameConfig'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import { useIsDesktop } from '../hooks/useMediaQuery'
+import { useSections } from '../hooks/useSections'
 
 function buildAchievements({ xp, streak, totalLessons, totalStars, totalSections, level }) {
   return [
@@ -36,6 +36,7 @@ function SummaryStat({ icon: Icon, value, label, tone }) {
 
 export default function LogrosScreen() {
   const isDesktop = useIsDesktop()
+  const sections = useSections()
   const { xp, streak, sectionProgress } = useGameStore()
 
   const level = Math.floor(xp / GAME_CONFIG.xp.perLevel) + 1

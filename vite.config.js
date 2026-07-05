@@ -66,6 +66,25 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    // Respeta el puerto asignado por el entorno (p. ej. preview/autoPort);
+    // si no hay, usa el 5173 por defecto de Vite.
+    port: Number(process.env.PORT) || 5173,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        // Separa las dependencias en chunks propios para que las actualizaciones
+        // de código de la app no invaliden la caché del vendor (sostenibilidad).
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          if (id.includes('@supabase')) return 'supabase'
+          if (id.includes('/motion/') || id.includes('framer-motion')) return 'motion'
+          return 'vendor'
+        },
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

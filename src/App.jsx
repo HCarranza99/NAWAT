@@ -13,6 +13,7 @@ import LessonScreen from './screens/LessonScreen'
 import ResultScreen from './screens/ResultScreen'
 import SectionsScreen from './screens/SectionsScreen'
 import SectionLessonScreen from './screens/SectionLessonScreen'
+import ReviewScreen from './screens/ReviewScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import LogrosScreen from './screens/LogrosScreen'
 import BottomNav from './components/ui/BottomNav'
@@ -20,6 +21,7 @@ import DesktopSidebar from './components/ui/DesktopSidebar'
 import { useIsDesktop } from './hooks/useMediaQuery'
 import { startSession, endSession } from './services/analytics'
 import { saveProgressToCloud } from './services/auth'
+import { ensureGeneratedSections } from './data/sections/registry'
 import { useAuth } from './hooks/useAuth'
 import { INTERVENTION_MS } from './data/questionnaires'
 
@@ -43,6 +45,12 @@ export default function App() {
   useEffect(() => {
     sessionIdRef.current = currentSessionId
   }, [currentSessionId])
+
+  // Precarga en segundo plano del vocabulario generado (chunk diferido), tras el
+  // primer render, para que esté listo y la PWA pueda cachearlo sin bloquear el inicio.
+  useEffect(() => {
+    ensureGeneratedSections()
+  }, [])
 
   // Inicia sesión cuando el participante está identificado (skip in demo)
   useEffect(() => {
@@ -128,6 +136,7 @@ export default function App() {
       <Route path="/sections" element={<SectionsScreen />} />
       <Route path="/section/:sectionId/lesson/:lessonId" element={<SectionLessonScreen />} />
       <Route path="/section/:sectionId/boss" element={<SectionLessonScreen />} />
+      <Route path="/review" element={<ReviewScreen />} />
       <Route path="/profile" element={<ProfileScreen />} />
       <Route path="/logros" element={<LogrosScreen />} />
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -182,6 +191,7 @@ function AppChrome({ children }) {
   // Modo enfocado: durante lecciones/resultado se oculta todo el chrome
   const focused = location.pathname.startsWith('/section/') ||
     location.pathname.startsWith('/lesson/') ||
+    location.pathname === '/review' ||
     location.pathname === '/result'
 
   const showSidebar = isDesktop && !focused
@@ -205,6 +215,7 @@ function DemoBanner() {
   const location = useLocation()
   const hidden = location.pathname.startsWith('/section/') ||
     location.pathname.startsWith('/lesson/') ||
+    location.pathname === '/review' ||
     location.pathname === '/result'
 
   if (hidden) return null

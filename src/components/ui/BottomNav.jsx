@@ -19,6 +19,7 @@ export default function BottomNav() {
   const hidden = isDesktop ||
     location.pathname.startsWith('/section/') ||
     location.pathname.startsWith('/lesson/') ||
+    location.pathname === '/review' ||
     location.pathname === '/result'
   if (hidden) return null
 

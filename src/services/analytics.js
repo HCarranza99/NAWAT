@@ -9,6 +9,7 @@
 import { supabase } from '../lib/supabase'
 import { logError } from '../lib/logger'
 import { DEMO_MODE } from '../store/useGameStore'
+import { MIN_SCORE_TO_PASS } from '../data/gameConfig'
 
 // ── Participantes ────────────────────────────────────────────────
 
@@ -134,7 +135,7 @@ export async function completeLessonAttempt(attemptId, startedAtMs, score, stars
         score,
         stars,
         xp_earned: xpEarned,
-        passed: score >= 0.7,
+        passed: score >= MIN_SCORE_TO_PASS,
       })
       .eq('id', attemptId)
 

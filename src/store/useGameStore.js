@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { z } from 'zod'
+import { gradeCard } from '../lib/srs'
+import { computeStars, MIN_SCORE_TO_PASS } from '../data/gameConfig'
 
 /**
  * Demo mode has a canonical /demo route. The explicit ?demo=true entry
@@ -53,8 +55,6 @@ export const PHASES = Object.freeze({
   FREE: 'free',
 })
 
-const computeStars = (score) => score >= 0.9 ? 3 : score >= 0.7 ? 2 : score >= 0.5 ? 1 : 0
-
 const GameStateSchema = z.object({
   participantId: z.string().nullable().catch(null),
   participantName: z.string().nullable().catch(null),
@@ -65,12 +65,13 @@ const GameStateSchema = z.object({
   pretestCompletedAt: z.string().nullable().catch(null),
   posttestCompletedAt: z.string().nullable().catch(null),
   xp: z.number().min(0).catch(0),
-  lives: z.number().min(0).max(5).catch(5),
+  lives: z.number().min(0).max(3).catch(3),
   livesLastLostAt: z.string().nullable().catch(null),
   streak: z.number().min(0).catch(0),
   lastPlayedDate: z.union([z.string(), z.number()]).nullable().catch(null),
   lessonProgress: z.record(z.any()).catch({}),
   sectionProgress: z.record(z.any()).catch({}),
+  srs: z.record(z.any()).catch({}),
   onboardingSeen: z.boolean().catch(false),
 }).passthrough()
 
@@ -87,12 +88,13 @@ const useGameStore = create(
       pretestCompletedAt: null,
       posttestCompletedAt: null,
       xp: 0,
-      lives: 5,
+      lives: 3,
       livesLastLostAt: null,
       streak: 0,
       lastPlayedDate: null,
       lessonProgress: {},
       sectionProgress: {},
+      srs: {},
       onboardingSeen: false,
 
       setParticipant: (id, fullName) => set({ participantId: id, participantName: fullName }),
@@ -111,6 +113,7 @@ const useGameStore = create(
             lastPlayedDate: cloudState.lastPlayedDate ?? state.lastPlayedDate,
             sectionProgress: cloudState.sectionProgress ?? state.sectionProgress,
             lessonProgress: cloudState.lessonProgress ?? state.lessonProgress,
+            srs: cloudState.srs ?? state.srs,
             studyPhase: cloudState.studyPhase ?? state.studyPhase,
             pretestCompletedAt: cloudState.pretestCompletedAt ?? state.pretestCompletedAt,
             posttestCompletedAt: cloudState.posttestCompletedAt ?? state.posttestCompletedAt,
@@ -129,6 +132,14 @@ const useGameStore = create(
       goFree: () => set({ studyPhase: PHASES.FREE }),
 
       addXP: (amount) => set((state) => ({ xp: state.xp + amount })),
+
+      /** Registra el resultado de un ejercicio en el planificador SRS. */
+      recordReview: (key, correct) => {
+        if (!key) return
+        set((state) => ({
+          srs: { ...state.srs, [key]: gradeCard(state.srs[key], correct, Date.now()) },
+        }))
+      },
       loseLife: () => set((state) => {
         const newLives = Math.max(0, state.lives - 1)
         return {
@@ -136,9 +147,9 @@ const useGameStore = create(
           livesLastLostAt: newLives === 0 ? new Date().toISOString() : state.livesLastLostAt,
         }
       }),
-      resetLives: () => set({ lives: 5, livesLastLostAt: null }),
+      resetLives: () => set({ lives: 3, livesLastLostAt: null }),
       gainLife: (amount = 1) => set((state) => {
-        const newLives = Math.min(5, state.lives + amount)
+        const newLives = Math.min(3, state.lives + amount)
         return {
           lives: newLives,
           livesLastLostAt: newLives > 0 ? null : state.livesLastLostAt,
@@ -170,7 +181,7 @@ const useGameStore = create(
         lessonProgress: {
           ...state.lessonProgress,
           [lessonId]: {
-            completed: score >= 0.5,
+            completed: score >= MIN_SCORE_TO_PASS,
             score,
             stars: computeStars(score),
           },
@@ -187,7 +198,7 @@ const useGameStore = create(
               ...prev,
               lessonsCompleted: {
                 ...prev.lessonsCompleted,
-                [lessonId]: { completed: score >= 0.5, score, stars: computeStars(score) },
+                [lessonId]: { completed: score >= MIN_SCORE_TO_PASS, score, stars: computeStars(score) },
               },
             },
           },
@@ -202,7 +213,7 @@ const useGameStore = create(
             ...state.sectionProgress,
             [sectionId]: {
               ...prev,
-              bossCompleted: score >= 0.5,
+              bossCompleted: score >= MIN_SCORE_TO_PASS,
               bossScore: score,
               bossStars: computeStars(score),
             },
@@ -212,12 +223,13 @@ const useGameStore = create(
 
       resetProgress: () => set({
         xp: 0,
-        lives: 5,
+        lives: 3,
         livesLastLostAt: null,
         streak: 0,
         lastPlayedDate: null,
         lessonProgress: {},
         sectionProgress: {},
+        srs: {},
         onboardingSeen: false,
       }),
     }),

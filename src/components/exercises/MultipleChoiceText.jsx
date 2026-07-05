@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { CheckCircle2, Volume2, XCircle } from 'lucide-react'
 
-import { useTextToSpeech } from '../../hooks/useTextToSpeech'
+import { useTextToSpeech, isTtsSafe } from '../../hooks/useTextToSpeech'
+import AudioPendingButton from '../ui/AudioPendingButton'
 import WordHint from '../ui/WordHint'
 
 const optionBase =
@@ -10,6 +11,7 @@ const optionBase =
 export default function MultipleChoiceText({ item, onCorrect, onWrong }) {
   const [selected, setSelected] = useState(null)
   const { speak, isSpeaking, isSupported } = useTextToSpeech(item.pronunciationText || item.nahuat_word)
+  const ttsSafe = isTtsSafe(item.nahuat_word)
 
   const handleSelect = (option) => {
     if (selected) return
@@ -50,7 +52,7 @@ export default function MultipleChoiceText({ item, onCorrect, onWrong }) {
           <h2 className="word-nahuat text-[#17211d]">
             <WordHint word={item.nahuat_word} translation={item.spanish_translation} />
           </h2>
-          {isSupported && (
+          {isSupported && (ttsSafe ? (
             <div className="flex gap-2">
               <button
                 className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[#d8ddd5] bg-white text-[#1f7a57] shadow-sm transition hover:bg-[#eef8f2] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 ${isSpeaking ? 'animate-pulse-speak' : ''}`}
@@ -71,7 +73,9 @@ export default function MultipleChoiceText({ item, onCorrect, onWrong }) {
                 <span className="text-lg">🐢</span>
               </button>
             </div>
-          )}
+          ) : (
+            <AudioPendingButton />
+          ))}
         </div>
         {item.pronunciation && (
           <span className="word-pronunciation">/{item.pronunciation}/</span>

@@ -19,7 +19,7 @@ export default function FeedbackModal({ type, correctAnswer, onContinue, noLives
       ? {
           icon: HeartCrack,
           title: 'Sin vidas',
-          text: 'Descansa un momento y vuelve a intentarlo.',
+          text: 'No pasa nada: puedes reintentar la lección al instante.',
           mascot: 'tired',
           panel: 'border-[#e63946]/30 bg-[#fff0f1]',
           iconWrap: 'bg-[#ffe0e3] text-[#b91c1c]',
@@ -57,7 +57,7 @@ export default function FeedbackModal({ type, correctAnswer, onContinue, noLives
           className={`mt-4 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-base font-black transition-transform duration-100 active:translate-y-0.5 ${tone.button}`}
           onClick={onContinue}
         >
-          {showNoLives ? 'Volver a secciones' : 'Continuar'}
+          {showNoLives ? 'Ver mi resultado' : 'Continuar'}
           <ArrowRight className="h-5 w-5" />
         </button>
       </div>
