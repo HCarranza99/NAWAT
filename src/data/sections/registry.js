@@ -1,4 +1,5 @@
 import artisanalSections from './artisanal'
+import { composeCurriculum } from './curriculum'
 
 /**
  * Registro reactivo de secciones con carga diferida.
@@ -55,7 +56,7 @@ export function ensureGeneratedSections() {
   if (!loadPromise) {
     loadPromise = import('./generated.js')
       .then((mod) => {
-        currentSections = [...artisanalSections, ...mod.default]
+        currentSections = composeCurriculum(artisanalSections, mod.default)
         generatedLoaded = true
         generatedSettled = true
         emit()
