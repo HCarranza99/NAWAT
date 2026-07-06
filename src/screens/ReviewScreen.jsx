@@ -34,6 +34,24 @@ function ReviewSession({ sections, navigate }) {
   // La cola se fija al montar para que no cambie mientras el SRS se actualiza.
   const [queue] = useState(() => buildReviewQueue(itemsByKey, srs, { size: REVIEW_SIZE }))
 
+  // Pool global de distractores (solo flashcards): sin él, un repaso con pocas
+  // palabras vistas generaría opciones múltiples de 1–2 opciones.
+  const reviewWords = useMemo(() => {
+    const seen = new Set()
+    const words = []
+    for (const sec of sections) {
+      for (const l of sec.lessons) {
+        for (const it of l.items || []) {
+          if (it.type === 'flashcard' && it.nahuat_word && it.spanish_translation) {
+            const k = it.nahuat_word.toLowerCase().trim()
+            if (!seen.has(k)) { seen.add(k); words.push(it) }
+          }
+        }
+      }
+    }
+    return words
+  }, [sections])
+
   if (queue.length === 0) {
     return (
       <div className="screen items-center justify-center gap-4 bg-[#f7f5ef] px-8 text-center lg:mx-auto lg:w-full lg:max-w-[560px]">
@@ -65,6 +83,7 @@ function ReviewSession({ sections, navigate }) {
     <LessonRunner
       lesson={lesson}
       isBoss={false}
+      sectionWords={reviewWords}
       onStart={async () => null}
       onComplete={(ratio, xpEarned) => {
         recordPlay()

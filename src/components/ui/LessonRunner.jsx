@@ -4,7 +4,7 @@ import { ArrowRight, BookOpen, Crown, Heart, RotateCcw, Sparkles, X } from 'luci
 import { GAME_CONFIG } from '../../data/gameConfig'
 import useGameStore from '../../store/useGameStore'
 import { srsKeyForItem } from '../../lib/srs'
-import { buildExercises } from '../../lib/exerciseEngine'
+import { buildExercises, correctAnswerFor } from '../../lib/exerciseEngine'
 import { playCorrect, playWrong, playComplete } from '../../lib/sounds'
 import { logExerciseResponse } from '../../services/analytics'
 
@@ -351,7 +351,7 @@ export default function LessonRunner({
       {feedback && (
         <FeedbackModal
           type={feedback}
-          correctAnswer={current.spanish_translation}
+          correctAnswer={correctAnswerFor(current)}
           onContinue={handleContinue}
           noLives={lives === 0}
         />

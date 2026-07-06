@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildExercises } from '../lib/exerciseEngine'
+import { buildExercises, correctAnswerFor } from '../lib/exerciseEngine'
 
 const lesson = {
   title: 'Test',
@@ -44,5 +44,57 @@ describe('exerciseEngine.buildExercises', () => {
         return
       }
     }
+  })
+
+  it('excluye casi-sinónimos del pool como opción falsa ("Comer" vs "Comer (algo)")', () => {
+    const takwaLesson = {
+      title: 'Comida',
+      items: [
+        { id: 'f1', type: 'flashcard', nahuat_word: 'Takwa', spanish_translation: 'Comer', pronunciation: 'ta-kwa' },
+      ],
+    }
+    const sectionWords = [
+      { type: 'flashcard', nahuat_word: 'Takwa', spanish_translation: 'Comer' },
+      { type: 'flashcard', nahuat_word: 'Kwa', spanish_translation: 'Comer (algo)' },
+      { type: 'flashcard', nahuat_word: 'At', spanish_translation: 'Agua' },
+      { type: 'flashcard', nahuat_word: 'Kal', spanish_translation: 'Casa' },
+      { type: 'flashcard', nahuat_word: 'Pelu', spanish_translation: 'Perro' },
+      { type: 'flashcard', nahuat_word: 'Tunal', spanish_translation: 'Sol' },
+    ]
+    for (let seed = 1; seed <= 40; seed++) {
+      for (const e of buildExercises(takwaLesson, { seed, sectionWords })) {
+        if (e.type === 'multiple_choice_text') {
+          const texts = e.options.map((o) => o.text.toLowerCase())
+          expect(texts).not.toContain('comer (algo)')
+          // sin glosas repetidas entre opciones
+          expect(new Set(texts).size).toBe(texts.length)
+        }
+        if (e.type === 'true_false' && !e.is_true) {
+          expect(e.shown_translation.toLowerCase()).not.toBe('comer (algo)')
+        }
+      }
+    }
+  })
+
+  it('correctAnswerFor devuelve la respuesta real de cada tipo', () => {
+    // MC de producción (invertida): la respuesta vive en las opciones
+    expect(correctAnswerFor({
+      type: 'multiple_choice_text',
+      nahuat_word: 'Adiós (me voy)',
+      spanish_translation: '¿Cómo se dice al partir?',
+      options: [{ id: 'a', text: 'Shiawa', correct: false }, { id: 'b', text: 'Niawa', correct: true }],
+    })).toBe('Niawa')
+    // active_recall: se escribe la palabra náhuat
+    expect(correctAnswerFor({
+      type: 'active_recall', nahuat_word: 'Nunan', spanish_translation: 'Mi mamá',
+    })).toBe('Nunan')
+    // build_sentence: el orden correcto
+    expect(correctAnswerFor({
+      type: 'build_sentence', spanish_translation: '¿Cómo estás?', correct_order: ['Ken', 'tinemi?'],
+    })).toBe('Ken tinemi?')
+    // true_false y demás: la traducción real
+    expect(correctAnswerFor({
+      type: 'true_false', spanish_translation: 'Agua', shown_translation: 'Perro',
+    })).toBe('Agua')
   })
 })

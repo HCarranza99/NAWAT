@@ -26,12 +26,14 @@ export default function SectionLessonScreen() {
 
   // Vocabulario de toda la sección: alimenta los distractores del motor de
   // ejercicios (opciones falsas, verdadero/falso) y, más adelante, "clasifica por tema".
+  // SOLO flashcards: en los demás tipos `nahuat_word`/`spanish_translation` pueden
+  // ser consignas ("¿Cómo se dice…?") o español invertido, y ensucian las opciones.
   const sectionWords = useMemo(() => {
     const seen = new Set()
     const words = []
     for (const l of section?.lessons || []) {
       for (const it of l.items || []) {
-        if (it.nahuat_word && it.spanish_translation) {
+        if (it.type === 'flashcard' && it.nahuat_word && it.spanish_translation) {
           const k = it.nahuat_word.toLowerCase().trim()
           if (!seen.has(k)) { seen.add(k); words.push(it) }
         }

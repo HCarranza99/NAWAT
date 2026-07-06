@@ -85,7 +85,7 @@ export default function Matching({ item, onComplete }) {
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2.5">
-          <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#6d756e]">Náhuat</p>
+          <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#6d756e]">{item.left_label || 'Náhuat'}</p>
           {nahuatWords.map((word) => (
             <button
               key={word}
@@ -102,7 +102,7 @@ export default function Matching({ item, onComplete }) {
           ))}
         </div>
         <div className="space-y-2.5">
-          <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#6d756e]">Español</p>
+          <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#6d756e]">{item.right_label || 'Español'}</p>
           {spanishWords.map((word) => (
             <button
               key={word}

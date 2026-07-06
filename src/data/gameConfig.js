@@ -29,10 +29,12 @@ export const GAME_CONFIG = {
 
   // Tipos de ejercicio y su peso en puntos
   itemTypes: {
-    flashcard: { label: "Tarjeta", xp: 5 },
     multiple_choice_text: { label: "Opción múltiple", xp: 10 },
     multiple_choice_image: { label: "Imagen", xp: 10 },
+    true_false: { label: "Verdadero o falso", xp: 10 },
     matching: { label: "Emparejar", xp: 15 },
+    active_recall: { label: "Escritura", xp: 15 },
+    lightning: { label: "Ronda relámpago", xp: 20 },
     build_sentence: { label: "Construir oración", xp: 20 },
   },
 };

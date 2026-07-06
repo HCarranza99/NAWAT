@@ -39,12 +39,24 @@ const shuffle = (arr, rng) => {
 const norm = (s = '') => s.toLowerCase().trim()
 const isWord = (it) => it?.nahuat_word && it?.spanish_translation
 
-/** Opciones de opción múltiple: la correcta + distractores del pool. */
+// Compara traducciones ignorando acotaciones entre paréntesis y puntuación:
+// "Comer (algo)" ≈ "comer". Sin esto, un casi-sinónimo del pool ("Kwa: Comer
+// (algo)") puede salir como opción "falsa" junto a "Takwa: Comer" y castigar
+// una respuesta semánticamente correcta.
+const gloss = (s = '') => norm(s).replace(/\([^)]*\)/g, ' ').replace(/[.,;:!?¡¿"]/g, ' ').replace(/\s+/g, ' ').trim()
+
+/** Opciones de opción múltiple: la correcta + distractores del pool (sin
+ *  casi-sinónimos de la correcta y sin glosas repetidas entre sí). */
 function mcOptions(word, pool, rng) {
-  const distract = shuffle(
-    pool.filter((w) => norm(w.spanish_translation) !== norm(word.spanish_translation)),
-    rng,
-  ).slice(0, 3).map((w) => w.spanish_translation)
+  const seen = new Set([gloss(word.spanish_translation)])
+  const distract = []
+  for (const w of shuffle(pool, rng)) {
+    const g = gloss(w.spanish_translation)
+    if (seen.has(g)) continue
+    seen.add(g)
+    distract.push(w.spanish_translation)
+    if (distract.length === 3) break
+  }
   const opts = shuffle(
     [{ text: word.spanish_translation, correct: true }, ...distract.map((t) => ({ text: t, correct: false }))],
     rng,
@@ -56,7 +68,7 @@ function buildTrueFalse(word, pool, rng, id) {
   const truthy = rng() < 0.5
   let shown = word.spanish_translation
   if (!truthy) {
-    const others = pool.filter((w) => norm(w.spanish_translation) !== norm(word.spanish_translation))
+    const others = pool.filter((w) => gloss(w.spanish_translation) !== gloss(word.spanish_translation))
     shown = others.length ? others[Math.floor(rng() * others.length)].spanish_translation : word.spanish_translation
   }
   return {
@@ -65,7 +77,7 @@ function buildTrueFalse(word, pool, rng, id) {
     pronunciation: word.pronunciation,
     spanish_translation: word.spanish_translation, // real (para feedback)
     shown_translation: shown,
-    is_true: norm(shown) === norm(word.spanish_translation),
+    is_true: gloss(shown) === gloss(word.spanish_translation),
   }
 }
 
@@ -101,6 +113,25 @@ function buildLightning(words, pool, rng, id) {
     options: mcOptions(w, pool, rng),
   }))
   return { id, type: 'lightning', seconds: Math.max(15, questions.length * 5), questions }
+}
+
+/**
+ * Respuesta correcta que se muestra al fallar (FeedbackModal). No siempre es
+ * `spanish_translation`: en los ítems de producción (español→náhuat) ese campo
+ * es la consigna, y la respuesta vive en las opciones / el orden / la palabra.
+ */
+export function correctAnswerFor(item) {
+  switch (item?.type) {
+    case 'multiple_choice_text':
+    case 'multiple_choice_image':
+      return item.options?.find((o) => o.correct)?.text ?? item.spanish_translation
+    case 'active_recall':
+      return item.nahuat_word
+    case 'build_sentence':
+      return item.correct_order?.join(' ') ?? item.spanish_translation
+    default:
+      return item?.spanish_translation
+  }
 }
 
 /**

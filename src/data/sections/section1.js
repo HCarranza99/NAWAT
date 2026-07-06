@@ -99,6 +99,8 @@ const section1 = {
             id: "s1-l1-5",
             type: "matching",
             instruction: "Une cada sonido con su palabra ejemplo",
+            left_label: "Sonido",
+            right_label: "Palabra",
             pairs: [
               { nahuat: "Kw", spanish: "Kwawit" },
               { nahuat: "Tz", spanish: "Tzaput" },
@@ -219,7 +221,6 @@ const section1 = {
             type: "multiple_choice_text",
             nahuat_word: "Adiós (me voy)",
             spanish_translation: "¿Cómo se dice al partir?",
-            pronunciation: "a-diós me voy",
             pronunciationText: "adiós me voy",
             instruction: "Ana sale de la tienda. ¿Qué dice?",
             options: [
@@ -235,7 +236,6 @@ const section1 = {
             type: "multiple_choice_text",
             nahuat_word: "Adiós (me quedo)",
             spanish_translation: "¿Cómo se dice al quedarse?",
-            pronunciation: "a-diós me quedo",
             pronunciationText: "adiós me quedo",
             instruction: "Juan se queda. Su amigo se va. ¿Qué dice Juan?",
             options: [
@@ -250,6 +250,7 @@ const section1 = {
             id: "s1-l2-7",
             type: "matching",
             instruction: "Une cada palabra con quien la dice",
+            right_label: "Quién lo dice",
             pairs: [
               { nahuat: "Niawa", spanish: "Lo dice quien se va" },
               { nahuat: "Shiawa", spanish: "Lo dice quien se queda" },
@@ -359,7 +360,6 @@ const section1 = {
             type: "multiple_choice_text",
             nahuat_word: "¡Gracias!",
             spanish_translation: "¿Cómo se dice en Náhuat?",
-            pronunciation: "gracias",
             pronunciationText: "gracias",
             instruction: "Alguien te da un regalo. ¿Qué dices?",
             options: [
@@ -375,7 +375,6 @@ const section1 = {
             type: "multiple_choice_text",
             nahuat_word: "¡De nada!",
             spanish_translation: "¿Cómo se dice en Náhuat?",
-            pronunciation: "de nada",
             pronunciationText: "de nada",
             instruction: "Tu amigo dice \"Padiush\". ¿Qué respondes?",
             options: [
@@ -491,7 +490,6 @@ const section1 = {
             type: "multiple_choice_text",
             nahuat_word: "Estoy bien",
             spanish_translation: "¿Cómo se dice en Náhuat?",
-            pronunciation: "estoy bien",
             pronunciationText: "estoy bien",
             instruction: "Alguien pregunta \"¿Ken tinemi?\". ¿Cómo respondes que estás bien?",
             options: [
@@ -507,7 +505,6 @@ const section1 = {
             type: "multiple_choice_text",
             nahuat_word: "No estoy bien",
             spanish_translation: "¿Cómo se dice en Náhuat?",
-            pronunciation: "no estoy bien",
             pronunciationText: "no estoy bien",
             instruction: "María está enferma. ¿Cómo responde a \"¿Ken tinemi?\"?",
             options: [
@@ -618,7 +615,6 @@ const section1 = {
           type: "multiple_choice_text",
           nahuat_word: "Adiós (me voy)",
           spanish_translation: "¿Cómo se dice al partir?",
-          pronunciation: "a-diós me voy",
           pronunciationText: "adiós me voy",
           instruction: "Pedro sale de la casa. ¿Qué dice?",
           options: [
