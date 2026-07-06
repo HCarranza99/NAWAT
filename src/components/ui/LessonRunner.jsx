@@ -1,5 +1,5 @@
 import { useState, useRef, useMemo } from 'react'
-import { ArrowRight, BookOpen, CheckCircle2, Crown, Heart, RotateCcw, Sparkles, X } from 'lucide-react'
+import { ArrowRight, BookOpen, Crown, Heart, RotateCcw, Sparkles, X } from 'lucide-react'
 
 import { GAME_CONFIG } from '../../data/gameConfig'
 import useGameStore from '../../store/useGameStore'
@@ -59,56 +59,20 @@ export default function LessonRunner({
   const items = retryMode ? failedItems : exercises
   const current = items[currentIndex]
 
+  // Solo vocabulario limpio (flashcards) y sin duplicados: evita mostrar los ítems
+  // "invertidos" (español en nahuat_word) y las palabras repetidas.
+  const previewSeen = new Set()
   const previewWords = lesson.items
-    .filter((item) => item.nahuat_word && item.spanish_translation)
+    .filter((item) => item.type === 'flashcard' && item.nahuat_word && item.spanish_translation)
+    .filter((item) => {
+      const k = item.nahuat_word.toLowerCase().trim()
+      if (previewSeen.has(k)) return false
+      previewSeen.add(k)
+      return true
+    })
     .slice(0, 5)
 
   const xpForType = (type) => GAME_CONFIG.itemTypes[type]?.xp ?? 10
-
-  const getExerciseGuide = () => {
-    switch (current.type) {
-      case 'true_false':
-        return {
-          emotion: 'thinking',
-          text: 'Decide si la traducción mostrada es verdadera o falsa.',
-        }
-      case 'lightning':
-        return {
-          emotion: 'surprised',
-          text: 'Ronda relámpago: responde rápido antes de que se acabe el tiempo.',
-        }
-      case 'multiple_choice_text':
-        return {
-          emotion: 'thinking',
-          text: 'Elige la traducción correcta al español entre las opciones.',
-        }
-      case 'matching':
-        return {
-          emotion: 'explaining',
-          text: 'Toca cada palabra y su par para unirlas.',
-        }
-      case 'build_sentence':
-        return {
-          emotion: 'thinking',
-          text: 'Toca las palabras en orden para construir la frase correcta.',
-        }
-      case 'active_recall':
-        return {
-          emotion: 'reading',
-          text: 'Escribe la traducción exacta al náhuat en la caja de texto.',
-        }
-      case 'multiple_choice_image':
-        return {
-          emotion: 'surprised',
-          text: 'Observa la imagen y elige la respuesta que mejor corresponde.',
-        }
-      default:
-        return {
-          emotion: 'explaining',
-          text: 'Resuelve el ejercicio para continuar con la lección.',
-        }
-    }
-  }
 
   const recordExerciseResponse = (exercise, isCorrect) => {
     logExerciseResponse(
@@ -343,10 +307,9 @@ export default function LessonRunner({
   }
 
   const progress = currentIndex / items.length
-  const exerciseGuide = getExerciseGuide()
 
   return (
-    <div className={`screen relative bg-[#f7f5ef] lg:mx-auto lg:w-full lg:max-w-[660px] ${feedback ? 'pb-44' : 'pb-5'}`}>
+    <div className="relative flex h-[100dvh] flex-col overflow-hidden bg-[#f7f5ef] lg:mx-auto lg:h-svh lg:w-full lg:max-w-[660px]">
       <header className="sticky top-0 z-20 border-b border-[#e3ded2] bg-[#f7f5ef]/95 px-4 py-3 backdrop-blur">
         <div className="flex items-center gap-3">
           <button
@@ -370,7 +333,7 @@ export default function LessonRunner({
             <Sparkles className="h-4 w-4" />
             <span className="text-[0.68rem] font-black uppercase tracking-[0.08em]">Tutor</span>
           </button>
-          <LivesBar lives={lives} />
+          <LivesBar lives={lives} max={GAME_CONFIG.lives.max} />
         </div>
       </header>
 
@@ -381,21 +344,7 @@ export default function LessonRunner({
         </div>
       )}
 
-      <main key={`${retryMode ? 'retry' : 'main'}-${currentIndex}`} className="flex flex-1 flex-col px-5 pt-5">
-        <div className="mb-4 flex items-center gap-2 text-[0.68rem] font-black uppercase tracking-[0.16em] text-[#6d756e]">
-          <CheckCircle2 className="h-4 w-4 text-[#1f7a57]" />
-          {lesson.title}
-        </div>
-        {/* Banner de instrucción animada y premium */}
-        <div className="mb-4 grid grid-cols-[72px_1fr] items-center gap-3 rounded-xl border border-[#9ddfc6]/35 bg-[#eef8f2]/70 p-3 text-xs font-black leading-relaxed text-[#102f29] shadow-xs animate-practice-hint-fade">
-          <div className="relative flex h-16 items-end justify-center">
-            <div className="absolute bottom-1 h-8 w-12 rounded-full bg-[#102f29]/10 blur-md" />
-            <Torogoz emotion={exerciseGuide.emotion} size={70} />
-          </div>
-          <p>
-            {exerciseGuide.text}
-          </p>
-        </div>
+      <main key={`${retryMode ? 'retry' : 'main'}-${currentIndex}`} className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4">
         {renderExercise()}
       </main>
 

@@ -222,20 +222,25 @@ const useGameStore = create(
         return { streak: newStreak, lastPlayedDate: today }
       }),
 
-      completeLesson: (lessonId, score, xpEarned) => set((state) => ({
-        xp: state.xp + xpEarned,
-        lessonProgress: {
-          ...state.lessonProgress,
-          [lessonId]: {
-            completed: score >= MIN_SCORE_TO_PASS,
-            score,
-            stars: computeStars(score),
+      completeLesson: (lessonId, score, xpEarned) => set((state) => {
+        const prev = state.lessonProgress[lessonId] || {}
+        return {
+          xp: state.xp + xpEarned,
+          lessonProgress: {
+            ...state.lessonProgress,
+            // Nunca degradar: repetir y fallar una lección ya aprobada no la desbloquea.
+            [lessonId]: {
+              completed: prev.completed || score >= MIN_SCORE_TO_PASS,
+              score: Math.max(prev.score || 0, score),
+              stars: Math.max(prev.stars || 0, computeStars(score)),
+            },
           },
-        },
-      })),
+        }
+      }),
 
       completeSectionLesson: (sectionId, lessonId, score, xpEarned) => set((state) => {
         const prev = state.sectionProgress[sectionId] || { lessonsCompleted: {}, bossCompleted: false }
+        const prevLesson = prev.lessonsCompleted?.[lessonId] || {}
         return {
           xp: state.xp + xpEarned,
           sectionProgress: {
@@ -244,7 +249,12 @@ const useGameStore = create(
               ...prev,
               lessonsCompleted: {
                 ...prev.lessonsCompleted,
-                [lessonId]: { completed: score >= MIN_SCORE_TO_PASS, score, stars: computeStars(score) },
+                // Nunca degradar: repetir y fallar una lección ya aprobada no la bloquea.
+                [lessonId]: {
+                  completed: prevLesson.completed || score >= MIN_SCORE_TO_PASS,
+                  score: Math.max(prevLesson.score || 0, score),
+                  stars: Math.max(prevLesson.stars || 0, computeStars(score)),
+                },
               },
             },
           },
@@ -259,9 +269,9 @@ const useGameStore = create(
             ...state.sectionProgress,
             [sectionId]: {
               ...prev,
-              bossCompleted: score >= MIN_SCORE_TO_PASS,
-              bossScore: score,
-              bossStars: computeStars(score),
+              bossCompleted: prev.bossCompleted || score >= MIN_SCORE_TO_PASS,
+              bossScore: Math.max(prev.bossScore || 0, score),
+              bossStars: Math.max(prev.bossStars || 0, computeStars(score)),
             },
           },
         }
