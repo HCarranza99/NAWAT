@@ -13,11 +13,12 @@ async function loadStoreAt(url) {
   return mod
 }
 
-// El estudio está CERRADO (STUDY_OPEN=false): terminada la recolección, nadie
-// inicia el protocolo y ningún dispositivo queda retenido en él. Estos tests
-// documentan ese comportamiento. Para reabrir el estudio se pone STUDY_OPEN=true
-// y estos casos volverían a esperar el flujo de consentimiento/inscripción.
-describe('Estudio cerrado: todos entran en modo libre', () => {
+// El estudio está ABIERTO (STUDY_OPEN=true): entrar por /estudio inicia el
+// protocolo en consentimiento y marca al dispositivo como participante; la fase
+// de protocolo persistida se respeta entre cargas (el participante reanuda donde
+// quedó). Para cerrar el estudio se pone STUDY_OPEN=false y estos casos volverían
+// a esperar que todos entren en modo libre (liberación en onRehydrateStorage).
+describe('Estudio abierto: /estudio inicia el protocolo', () => {
   beforeEach(() => {
     localStorage.clear()
   })
@@ -26,9 +27,9 @@ describe('Estudio cerrado: todos entran en modo libre', () => {
     window.history.replaceState({}, '', '/')
   })
 
-  it('el interruptor STUDY_OPEN está cerrado', async () => {
+  it('el interruptor STUDY_OPEN está abierto', async () => {
     const { STUDY_OPEN } = await loadStoreAt('/')
-    expect(STUDY_OPEN).toBe(false)
+    expect(STUDY_OPEN).toBe(true)
   })
 
   it('en / (sin inscripción previa) arranca en modo libre', async () => {
@@ -39,21 +40,22 @@ describe('Estudio cerrado: todos entran en modo libre', () => {
     expect(s.studyPhase).toBe('free')
   })
 
-  it('/estudio NO inicia el protocolo: entra en modo libre sin inscribir', async () => {
+  it('/estudio inicia el protocolo: inscribe y arranca en consentimiento', async () => {
     const { default: store, STUDY_LINK_ENTRY } = await loadStoreAt('/estudio')
     const s = store.getState()
-    expect(STUDY_LINK_ENTRY).toBe(false) // neutralizado por STUDY_OPEN=false
-    expect(s.enrolledInStudy).toBe(false)
-    expect(s.studyPhase).toBe('free')
+    expect(STUDY_LINK_ENTRY).toBe(true)
+    expect(s.enrolledInStudy).toBe(true)
+    expect(s.studyPhase).toBe('consent')
   })
 
-  it('?estudio=true tampoco inicia el protocolo', async () => {
+  it('?estudio=true también inicia el protocolo', async () => {
     const { default: store } = await loadStoreAt('/?estudio=true')
-    expect(store.getState().enrolledInStudy).toBe(false)
-    expect(store.getState().studyPhase).toBe('free')
+    const s = store.getState()
+    expect(s.enrolledInStudy).toBe(true)
+    expect(s.studyPhase).toBe('consent')
   })
 
-  it('resolveStudyEntry sigue detectando /estudio (intacto para reabrir el estudio)', async () => {
+  it('resolveStudyEntry detecta /estudio y ?estudio=true', async () => {
     const { resolveStudyEntry } = await loadStoreAt('/')
     expect(resolveStudyEntry({ href: 'https://x.test/estudio' }).enrollNow).toBe(true)
     expect(resolveStudyEntry({ href: 'https://x.test/?estudio=true' }).enrollNow).toBe(true)
@@ -61,7 +63,7 @@ describe('Estudio cerrado: todos entran en modo libre', () => {
     expect(resolveStudyEntry({ href: 'https://x.test/' }).enrollNow).toBe(false)
   })
 
-  it('libera a un participante que quedó a mitad del protocolo al entrar por /', async () => {
+  it('reanuda a un participante a mitad del protocolo al entrar por /', async () => {
     seedPersisted({
       enrolledInStudy: true,
       studyPhase: 'pretest',
@@ -69,21 +71,21 @@ describe('Estudio cerrado: todos entran en modo libre', () => {
     })
     const { default: store } = await loadStoreAt('/')
     const s = store.getState()
-    // onRehydrateStorage lo libera a modo libre sin perder sus datos de inscripción.
+    // Con el estudio abierto NO se libera: reanuda donde quedó.
     expect(s.enrolledInStudy).toBe(true)
-    expect(s.studyPhase).toBe('free')
+    expect(s.studyPhase).toBe('pretest')
   })
 
-  it('libera a quien quedó atascado en el consentimiento (entró por /estudio, no consintió)', async () => {
+  it('reanuda en consentimiento a quien entró por /estudio y aún no consintió', async () => {
     seedPersisted({ enrolledInStudy: true, studyPhase: 'consent' })
     const { default: store } = await loadStoreAt('/estudio')
     const s = store.getState()
-    // Escenario reportado: dispositivo que solo abrió el enlace /estudio. Ya no
-    // se le pide "seguir el estudio": entra directo a la app.
-    expect(s.studyPhase).toBe('free')
+    // Ya inscrito → enrollInStudy conserva la fase actual (no reinicia).
+    expect(s.studyPhase).toBe('consent')
+    expect(s.enrolledInStudy).toBe(true)
   })
 
-  it('libera a quien quedó atascado en el postest sin completarlo', async () => {
+  it('reanuda en el postest a quien no lo había completado', async () => {
     seedPersisted({
       enrolledInStudy: true,
       studyPhase: 'posttest',
@@ -92,12 +94,11 @@ describe('Estudio cerrado: todos entran en modo libre', () => {
     })
     const { default: store } = await loadStoreAt('/')
     const s = store.getState()
-    // Antes: pantalla de postest para siempre (no podía entrar a la app).
-    expect(s.studyPhase).toBe('free')
+    expect(s.studyPhase).toBe('posttest')
     expect(s.enrolledInStudy).toBe(true)
   })
 
-  it('quien ya había completado el estudio mantiene acceso libre', async () => {
+  it('quien ya completó el estudio no lo repite: queda libre y se le agradece', async () => {
     seedPersisted({
       enrolledInStudy: true,
       studyPhase: 'free',
@@ -108,9 +109,10 @@ describe('Estudio cerrado: todos entran en modo libre', () => {
     const s = store.getState()
     expect(s.studyPhase).toBe('free')
     expect(s.enrolledInStudy).toBe(true)
+    expect(s.studyThanks).toBe(true)
   })
 
-  it('migra usuarios previos (v1 con consentimiento): inscritos y liberados a libre', async () => {
+  it('migra usuarios previos (v1 con consentimiento): inscritos y reanudan su fase', async () => {
     seedPersisted(
       { studyPhase: 'pretest', consentAcceptedAt: '2026-01-01T00:00:00.000Z' },
       1,
@@ -118,6 +120,6 @@ describe('Estudio cerrado: todos entran en modo libre', () => {
     const { default: store } = await loadStoreAt('/')
     const s = store.getState()
     expect(s.enrolledInStudy).toBe(true)
-    expect(s.studyPhase).toBe('free')
+    expect(s.studyPhase).toBe('pretest')
   })
 })

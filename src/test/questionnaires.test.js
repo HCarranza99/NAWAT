@@ -164,10 +164,10 @@ describe('Intervention duration', () => {
     expect(INTERVENTION_MS).toBe(INTERVENTION_MINUTES * 60_000)
   })
 
-  // Sanity check: la intervención del estudio NAWAT está pensada como 15 min.
-  // Si este test falla, alguien dejó un valor de debug en el archivo.
-  it('intervention duration should be at least 10 minutes for a real study session', () => {
-    expect(INTERVENTION_MINUTES).toBeGreaterThanOrEqual(10)
+  // Sanity check: la intervención del estudio NAWAT está fijada en 10 min.
+  // Si este test falla, alguien cambió la duración (o dejó un valor de debug).
+  it('intervention duration is exactly 10 minutes for the study session', () => {
+    expect(INTERVENTION_MINUTES).toBe(10)
   })
 })
 

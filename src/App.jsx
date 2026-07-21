@@ -104,7 +104,7 @@ export default function App() {
     }
   }, [participantId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Trigger global del postest cuando se cumplen los 15 min (wall-clock).
+  // Trigger global del postest cuando se cumplen los 10 min (wall-clock).
   // Corre aunque el usuario esté dentro de una lección.
   // No aplica en demo mode.
   useEffect(() => {

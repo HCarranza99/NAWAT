@@ -45,13 +45,16 @@ if (demoLocation.enabled) {
 export const DEMO_MODE = demoLocation.enabled
 
 /**
- * Interruptor maestro del estudio. La recolección de datos ya terminó, así que
- * está CERRADO: `/estudio` no inicia el protocolo y ningún dispositivo queda
- * retenido en él — todos entran en modo libre (ver `onRehydrateStorage`). Todo
- * el código del estudio (pantallas, fases, cuestionarios) se conserva intacto:
- * para reabrir el estudio basta con poner esto en `true`.
+ * Interruptor maestro del estudio. ABIERTO: entrar por `/estudio` (o
+ * `?estudio=true`) inicia el protocolo en CONSENT y marca el dispositivo como
+ * participante (cohorte 'study'); quien entra por `/` va a modo libre. Con el
+ * estudio abierto la fase de protocolo persistida se respeta entre cargas, de
+ * modo que un participante reanuda donde quedó (ver `onRehydrateStorage`).
+ * Para volver a cerrarlo basta con poner esto en `false`: `/estudio` deja de
+ * iniciar el protocolo y `onRehydrateStorage` libera a modo libre a cualquier
+ * dispositivo retenido en una fase de protocolo.
  */
-export const STUDY_OPEN = false
+export const STUDY_OPEN = true
 
 /**
  * El estudio se reparte como aprendenawat.com/estudio (o ?estudio=true para
