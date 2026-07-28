@@ -9,7 +9,15 @@
  *   - Compacto: se exponen ~GEN_LESSONS_CAP lecciones generadas por sección; el
  *     resto del corpus queda sin usar (para agregar en el futuro).
  *   - Los temas de tiempo/espacio/números forman una sección 6 nueva.
+ *   - FILTROS DE CALIDAD antes de repartir: se descartan las formas ligadas
+ *     (poseídas/verbales, las que el diccionario marca con guion) y las glosas
+ *     despectivas. Ver isBoundForm / isDerogatory más abajo.
  *   - Cada ítem generado lleva generated:true y verified:false (revisión humana).
+ *
+ * LÍMITE CONOCIDO: el reparto por `topic` viene del corpus, y ahí `actions` hace
+ * de cajón de sastre (683 de 1012 palabras). Por eso hay lecciones cuyo título no
+ * describe bien su contenido — p. ej. "Saludos · 1" no trae saludos. Los filtros
+ * de arriba NO arreglan eso; hace falta reclasificar los temas.
  *
  * Salida: src/data/sections/generated.js  →  export default { bySection, extra }
  *   bySection[id] = lecciones a AÑADIR a la sección artesanal `id` (1–5)
@@ -91,7 +99,40 @@ for (const [phraseSlug, pws] of phraseWordsByPhrase) {
   }
 }
 
-const wordItems = corpus.items.filter((it) => it.kind === 'word')
+// ── Filtros de calidad del corpus ─────────────────────────────────────────────
+/**
+ * Formas de cita LIGADAS (poseídas o verbales).
+ *
+ * El diccionario las registra con GUION INICIAL (−Kun, −Kak, −Tatanoy, −Tukay):
+ * esa marca significa que no son palabras libres, que exigen un prefijo posesivo
+ * delante. La fuente lo ilustra ella misma: "−Kun … Nukun: Mi olla".
+ *
+ * La extracción que produjo catalogo_extraido.json borró ese guion de
+ * `text_nawat`, pero lo conservó dentro de `notes`; por eso se detectan por ahí
+ * (297 casos, todos con el mismo formato de nota).
+ *
+ * Enseñarlas sueltas es un error de lengua, y la propia glosa lo delata: el "de"
+ * que queda colgando en "Olla de", "Zapato de", "Carne de". Se excluyen hasta que
+ * exista una lección de posesión (nu-/mu-/i-) que las presente como corresponde.
+ * No se pierde el concepto: el corpus casi siempre trae la forma libre
+ * equivalente (Kun→Kumit, Kak→Kakti), y al liberar el cupo entra ella.
+ */
+const isBoundForm = (it) => Boolean(it.notes && it.notes.includes('Forma de cita'))
+
+/**
+ * Glosas despectivas.
+ *
+ * Son palabras legítimas del idioma y del diccionario, pero no de una app para
+ * principiantes: sin este filtro la lección "La familia" llega a enseñar
+ * "Hombre inútil (ofensa)" o "Hacerse inútil por vejez (mujer)". Son 9 en todo
+ * el corpus. Excluirlas de `wordItems` también las saca de los distractores.
+ */
+const isDerogatory = (it) =>
+  /ofensa|in[úu]til|persona mala|tonto|est[úu]pid|borrach|puta|maldit/i.test(it.text_es || '')
+
+const wordItems = corpus.items
+  .filter((it) => it.kind === 'word')
+  .filter((it) => !isBoundForm(it) && !isDerogatory(it))
 const distractorsByTopic = new Map()
 const distractorsByPos = new Map()
 for (const it of wordItems) {
