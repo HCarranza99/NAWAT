@@ -35,6 +35,21 @@ Four tables capture everything needed for the thesis:
 
 All analytics calls are wrapped in silent `try/catch` — if Supabase is unreachable, the app keeps working and the participant gets a locally-generated UUID.
 
+## Donations
+
+The app accepts direct donations through a **PayPal hosted donate button**. The app
+only opens PayPal's own page — it never handles payment data, needs no backend and
+stores no secrets.
+
+- Config lives in [`src/data/donation.js`](src/data/donation.js); the button id is
+  public by design and can be overridden with `VITE_PAYPAL_BUTTON_ID`.
+- In-app entry points: the **Perfil** screen and the desktop sidebar → `/donar`.
+- PayPal returns donors to `/gracias` (and to `/donar` if they cancel). Both URLs are
+  configured on the button itself in the PayPal dashboard, so changing the domain
+  means updating them there too.
+- The hosted page offers $5 / $10 / $25 / any amount, one-time or recurring. **PayPal
+  ignores an `amount` URL parameter**, so the app never claims to preselect a value.
+
 ## Getting started
 
 ### 1. Install

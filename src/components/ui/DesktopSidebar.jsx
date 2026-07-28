@@ -1,9 +1,10 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { Home, Layers3, Trophy, UserRound, Sparkles, Star } from 'lucide-react'
+import { Heart, Home, Layers3, Trophy, UserRound, Sparkles, Star } from 'lucide-react'
 
 import useGameStore from '../../store/useGameStore'
 import TorogozBadge from './TorogozBadge'
+import { DONATION_ENABLED } from '../../data/donation'
 
 const navItems = [
   { id: 'home', label: 'Inicio', icon: Home, path: '/' },
@@ -97,6 +98,17 @@ export default function DesktopSidebar() {
           </p>
         </div>
       </div>
+
+      {/* Donación */}
+      {DONATION_ENABLED && (
+        <button
+          onClick={() => navigate('/donar')}
+          className="relative z-10 mt-2.5 flex w-full items-center justify-center gap-2 rounded-2xl border border-[#f4a261]/30 bg-[#f4a261]/12 px-4 py-3 text-[0.82rem] font-black text-[#f4a261] transition hover:bg-[#f4a261]/20 active:scale-[0.99]"
+        >
+          <Heart className="h-4 w-4" />
+          Apoya el proyecto
+        </button>
+      )}
     </aside>
   )
 }

@@ -16,6 +16,8 @@ import SectionLessonScreen from './screens/SectionLessonScreen'
 import ReviewScreen from './screens/ReviewScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import LogrosScreen from './screens/LogrosScreen'
+import DonateScreen from './screens/DonateScreen'
+import ThanksScreen from './screens/ThanksScreen'
 import BottomNav from './components/ui/BottomNav'
 import DesktopSidebar from './components/ui/DesktopSidebar'
 import { useIsDesktop } from './hooks/useMediaQuery'
@@ -155,6 +157,9 @@ export default function App() {
       <Route path="/review" element={<ReviewScreen />} />
       <Route path="/profile" element={<ProfileScreen />} />
       <Route path="/logros" element={<LogrosScreen />} />
+      {/* Donación: /gracias es la URL de retorno del botón alojado de PayPal */}
+      <Route path="/donar" element={<DonateScreen />} />
+      <Route path="/gracias" element={<ThanksScreen />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

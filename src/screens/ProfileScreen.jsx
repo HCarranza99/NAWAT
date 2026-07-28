@@ -1,7 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
-  Award,
-  BookOpen,
+  ChevronRight,
   Cloud,
   Download,
   Flame,
@@ -9,17 +9,15 @@ import {
   LogOut,
   Medal,
   ShieldCheck,
-  Star,
-  Trophy,
   Zap,
 } from 'lucide-react'
 
 import useGameStore, { PHASES } from '../store/useGameStore'
+import { DONATION_ENABLED } from '../data/donation'
 import { GAME_CONFIG } from '../data/gameConfig'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import { signOut } from '../services/auth'
 import { usePwaInstall } from '../hooks/usePwaInstall'
-import { useSections } from '../hooks/useSections'
 
 function StatCard({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
   return (
@@ -33,11 +31,10 @@ function StatCard({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
 
 export default function ProfileScreen() {
   const [loggingOut, setLoggingOut] = useState(false)
+  const navigate = useNavigate()
   const { canInstall, install } = usePwaInstall()
-  const sections = useSections()
   const {
     xp, streak, lastPlayedDate,
-    sectionProgress,
     participantName,
     isGuestMode, setAuthUser,
   } = useGameStore()
@@ -46,25 +43,6 @@ export default function ProfileScreen() {
   const level = Math.floor(xp / xpPerLevel) + 1
   const xpInLevel = xp % xpPerLevel
   const levelPct = Math.round((xpInLevel / xpPerLevel) * 100)
-
-  const totalSectionsCompleted = sections.filter((section) => {
-    const prog = sectionProgress[section.id]
-    return prog?.bossCompleted === true
-  }).length
-
-  const totalLessonsCompleted = sections.reduce((acc, section) => {
-    const prog = sectionProgress[section.id]
-    if (!prog?.lessonsCompleted) return acc
-    return acc + Object.values(prog.lessonsCompleted).filter((lesson) => lesson.completed).length
-  }, 0)
-
-  const totalStars = sections.reduce((acc, section) => {
-    const prog = sectionProgress[section.id]
-    if (!prog?.lessonsCompleted) return acc
-    const lessonStars = Object.values(prog.lessonsCompleted).reduce((sum, lesson) => sum + (lesson.stars || 0), 0)
-    const bossStars = prog.bossStars || 0
-    return acc + lessonStars + bossStars
-  }, 0)
 
   const handleLogout = async () => {
     setLoggingOut(true)
@@ -136,43 +114,36 @@ export default function ProfileScreen() {
             <Medal className="h-8 w-8" />
           </div>
         </div>
-        <section className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+        {/* Solo lo que no vive en Logros: estrellas, lecciones, secciones e
+            insignias son de esa pantalla y aquí solo duplicaban. */}
+        <section className="grid grid-cols-3 gap-3">
           <StatCard icon={Zap} value={xp} label="XP total" tone="text-[#1f7a57]" />
           <StatCard icon={Flame} value={streak} label="Racha" tone="text-[#c77918]" />
-          <StatCard icon={Star} value={totalStars} label="Estrellas" tone="text-[#d89a1d]" />
-          <StatCard icon={BookOpen} value={totalLessonsCompleted} label="Lecciones" tone="text-[#2f6fb2]" />
-          <StatCard icon={Trophy} value={totalSectionsCompleted} label="Secciones" tone="text-[#8d4ac3]" />
-          <StatCard icon={Heart} value={GAME_CONFIG.lives.max} label="Vidas/intento" tone="text-[#d94848]" />
+          <StatCard icon={Heart} value={GAME_CONFIG.lives.max} label="Vidas por lección" tone="text-[#d94848]" />
         </section>
-
-        {totalSectionsCompleted > 0 && (
-          <section className="rounded-lg border border-[#e3ded2] bg-white p-4 shadow-sm">
-            <div className="mb-3 flex items-center gap-2">
-              <Award className="h-5 w-5 text-[#1f7a57]" />
-              <h2 className="text-sm font-black uppercase tracking-[0.12em] text-[#17211d]">Insignias</h2>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {sections.map((section) => {
-                const completed = sectionProgress[section.id]?.bossCompleted === true
-                if (!completed) return null
-                return (
-                  <div
-                    key={section.id}
-                    className="rounded-md border px-3 py-2 text-sm font-extrabold text-[#17211d]"
-                    style={{ borderColor: `${section.color}55`, backgroundColor: `${section.color}10` }}
-                  >
-                    {section.title}
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-        )}
 
         {lastPlayedDate && (
           <p className="rounded-md border border-[#e3ded2] bg-white px-4 py-3 text-center text-sm font-medium text-[#6d756e] shadow-sm">
             Última sesión: {new Date(lastPlayedDate).toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })}
           </p>
+        )}
+
+        {DONATION_ENABLED && (
+          <button
+            onClick={() => navigate('/donar')}
+            className="flex w-full items-center gap-3 rounded-2xl border border-[#f4a261]/35 bg-[#fff6ec] p-4 text-left transition active:scale-[0.99]"
+          >
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f7b076] to-[#f4a261] text-[#102f29] shadow-[0_6px_16px_rgba(244,162,97,0.3)]">
+              <Heart className="h-5 w-5 fill-current" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[0.92rem] font-black leading-tight text-[#17211d]">Apoya el proyecto</span>
+              <span className="mt-1 block text-[0.76rem] font-semibold leading-snug text-[#6d756e]">
+                Una donación mantiene la app gratis y sin anuncios.
+              </span>
+            </span>
+            <ChevronRight className="h-5 w-5 shrink-0 text-[#c77918]" />
+          </button>
         )}
 
         <section className="space-y-2">
