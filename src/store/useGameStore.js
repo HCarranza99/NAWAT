@@ -54,7 +54,7 @@ export const DEMO_MODE = demoLocation.enabled
  * iniciar el protocolo y `onRehydrateStorage` libera a modo libre a cualquier
  * dispositivo retenido en una fase de protocolo.
  */
-export const STUDY_OPEN = true
+export const STUDY_OPEN = false
 
 /**
  * El estudio se reparte como aprendenawat.com/estudio (o ?estudio=true para
