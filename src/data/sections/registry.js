@@ -12,9 +12,25 @@ import { composeCurriculum } from './curriculum'
  * Los componentes se suscriben con el hook useSections() (src/hooks/useSections.js),
  * que dispara la carga y vuelve a renderizar cuando lo generado llega.
  */
+/**
+ * ¿Se incluye el vocabulario generado en el currículo?
+ *
+ * APAGADO POR DEFECTO. Se lanza solo con el núcleo artesanal (secciones 1–5:
+ * 25 lecciones, 178 ejercicios, ~40 palabras cotejadas a mano contra el
+ * diccionario, con cita de página). Las 36 lecciones generadas —281 palabras que
+ * ningún hablante ha revisado— quedan fuera hasta que exista esa revisión.
+ *
+ * No se borran ni se dejan de mantener: siguen generándose, siguen cubiertas por
+ * los tests (que importan ./index.js, no este registro) y siguen llevando la
+ * marca "en revisión" lista para cuando se vuelvan a mostrar.
+ *
+ * Para reactivarlas:  VITE_INCLUDE_GENERATED_LESSONS=true
+ */
+const INCLUDE_GENERATED = import.meta.env.VITE_INCLUDE_GENERATED_LESSONS === 'true'
+
 let currentSections = artisanalSections
 let generatedLoaded = false // true solo si cargó con éxito
-let generatedSettled = false // true tras resolverse el intento (éxito O fallo)
+let generatedSettled = !INCLUDE_GENERATED // apagado ⇒ ya no hay nada que esperar
 let loadPromise = null
 const listeners = new Set()
 
@@ -52,6 +68,8 @@ export function subscribeSections(listener) {
  * permite reintentar en la siguiente navegación.
  */
 export function ensureGeneratedSections() {
+  // Currículo solo-artesanal: nunca se pide el chunk generado (ver INCLUDE_GENERATED).
+  if (!INCLUDE_GENERATED) return Promise.resolve(currentSections)
   if (generatedLoaded) return Promise.resolve(currentSections)
   if (!loadPromise) {
     loadPromise = import('./generated.js')

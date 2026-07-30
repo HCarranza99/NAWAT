@@ -362,6 +362,8 @@ export default function LessonRunner({
           correctAnswer={correctAnswerFor(current)}
           onContinue={handleContinue}
           noLives={lives === 0}
+          exampleSentence={current?.example_sentence}
+          exampleTranslation={current?.example_translation}
         />
       )}
 

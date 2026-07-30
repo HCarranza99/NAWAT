@@ -1,7 +1,39 @@
 import { ArrowRight, CheckCircle2, HeartCrack, XCircle } from 'lucide-react'
 import Torogoz from './Torogoz'
 
-export default function FeedbackModal({ type, correctAnswer, onContinue, noLives = false }) {
+/**
+ * Frase de ejemplo bajo el veredicto: muestra la palabra USADA de verdad, en el
+ * momento de máxima atención. Viene del diccionario a través del ejercicio (ver
+ * exampleOf en src/lib/exerciseEngine.js), nunca se inventa.
+ */
+function ExampleUsage({ sentence, translation }) {
+  // En la lección de sonidos el ejemplo es una palabra sola (Kw → "Kwawit"), no
+  // una frase; "Así se usa" sonaría raro ahí.
+  const isPhrase = /\s/.test(sentence.trim())
+
+  return (
+    <div className="mt-3 rounded-2xl border border-[#d8ddd5] bg-white/70 px-3.5 py-2.5">
+      <p className="text-[0.58rem] font-black uppercase tracking-[0.14em] text-[#8b938c]">
+        {isPhrase ? 'Así se usa' : 'Ejemplo'}
+      </p>
+      <p className="mt-1 text-[0.92rem] font-black leading-snug text-[#17211d]">{sentence}</p>
+      {translation && (
+        <p className="mt-0.5 text-[0.78rem] font-semibold leading-snug text-[#6d756e]">
+          {translation}
+        </p>
+      )}
+    </div>
+  )
+}
+
+export default function FeedbackModal({
+  type,
+  correctAnswer,
+  onContinue,
+  noLives = false,
+  exampleSentence = null,
+  exampleTranslation = null,
+}) {
   const isCorrect = type === 'correct'
   const showNoLives = noLives && !isCorrect
 
@@ -52,6 +84,11 @@ export default function FeedbackModal({ type, correctAnswer, onContinue, noLives
             <Torogoz emotion={tone.mascot} size={82} />
           </div>
         </div>
+
+        {/* No se muestra cuando se quedó sin vidas: ahí el foco es salir, no aprender. */}
+        {exampleSentence && !showNoLives && (
+          <ExampleUsage sentence={exampleSentence} translation={exampleTranslation} />
+        )}
 
         <button
           className={`mt-4 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-base font-black transition-transform duration-100 active:translate-y-0.5 ${tone.button}`}

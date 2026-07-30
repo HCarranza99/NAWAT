@@ -64,6 +64,18 @@ function mcOptions(word, pool, rng) {
   return opts.map((o, i) => ({ id: `o${i + 1}`, text: o.text, correct: o.correct }))
 }
 
+/**
+ * Frase de ejemplo de la palabra, para mostrarla al responder (ver FeedbackModal).
+ * Vive en las flashcards del contenido artesanal y del corpus; como el motor
+ * consume las flashcards y no las vuelve a emitir, sin esto la frase no llegaba
+ * nunca a la pantalla.
+ */
+const exampleOf = (word) => (
+  word.example_sentence
+    ? { example_sentence: word.example_sentence, example_translation: word.example_translation }
+    : null
+)
+
 function buildTrueFalse(word, pool, rng, id) {
   const truthy = rng() < 0.5
   let shown = word.spanish_translation
@@ -78,6 +90,7 @@ function buildTrueFalse(word, pool, rng, id) {
     spanish_translation: word.spanish_translation, // real (para feedback)
     shown_translation: shown,
     is_true: gloss(shown) === gloss(word.spanish_translation),
+    ...exampleOf(word),
   }
 }
 
@@ -90,6 +103,7 @@ function buildMultipleChoice(word, pool, rng, id) {
     pronunciationText: word.pronunciationText,
     instruction: '¿Qué significa esta palabra?',
     options: mcOptions(word, pool, rng),
+    ...exampleOf(word),
   }
 }
 

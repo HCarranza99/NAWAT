@@ -8,6 +8,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import useGameStore, { PHASES } from '../store/useGameStore'
 import sections from '../data/sections'
+// Currículo que la app REALMENTE muestra: con el vocabulario generado apagado
+// (ver INCLUDE_GENERATED en src/data/sections/registry.js) solo se rinden las
+// secciones artesanales. `sections` sigue siendo el corpus completo y lo usan
+// las pruebas de datos.
+import artisanalSections from '../data/sections/artisanal'
 
 // Mock analytics to prevent real Supabase calls
 vi.mock('../services/analytics', () => ({
@@ -120,14 +125,20 @@ describe('Navigation — Sections Screen', () => {
     })
   })
 
-  it('displays all 5 sections', async () => {
+  // Lanzamiento solo-artesanal: se muestran las 5 secciones hechas a mano y NO
+  // el vocabulario generado. Si algún día se reactiva (VITE_INCLUDE_GENERATED_LESSONS)
+  // este conteo sube y hay que actualizarlo a propósito, no por accidente.
+  it('displays only the artisanal sections while generated vocabulary is off', async () => {
     render(<App />)
     await clickNavTab('Secciones')
 
     await waitFor(() => {
       const cards = document.querySelectorAll('[data-testid="section-card"]')
-      expect(cards.length).toBe(sections.length)
+      expect(cards.length).toBe(artisanalSections.length)
     })
+    expect(artisanalSections.length).toBe(5)
+    // El corpus completo sigue siendo mayor: lo generado existe, solo no se envía.
+    expect(sections.length).toBeGreaterThan(artisanalSections.length)
   })
 
   it('first section is unlocked', async () => {
