@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
+  BookOpen,
   ChevronRight,
   Cloud,
   Download,
@@ -145,6 +146,26 @@ export default function ProfileScreen() {
             <ChevronRight className="h-5 w-5 shrink-0 text-[#c77918]" />
           </button>
         )}
+
+        {/* Créditos: entrada discreta pero encontrable, deliberadamente más sobria
+            que la tarjeta de donación para no competir con ella. */}
+        <button
+          onClick={() => navigate('/creditos')}
+          className="flex w-full items-center gap-3 rounded-2xl border border-hairline bg-white px-4 py-3 text-left transition hover:bg-[#faf9f5] active:scale-[0.99]"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eef8f2] text-[#1f7a57]">
+            <BookOpen className="h-[18px] w-[18px]" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[0.86rem] font-black leading-tight text-[#17211d]">
+              Fuentes y créditos
+            </span>
+            <span className="mt-0.5 block text-[0.74rem] font-semibold leading-snug text-[#6d756e]">
+              De dónde viene el náhuat que enseña la app
+            </span>
+          </span>
+          <ChevronRight className="h-4 w-4 shrink-0 text-[#a8b0a8]" />
+        </button>
 
         <section className="space-y-2">
           {canInstall && (

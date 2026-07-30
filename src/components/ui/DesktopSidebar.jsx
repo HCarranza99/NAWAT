@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { Heart, Home, Layers3, Trophy, UserRound, Sparkles, Star } from 'lucide-react'
+import { BookOpen, Heart, Home, Layers3, Trophy, UserRound, Sparkles, Star } from 'lucide-react'
 
 import useGameStore from '../../store/useGameStore'
 import TorogozBadge from './TorogozBadge'
@@ -109,6 +109,15 @@ export default function DesktopSidebar() {
           Apoya el proyecto
         </button>
       )}
+
+      {/* Créditos: enlace sobrio, sin fondo, para no competir con la donación */}
+      <button
+        onClick={() => navigate('/creditos')}
+        className="relative z-10 mt-2 flex w-full items-center justify-center gap-1.5 px-4 py-1.5 text-[0.72rem] font-bold text-white/45 transition hover:text-white/75"
+      >
+        <BookOpen className="h-3.5 w-3.5" />
+        Fuentes y créditos
+      </button>
     </aside>
   )
 }
