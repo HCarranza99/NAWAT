@@ -5,6 +5,7 @@ import { GAME_CONFIG } from '../../data/gameConfig'
 import useGameStore from '../../store/useGameStore'
 import { srsKeyForItem } from '../../lib/srs'
 import { buildExercises, correctAnswerFor } from '../../lib/exerciseEngine'
+import { isLessonUnverified } from '../../lib/verification'
 import { playCorrect, playWrong, playComplete } from '../../lib/sounds'
 import { logExerciseResponse } from '../../services/analytics'
 
@@ -13,6 +14,7 @@ import LivesBar from './LivesBar'
 import FeedbackModal from './FeedbackModal'
 import TutorChat from './TutorChat'
 import Torogoz from './Torogoz'
+import ReviewBadge from './ReviewBadge'
 import MultipleChoiceText from '../exercises/MultipleChoiceText'
 import TrueFalse from '../exercises/TrueFalse'
 import LightningRound from '../exercises/LightningRound'
@@ -58,6 +60,9 @@ export default function LessonRunner({
 
   const items = retryMode ? failedItems : exercises
   const current = items[currentIndex]
+
+  // Contenido generado que ningún hablante revisó todavía: se avisa en la intro.
+  const unverified = isLessonUnverified(lesson)
 
   // Solo vocabulario limpio (flashcards) y sin duplicados: evita mostrar los ítems
   // "invertidos" (español en nahuat_word) y las palabras repetidas.
@@ -126,6 +131,7 @@ export default function LessonRunner({
                   <div>
                     <h1 className="text-3xl font-black leading-none tracking-normal">{lesson.title}</h1>
                     <p className="mt-2 max-w-[320px] text-sm font-medium leading-snug text-white/68">{lesson.description}</p>
+                    {unverified && <ReviewBadge variant="light" className="mt-3" />}
                   </div>
                 </div>
               </div>
@@ -167,6 +173,8 @@ export default function LessonRunner({
                     Repasa todo lo aprendido en esta sección y confirma que ya dominas las palabras clave.
                   </div>
                 )}
+
+                {unverified && <ReviewBadge variant="note" />}
 
                 {!isBoss && previewWords.length > 0 && (
                   <div className="rounded-lg border border-[#e3ded2] bg-[#fbfaf7] p-4">

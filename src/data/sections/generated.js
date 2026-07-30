@@ -18,6 +18,8 @@ const generated = {
         "description": "Vocabulario nuevo: saludos",
         "color": "#2D6A4F",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s1-greetings-1-0-fc",
@@ -237,6 +239,8 @@ const generated = {
         "description": "Vocabulario nuevo: saludos",
         "color": "#2D6A4F",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s1-greetings-2-0-fc",
@@ -452,6 +456,8 @@ const generated = {
         "description": "Vocabulario nuevo: saludos",
         "color": "#2D6A4F",
         "xpReward": 42,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s1-greetings-3-0-fc",
@@ -638,6 +644,8 @@ const generated = {
         "description": "Vocabulario nuevo: la familia",
         "color": "#1565C0",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s2-family-1-0-fc",
@@ -855,6 +863,8 @@ const generated = {
         "description": "Vocabulario nuevo: en casa",
         "color": "#1565C0",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s2-home-1-0-fc",
@@ -1070,6 +1080,8 @@ const generated = {
         "description": "Vocabulario nuevo: la familia",
         "color": "#1565C0",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s2-family-2-0-fc",
@@ -1281,6 +1293,8 @@ const generated = {
         "description": "Vocabulario nuevo: en casa",
         "color": "#1565C0",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s2-home-2-0-fc",
@@ -1500,6 +1514,8 @@ const generated = {
         "description": "Vocabulario nuevo: la familia",
         "color": "#1565C0",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s2-family-3-0-fc",
@@ -1717,6 +1733,8 @@ const generated = {
         "description": "Vocabulario nuevo: en casa",
         "color": "#1565C0",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s2-home-3-0-fc",
@@ -1930,6 +1948,8 @@ const generated = {
         "description": "Vocabulario nuevo: comida y bebida",
         "color": "#E65100",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s3-food-1-0-fc",
@@ -2145,6 +2165,8 @@ const generated = {
         "description": "Vocabulario nuevo: comida y bebida",
         "color": "#E65100",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s3-food-2-0-fc",
@@ -2358,6 +2380,8 @@ const generated = {
         "description": "Vocabulario nuevo: comida y bebida",
         "color": "#E65100",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s3-food-3-0-fc",
@@ -2571,6 +2595,8 @@ const generated = {
         "description": "Vocabulario nuevo: comida y bebida",
         "color": "#E65100",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s3-food-4-0-fc",
@@ -2782,6 +2808,8 @@ const generated = {
         "description": "Vocabulario nuevo: comida y bebida",
         "color": "#E65100",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s3-food-5-0-fc",
@@ -2993,6 +3021,8 @@ const generated = {
         "description": "Vocabulario nuevo: comida y bebida",
         "color": "#E65100",
         "xpReward": 24,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s3-food-6-0-fc",
@@ -3118,6 +3148,8 @@ const generated = {
         "description": "Vocabulario nuevo: la naturaleza",
         "color": "#388E3C",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s4-nature-1-0-fc",
@@ -3337,6 +3369,8 @@ const generated = {
         "description": "Vocabulario nuevo: animales",
         "color": "#388E3C",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s4-animals-1-0-fc",
@@ -3554,6 +3588,8 @@ const generated = {
         "description": "Vocabulario nuevo: la naturaleza",
         "color": "#388E3C",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s4-nature-2-0-fc",
@@ -3771,6 +3807,8 @@ const generated = {
         "description": "Vocabulario nuevo: animales",
         "color": "#388E3C",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s4-animals-2-0-fc",
@@ -3984,6 +4022,8 @@ const generated = {
         "description": "Vocabulario nuevo: la naturaleza",
         "color": "#388E3C",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s4-nature-3-0-fc",
@@ -4197,6 +4237,8 @@ const generated = {
         "description": "Vocabulario nuevo: animales",
         "color": "#388E3C",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s4-animals-3-0-fc",
@@ -4412,6 +4454,8 @@ const generated = {
         "description": "Vocabulario nuevo: verbos y acciones",
         "color": "#6A1B9A",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s5-actions-1-0-fc",
@@ -4631,6 +4675,8 @@ const generated = {
         "description": "Vocabulario nuevo: verbos y acciones",
         "color": "#6A1B9A",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s5-actions-2-0-fc",
@@ -4848,6 +4894,8 @@ const generated = {
         "description": "Vocabulario nuevo: verbos y acciones",
         "color": "#6A1B9A",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s5-actions-3-0-fc",
@@ -5063,6 +5111,8 @@ const generated = {
         "description": "Vocabulario nuevo: verbos y acciones",
         "color": "#6A1B9A",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s5-actions-4-0-fc",
@@ -5280,6 +5330,8 @@ const generated = {
         "description": "Vocabulario nuevo: verbos y acciones",
         "color": "#6A1B9A",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s5-actions-5-0-fc",
@@ -5495,6 +5547,8 @@ const generated = {
         "description": "Vocabulario nuevo: verbos y acciones",
         "color": "#6A1B9A",
         "xpReward": 48,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s5-actions-6-0-fc",
@@ -5718,6 +5772,8 @@ const generated = {
           "description": "Vocabulario nuevo: números",
           "color": "#4361EE",
           "xpReward": 48,
+          "generated": true,
+          "verified": false,
           "items": [
             {
               "id": "g-s6-numbers-1-0-fc",
@@ -5935,6 +5991,8 @@ const generated = {
           "description": "Vocabulario nuevo: el tiempo",
           "color": "#4361EE",
           "xpReward": 48,
+          "generated": true,
+          "verified": false,
           "items": [
             {
               "id": "g-s6-time-1-0-fc",
@@ -6152,6 +6210,8 @@ const generated = {
           "description": "Vocabulario nuevo: lugares",
           "color": "#4361EE",
           "xpReward": 48,
+          "generated": true,
+          "verified": false,
           "items": [
             {
               "id": "g-s6-place-1-0-fc",
@@ -6369,6 +6429,8 @@ const generated = {
           "description": "Vocabulario nuevo: números",
           "color": "#4361EE",
           "xpReward": 48,
+          "generated": true,
+          "verified": false,
           "items": [
             {
               "id": "g-s6-numbers-2-0-fc",
@@ -6580,6 +6642,8 @@ const generated = {
           "description": "Vocabulario nuevo: el tiempo",
           "color": "#4361EE",
           "xpReward": 48,
+          "generated": true,
+          "verified": false,
           "items": [
             {
               "id": "g-s6-time-2-0-fc",
@@ -6795,6 +6859,8 @@ const generated = {
           "description": "Vocabulario nuevo: lugares",
           "color": "#4361EE",
           "xpReward": 48,
+          "generated": true,
+          "verified": false,
           "items": [
             {
               "id": "g-s6-place-2-0-fc",
@@ -7008,6 +7074,8 @@ const generated = {
           "description": "Vocabulario nuevo: números",
           "color": "#4361EE",
           "xpReward": 48,
+          "generated": true,
+          "verified": false,
           "items": [
             {
               "id": "g-s6-numbers-3-0-fc",
@@ -7223,6 +7291,8 @@ const generated = {
           "description": "Vocabulario nuevo: el tiempo",
           "color": "#4361EE",
           "xpReward": 48,
+          "generated": true,
+          "verified": false,
           "items": [
             {
               "id": "g-s6-time-3-0-fc",
@@ -7436,6 +7506,8 @@ const generated = {
         "description": "Demuestra que dominas números, lugares y tiempo",
         "color": "#4361EE",
         "xpReward": 120,
+        "generated": true,
+        "verified": false,
         "items": [
           {
             "id": "g-s6-boss-0",

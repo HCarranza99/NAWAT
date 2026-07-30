@@ -276,6 +276,10 @@ async function generate() {
           description: `Vocabulario nuevo: ${t.label.toLowerCase()}`,
           color,
           xpReward: Math.max(20, chunk.length * 6),
+          // Marca a nivel LECCIÓN (los ítems ya la llevan): permite que la UI
+          // muestre el aviso de "en revisión" sin tener que husmear los ítems ni
+          // adivinar por el prefijo del id. Ver src/lib/verification.js.
+          generated: true, verified: false,
           items: buildLessonItems(chunk, idBase),
         })
         stats.lessons++
@@ -302,7 +306,7 @@ async function generate() {
     extra.push({
       ...SECTION6,
       lessons: s6Lessons,
-      boss: { id: 'g-s6-boss', title: `Repaso: ${SECTION6.title}`, icon: '👑', isBoss: true, description: 'Demuestra que dominas números, lugares y tiempo', color: SECTION6.color, xpReward: 120, items: bossItems },
+      boss: { id: 'g-s6-boss', title: `Repaso: ${SECTION6.title}`, icon: '👑', isBoss: true, description: 'Demuestra que dominas números, lugares y tiempo', color: SECTION6.color, xpReward: 120, generated: true, verified: false, items: bossItems },
     })
   }
 

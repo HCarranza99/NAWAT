@@ -15,6 +15,8 @@ import {
 import useGameStore from '../store/useGameStore'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import Torogoz from '../components/ui/Torogoz'
+import ReviewBadge from '../components/ui/ReviewBadge'
+import { isLessonUnverified } from '../lib/verification'
 import { useIsDesktop } from '../hooks/useMediaQuery'
 import { useSections } from '../hooks/useSections'
 
@@ -217,6 +219,7 @@ export default function SectionsScreen() {
                                 JUGAR
                               </span>
                             )}
+                            {isLessonUnverified(lesson) && <ReviewBadge />}
                           </div>
                           <p className="mt-1 line-clamp-1 text-xs font-semibold leading-relaxed text-[#6d756e]">
                             {lesson.description}
