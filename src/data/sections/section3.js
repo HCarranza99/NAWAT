@@ -2,6 +2,19 @@
  * ═══════════════════════════════════════════════════════════
  *  SECCIÓN 3 — Comida y bebida
  * ═══════════════════════════════════════════════════════════
+ *
+ *  PROCEDENCIA DE LAS FRASES DE EJEMPLO
+ *  Todas se tomaron de fuentes reales y se verificaron en contexto. Ninguna se
+ *  construyó ni se tradujo por analogía.
+ *
+ *    Takwa  "Nemi takwal" = Hay comida            → YULTAJTAKETZALIS l.12830
+ *    Et     "Ne et" = El frijol                   → YULTAJTAKETZALIS l.4862
+ *    Uni    "Nikuni atutun" = Tomo café           → YULTAJTAKETZALIS, entrada −Uni
+ *    At     "Ne at" = El agua                     → YULTAJTAKETZALIS l.12716
+ *    Pia    "Tea nikpia lala" = Ya no tengo naranjas → YULTAJTAKETZALIS l.18638
+ *
+ *  Atestiguación: una sola fuente (el diccionario). No fue posible corroborarlas
+ *  en una obra independiente; ver la nota de la sección 4 sobre las que sí lo son.
  */
 
 const section3 = {
@@ -17,8 +30,8 @@ const section3 = {
         id: "s3-l1", title: "Comer", icon: "🌽", description: "El verbo más importante de la mesa",
         color: "#BF360C", xpReward: 50,
         items: [
-          { id: "s3-l1-1", type: "flashcard", nahuat_word: "Takwa", spanish_translation: "Comer", pronunciation: "tak-wa", pronunciationText: "tak ua" },
-          { id: "s3-l1-2", type: "flashcard", nahuat_word: "Et", spanish_translation: "Frijol", pronunciation: "et", pronunciationText: "et" },
+          { id: "s3-l1-1", type: "flashcard", nahuat_word: "Takwa", spanish_translation: "Comer", pronunciation: "tak-wa", pronunciationText: "tak ua", example_sentence: "Nemi takwal", example_translation: "Hay comida" },
+          { id: "s3-l1-2", type: "flashcard", nahuat_word: "Et", spanish_translation: "Frijol", pronunciation: "et", pronunciationText: "et", example_sentence: "Ne et", example_translation: "El frijol" },
           { id: "s3-l1-3", type: "multiple_choice_text", nahuat_word: "Takwa", spanish_translation: "Comer", pronunciationText: "tak ua",
             options: [{ id: "a", text: "Beber", correct: false },{ id: "b", text: "Comer", correct: true },{ id: "c", text: "Dormir", correct: false },{ id: "d", text: "Ir", correct: false }] },
           { id: "s3-l1-4", type: "multiple_choice_text", nahuat_word: "Et", spanish_translation: "Frijol", pronunciationText: "et",
@@ -34,8 +47,8 @@ const section3 = {
         id: "s3-l2", title: "Beber", icon: "💧", description: "Aprende a decir que tienes sed",
         color: "#D84315", xpReward: 50,
         items: [
-          { id: "s3-l2-1", type: "flashcard", nahuat_word: "Uni", spanish_translation: "Beber", pronunciation: "u-ni", pronunciationText: "u ni" },
-          { id: "s3-l2-2", type: "flashcard", nahuat_word: "At", spanish_translation: "Agua", pronunciation: "at", pronunciationText: "at" },
+          { id: "s3-l2-1", type: "flashcard", nahuat_word: "Uni", spanish_translation: "Beber", pronunciation: "u-ni", pronunciationText: "u ni", example_sentence: "Nikuni atutun", example_translation: "Tomo café" },
+          { id: "s3-l2-2", type: "flashcard", nahuat_word: "At", spanish_translation: "Agua", pronunciation: "at", pronunciationText: "at", example_sentence: "Ne at", example_translation: "El agua" },
           { id: "s3-l2-3", type: "multiple_choice_text", nahuat_word: "Uni", spanish_translation: "Beber", pronunciationText: "u ni",
             options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Beber", correct: true },{ id: "c", text: "Dormir", correct: false },{ id: "d", text: "Ir", correct: false }] },
           { id: "s3-l2-4", type: "multiple_choice_text", nahuat_word: "At", spanish_translation: "Agua", pronunciationText: "at",
@@ -69,7 +82,7 @@ const section3 = {
         id: "s3-l4", title: "En la Mesa", icon: "🍲", description: "Forma frases sobre comida",
         color: "#F4511E", xpReward: 50,
         items: [
-          { id: "s3-l4-1", type: "flashcard", nahuat_word: "Pia", spanish_translation: "Tener", pronunciation: "pi-a", pronunciationText: "pi a" },
+          { id: "s3-l4-1", type: "flashcard", nahuat_word: "Pia", spanish_translation: "Tener", pronunciation: "pi-a", pronunciationText: "pi a", example_sentence: "Tea nikpia lala", example_translation: "Ya no tengo naranjas" },
           { id: "s3-l4-2", type: "multiple_choice_text", nahuat_word: "Pia", spanish_translation: "Tener", pronunciationText: "pi a",
             options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Beber", correct: false },{ id: "c", text: "Tener", correct: true },{ id: "d", text: "Ir", correct: false }] },
           { id: "s3-l4-3", type: "build_sentence", instruction: "Ordena: 'Yo tengo agua'", spanish_translation: "Yo tengo agua",

@@ -2,6 +2,15 @@
  * ═══════════════════════════════════════════════════════════
  *  SECCIÓN 5 — Acciones diarias
  * ═══════════════════════════════════════════════════════════
+ *
+ *  PROCEDENCIA DE LAS FRASES DE EJEMPLO
+ *    Nemi   "Ninemi yek" = Estoy bien       → Curso Timumachtikan (King) p.19
+ *                                             Y el diccionario, bajo la entrada Yek.
+ *                                             ATESTIGUADA EN DOS FUENTES.
+ *    Yawi   "Naja niaw ka apan" = Yo voy al río → YULTAJTAKETZALIS, entrada −Yawi
+ *    Kuchi  "Naja nikuchi" = Yo duermo      → YULTAJTAKETZALIS, entrada −Kuchi
+ *    Paki   "Naja nipaki" = Yo estoy feliz  → YULTAJTAKETZALIS l.13338
+ *    Pia    "Tea nikpia lala" = Ya no tengo naranjas → YULTAJTAKETZALIS l.18638
  */
 
 const section5 = {
@@ -17,8 +26,8 @@ const section5 = {
         id: "s5-l1", title: "Estar y Tener", icon: "📍", description: "Dos verbos fundamentales",
         color: "#4A148C", xpReward: 50,
         items: [
-          { id: "s5-l1-1", type: "flashcard", nahuat_word: "Nemi", spanish_translation: "Estar / Vivir", pronunciation: "ne-mi", pronunciationText: "ne mi" },
-          { id: "s5-l1-2", type: "flashcard", nahuat_word: "Pia", spanish_translation: "Tener", pronunciation: "pi-a", pronunciationText: "pi a" },
+          { id: "s5-l1-1", type: "flashcard", nahuat_word: "Nemi", spanish_translation: "Estar / Vivir", pronunciation: "ne-mi", pronunciationText: "ne mi", example_sentence: "Ninemi yek", example_translation: "Estoy bien" },
+          { id: "s5-l1-2", type: "flashcard", nahuat_word: "Pia", spanish_translation: "Tener", pronunciation: "pi-a", pronunciationText: "pi a", example_sentence: "Tea nikpia lala", example_translation: "Ya no tengo naranjas" },
           { id: "s5-l1-3", type: "multiple_choice_text", nahuat_word: "Nemi", spanish_translation: "Estar / Vivir", pronunciationText: "ne mi",
             options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Estar / Vivir", correct: true },{ id: "c", text: "Ir", correct: false },{ id: "d", text: "Tener", correct: false }] },
           { id: "s5-l1-4", type: "multiple_choice_text", nahuat_word: "Pia", spanish_translation: "Tener", pronunciationText: "pi a",
@@ -34,7 +43,7 @@ const section5 = {
         id: "s5-l2", title: "Ir", icon: "🚶", description: "La acción de moverse",
         color: "#6A1B9A", xpReward: 50,
         items: [
-          { id: "s5-l2-1", type: "flashcard", nahuat_word: "Yawi", spanish_translation: "Ir", pronunciation: "ya-wi", pronunciationText: "ya ui" },
+          { id: "s5-l2-1", type: "flashcard", nahuat_word: "Yawi", spanish_translation: "Ir", pronunciation: "ya-wi", pronunciationText: "ya ui", example_sentence: "Naja niaw ka apan", example_translation: "Yo voy al río" },
           { id: "s5-l2-2", type: "multiple_choice_text", nahuat_word: "Yawi", spanish_translation: "Ir", pronunciationText: "ya ui",
             options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Dormir", correct: false },{ id: "c", text: "Ir", correct: true },{ id: "d", text: "Estar", correct: false }] },
           { id: "s5-l2-3", type: "build_sentence", instruction: "Ordena: 'Yo voy'", spanish_translation: "Yo voy",
@@ -50,7 +59,7 @@ const section5 = {
         id: "s5-l3", title: "Comer, Beber y Dormir", icon: "😴", description: "Las acciones del día",
         color: "#7B1FA2", xpReward: 50,
         items: [
-          { id: "s5-l3-1", type: "flashcard", nahuat_word: "Kuchi", spanish_translation: "Dormir", pronunciation: "ku-chi", pronunciationText: "ku chi" },
+          { id: "s5-l3-1", type: "flashcard", nahuat_word: "Kuchi", spanish_translation: "Dormir", pronunciation: "ku-chi", pronunciationText: "ku chi", example_sentence: "Naja nikuchi", example_translation: "Yo duermo" },
           { id: "s5-l3-2", type: "multiple_choice_text", nahuat_word: "Kuchi", spanish_translation: "Dormir", pronunciationText: "ku chi",
             options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Beber", correct: false },{ id: "c", text: "Dormir", correct: true },{ id: "d", text: "Ir", correct: false }] },
           { id: "s5-l3-3", type: "matching", instruction: "Une cada acción con su verbo",
@@ -68,7 +77,7 @@ const section5 = {
         id: "s5-l4", title: "Reír y Bienestar", icon: "😄", description: "Emociones positivas",
         color: "#9C27B0", xpReward: 50,
         items: [
-          { id: "s5-l4-1", type: "flashcard", nahuat_word: "Paki", spanish_translation: "Reír / Estar feliz", pronunciation: "pa-ki", pronunciationText: "pa ki" },
+          { id: "s5-l4-1", type: "flashcard", nahuat_word: "Paki", spanish_translation: "Reír / Estar feliz", pronunciation: "pa-ki", pronunciationText: "pa ki", example_sentence: "Naja nipaki", example_translation: "Yo estoy feliz" },
           { id: "s5-l4-2", type: "flashcard", nahuat_word: "Yek", spanish_translation: "Bueno / Bien", pronunciation: "yek", pronunciationText: "iek" },
           { id: "s5-l4-3", type: "multiple_choice_text", nahuat_word: "Paki", spanish_translation: "Reír / Estar feliz", pronunciationText: "pa ki",
             options: [{ id: "a", text: "Dormir", correct: false },{ id: "b", text: "Reír / Estar feliz", correct: true },{ id: "c", text: "Comer", correct: false },{ id: "d", text: "Ir", correct: false }] },

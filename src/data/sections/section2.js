@@ -18,6 +18,18 @@
  *
  *  Los términos de parentesco siguen la misma regla y ya están poseídos:
  *  Nunan (mi mamá), Nuteku (mi papá), Nutatanoy (mi abuelo).
+ *
+ *  PROCEDENCIA DE LAS FRASES DE EJEMPLO
+ *    Naja  "Naja niati" = Yo tomo agua  → YULTAJTAKETZALIS l.3368
+ *    Taja  "Wan taja?"  = ¿Y tú?        → Curso Timumachtikan (King) p.21.
+ *                                         FUENTE INDEPENDIENTE del diccionario.
+ *
+ *  Sin ejemplo a propósito: Yaja, Piltzín, Takat, Siwat, Nunan, Nuteku y
+ *  Nutatanoy. Los ejemplos que el diccionario trae para esas palabras son
+ *  anatómicos, violentos, religiosos o socialmente cargados ("Voy a ahorcar al
+ *  hombre", "los ovarios de la mujer", "Él es de afuera; ladino") y no tienen
+ *  lugar en una app para principiantes. Se dejan vacíos antes que forzarlos:
+ *  cuando haya revisión con hablantes se podrán escribir frases apropiadas.
  */
 
 const section2 = {
@@ -33,8 +45,8 @@ const section2 = {
         id: "s2-l1", title: "Yo y Tú", icon: "🫵", description: "Los pronombres más básicos",
         color: "#0D47A1", xpReward: 50,
         items: [
-          { id: "s2-l1-1", type: "flashcard", nahuat_word: "Naja", spanish_translation: "Yo", pronunciation: "na-ja", pronunciationText: "na ja" },
-          { id: "s2-l1-2", type: "flashcard", nahuat_word: "Taja", spanish_translation: "Tú", pronunciation: "ta-ja", pronunciationText: "ta ja" },
+          { id: "s2-l1-1", type: "flashcard", nahuat_word: "Naja", spanish_translation: "Yo", pronunciation: "na-ja", pronunciationText: "na ja", example_sentence: "Naja niati", example_translation: "Yo tomo agua" },
+          { id: "s2-l1-2", type: "flashcard", nahuat_word: "Taja", spanish_translation: "Tú", pronunciation: "ta-ja", pronunciationText: "ta ja", example_sentence: "Wan taja?", example_translation: "¿Y tú?" },
           { id: "s2-l1-3", type: "multiple_choice_text", nahuat_word: "Naja", spanish_translation: "Yo", pronunciationText: "na ja",
             options: [{ id: "a", text: "Tú", correct: false },{ id: "b", text: "Yo", correct: true },{ id: "c", text: "Él", correct: false },{ id: "d", text: "Ella", correct: false }] },
           { id: "s2-l1-4", type: "multiple_choice_text", nahuat_word: "Taja", spanish_translation: "Tú", pronunciationText: "ta ja",
