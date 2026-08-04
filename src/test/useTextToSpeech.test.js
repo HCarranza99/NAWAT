@@ -23,11 +23,21 @@ describe('isTtsSafe', () => {
     expect(isTtsSafe('atl')).toBe(false)
   })
 
+  // El español no tiene /ʃ/ y el sintetizador lo resuelve como /s/. La lección 1
+  // enseña la SH como uno de los tres sonidos que distinguen al náhuat, así que
+  // reproducirla como /s/ destruye el contraste que se está enseñando.
+  it('marks words with sh as unsafe (el español no produce /ʃ/)', () => {
+    expect(isTtsSafe('Sh')).toBe(false)
+    expect(isTtsSafe('Shiwit')).toBe(false)
+    expect(isTtsSafe('Shiawa')).toBe(false)
+    expect(isTtsSafe('Padiush')).toBe(false)
+  })
+
   it('marks Spanish-renderable words as safe', () => {
     expect(isTtsSafe('Kal')).toBe(true)
     expect(isTtsSafe('At')).toBe(true)
-    expect(isTtsSafe('Shiwit')).toBe(true) // sh→s es aproximación tolerable
-    expect(isTtsSafe('Kwawit')).toBe(true) // kw→cua es aproximación tolerable
+    expect(isTtsSafe('Kwawit')).toBe(true) // kw→cua es fiel a la grafía #10
+    expect(isTtsSafe('Nikuni')).toBe(true)
   })
 })
 

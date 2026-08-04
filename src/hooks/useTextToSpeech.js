@@ -46,16 +46,25 @@ export function toNahuatSpeechText(text = '') {
  * ¿Es razonable sintetizar esta palabra con una voz española?
  *
  * Devuelve false para palabras con sonidos que el español NO puede producir y
- * que el motor termina deletreando — la africada `tz` (/ts/) y la lateral `tl`
- * (/tɬ/). En esos casos un audio equivocado es peor que el silencio, así que se
- * oculta el botón de audio hasta tener grabación de hablante.
+ * que el motor termina deformando. Un audio equivocado es peor que el silencio:
+ * en esos casos se oculta el botón y se muestra "audio próximamente" hasta tener
+ * grabación de hablante.
  *
- * Se evalúa sobre la ortografía náhuat ORIGINAL (no sobre la cadena ya transcrita,
- * donde `tz` ya se convirtió en `ts`). Otros sonidos (sh→s, kw→cua) se mantienen
- * como aproximación tolerable.
+ *   tz  → africada /ts/. El motor la deletrea.
+ *   tl  → lateral /tɬ/. Igual.
+ *   sh  → /ʃ/. El español no lo tiene y el sintetizador lo resuelve como /s/.
+ *         Se bloqueó el 28-jul-2026: la lección 1 enseña la SH como uno de los
+ *         tres sonidos que distinguen al náhuat (diccionario, grafía #19:
+ *         "similar a la SH en inglés"), y reproducirla como /s/ destruye
+ *         justamente el contraste que se está enseñando. Afecta a 4 formas del
+ *         núcleo artesanal: Sh, Shiwit, Shiawa, Padiush.
+ *
+ * Se evalúa sobre la ortografía náhuat ORIGINAL, no sobre la cadena ya
+ * transcrita (donde `tz` ya se convirtió en `ts`). `kw` sí se mantiene: "cua" es
+ * una aproximación fiel a lo que describe el diccionario (grafía #10).
  */
 export function isTtsSafe(nahuatWord = '') {
-  return !/tz|tl/i.test(nahuatWord)
+  return !/tz|tl|sh/i.test(nahuatWord)
 }
 
 /**

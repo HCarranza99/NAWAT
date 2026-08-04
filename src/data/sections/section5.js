@@ -3,6 +3,11 @@
  *  SECCIÓN 5 — Acciones diarias
  * ═══════════════════════════════════════════════════════════
  *
+ *  VERBOS TRANSITIVOS: se enseñan CON PREFIJO
+ *  −Uni y −Pia van con guion en el diccionario (exigen prefijo de objeto). Aquí
+ *  aparecen como Nikuni ("Yo bebo") y Nikpia ("Yo tengo"), formas que la fuente
+ *  usa literalmente en sus ejemplos. Ver la cabecera de section3.js.
+ *
  *  PROCEDENCIA DE LAS FRASES DE EJEMPLO
  *    Nemi   "Ninemi yek" = Estoy bien       → Curso Timumachtikan (King) p.19
  *                                             Y el diccionario, bajo la entrada Yek.
@@ -27,13 +32,13 @@ const section5 = {
         color: "#4A148C", xpReward: 50,
         items: [
           { id: "s5-l1-1", type: "flashcard", nahuat_word: "Nemi", spanish_translation: "Estar / Vivir", pronunciation: "ne-mi", pronunciationText: "ne mi", example_sentence: "Ninemi yek", example_translation: "Estoy bien" },
-          { id: "s5-l1-2", type: "flashcard", nahuat_word: "Pia", spanish_translation: "Tener", pronunciation: "pi-a", pronunciationText: "pi a", example_sentence: "Tea nikpia lala", example_translation: "Ya no tengo naranjas" },
+          { id: "s5-l1-2", type: "flashcard", nahuat_word: "Nikpia", spanish_translation: "Yo tengo", pronunciation: "nik-pi-a", pronunciationText: "nik pi a", example_sentence: "Tea nikpia lala", example_translation: "Ya no tengo naranjas" },
           { id: "s5-l1-3", type: "multiple_choice_text", nahuat_word: "Nemi", spanish_translation: "Estar / Vivir", pronunciationText: "ne mi",
-            options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Estar / Vivir", correct: true },{ id: "c", text: "Ir", correct: false },{ id: "d", text: "Tener", correct: false }] },
-          { id: "s5-l1-4", type: "multiple_choice_text", nahuat_word: "Pia", spanish_translation: "Tener", pronunciationText: "pi a",
-            options: [{ id: "a", text: "Estar", correct: false },{ id: "b", text: "Ir", correct: false },{ id: "c", text: "Tener", correct: true },{ id: "d", text: "Dormir", correct: false }] },
+            options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Estar / Vivir", correct: true },{ id: "c", text: "Ir", correct: false },{ id: "d", text: "Yo tengo", correct: false }] },
+          { id: "s5-l1-4", type: "multiple_choice_text", nahuat_word: "Nikpia", spanish_translation: "Yo tengo", pronunciationText: "nik pi a",
+            options: [{ id: "a", text: "Estar", correct: false },{ id: "b", text: "Ir", correct: false },{ id: "c", text: "Yo tengo", correct: true },{ id: "d", text: "Dormir", correct: false }] },
           { id: "s5-l1-5", type: "matching", instruction: "Une cada verbo con su significado",
-            pairs: [{ nahuat: "Nemi", spanish: "Estar" },{ nahuat: "Pia", spanish: "Tener" }] },
+            pairs: [{ nahuat: "Nemi", spanish: "Estar" },{ nahuat: "Nikpia", spanish: "Yo tengo" }] },
           { id: "s5-l1-6", type: "build_sentence", instruction: "Ordena: 'Yo estoy'", spanish_translation: "Yo estoy",
             word_bank: ["ninemi", "Naja"], correct_order: ["Naja", "ninemi"] },
         ],
@@ -49,9 +54,9 @@ const section5 = {
           { id: "s5-l2-3", type: "build_sentence", instruction: "Ordena: 'Yo voy'", spanish_translation: "Yo voy",
             word_bank: ["niaw", "Naja"], correct_order: ["Naja", "niaw"] },
           { id: "s5-l2-4", type: "matching", instruction: "Une cada verbo",
-            pairs: [{ nahuat: "Yawi", spanish: "Ir" },{ nahuat: "Nemi", spanish: "Estar" },{ nahuat: "Pia", spanish: "Tener" }] },
+            pairs: [{ nahuat: "Yawi", spanish: "Ir" },{ nahuat: "Nemi", spanish: "Estar" },{ nahuat: "Nikpia", spanish: "Yo tengo" }] },
           { id: "s5-l2-5", type: "multiple_choice_text", nahuat_word: "Yawi", spanish_translation: "Ir", pronunciationText: "ya ui",
-            options: [{ id: "a", text: "Estar", correct: false },{ id: "b", text: "Ir", correct: true },{ id: "c", text: "Comer", correct: false },{ id: "d", text: "Tener", correct: false }] },
+            options: [{ id: "a", text: "Estar", correct: false },{ id: "b", text: "Ir", correct: true },{ id: "c", text: "Comer", correct: false },{ id: "d", text: "Yo tengo", correct: false }] },
         ],
       },
       // ── L3 — Comer, beber y dormir ──
@@ -61,13 +66,13 @@ const section5 = {
         items: [
           { id: "s5-l3-1", type: "flashcard", nahuat_word: "Kuchi", spanish_translation: "Dormir", pronunciation: "ku-chi", pronunciationText: "ku chi", example_sentence: "Naja nikuchi", example_translation: "Yo duermo" },
           { id: "s5-l3-2", type: "multiple_choice_text", nahuat_word: "Kuchi", spanish_translation: "Dormir", pronunciationText: "ku chi",
-            options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Beber", correct: false },{ id: "c", text: "Dormir", correct: true },{ id: "d", text: "Ir", correct: false }] },
+            options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Yo bebo", correct: false },{ id: "c", text: "Dormir", correct: true },{ id: "d", text: "Ir", correct: false }] },
           { id: "s5-l3-3", type: "matching", instruction: "Une cada acción con su verbo",
-            pairs: [{ nahuat: "Takwa", spanish: "Comer" },{ nahuat: "Uni", spanish: "Beber" },{ nahuat: "Kuchi", spanish: "Dormir" }] },
+            pairs: [{ nahuat: "Takwa", spanish: "Comer" },{ nahuat: "Nikuni", spanish: "Yo bebo" },{ nahuat: "Kuchi", spanish: "Dormir" }] },
           { id: "s5-l3-4", type: "build_sentence", instruction: "Ordena: 'Yo duermo'", spanish_translation: "Yo duermo",
             word_bank: ["nikuchi", "Naja"], correct_order: ["Naja", "nikuchi"] },
           { id: "s5-l3-5", type: "multiple_choice_text", nahuat_word: "Takwa", spanish_translation: "Comer", pronunciationText: "tak ua",
-            options: [{ id: "a", text: "Dormir", correct: false },{ id: "b", text: "Beber", correct: false },{ id: "c", text: "Comer", correct: true },{ id: "d", text: "Ir", correct: false }] },
+            options: [{ id: "a", text: "Dormir", correct: false },{ id: "b", text: "Yo bebo", correct: false },{ id: "c", text: "Comer", correct: true },{ id: "d", text: "Ir", correct: false }] },
           { id: "s5-l3-6", type: "build_sentence", instruction: "Ordena: 'Yo como frijol'", spanish_translation: "Yo como frijol",
             word_bank: ["et", "Naja", "nikwa"], correct_order: ["Naja", "nikwa", "et"] },
         ],
@@ -96,15 +101,15 @@ const section5 = {
       color: "#C62828", xpReward: 100, isBoss: true,
       items: [
         { id: "s5-b-1", type: "multiple_choice_text", nahuat_word: "Nemi", spanish_translation: "Estar / Vivir", pronunciationText: "ne mi",
-          options: [{ id: "a", text: "Ir", correct: false },{ id: "b", text: "Estar / Vivir", correct: true },{ id: "c", text: "Tener", correct: false },{ id: "d", text: "Comer", correct: false }] },
+          options: [{ id: "a", text: "Ir", correct: false },{ id: "b", text: "Estar / Vivir", correct: true },{ id: "c", text: "Yo tengo", correct: false },{ id: "d", text: "Comer", correct: false }] },
         { id: "s5-b-2", type: "multiple_choice_text", nahuat_word: "Yawi", spanish_translation: "Ir", pronunciationText: "ya ui",
           options: [{ id: "a", text: "Estar", correct: false },{ id: "b", text: "Dormir", correct: false },{ id: "c", text: "Ir", correct: true },{ id: "d", text: "Reír", correct: false }] },
         { id: "s5-b-3", type: "multiple_choice_text", nahuat_word: "Kuchi", spanish_translation: "Dormir", pronunciationText: "ku chi",
-          options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Beber", correct: false },{ id: "c", text: "Ir", correct: false },{ id: "d", text: "Dormir", correct: true }] },
+          options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Yo bebo", correct: false },{ id: "c", text: "Ir", correct: false },{ id: "d", text: "Dormir", correct: true }] },
         { id: "s5-b-4", type: "matching", instruction: "Une cada verbo con su significado",
           pairs: [{ nahuat: "Nemi", spanish: "Estar" },{ nahuat: "Yawi", spanish: "Ir" },{ nahuat: "Kuchi", spanish: "Dormir" },{ nahuat: "Paki", spanish: "Reír" }] },
         { id: "s5-b-5", type: "matching", instruction: "Une más verbos",
-          pairs: [{ nahuat: "Takwa", spanish: "Comer" },{ nahuat: "Uni", spanish: "Beber" },{ nahuat: "Pia", spanish: "Tener" }] },
+          pairs: [{ nahuat: "Takwa", spanish: "Comer" },{ nahuat: "Nikuni", spanish: "Yo bebo" },{ nahuat: "Nikpia", spanish: "Yo tengo" }] },
         { id: "s5-b-6", type: "build_sentence", instruction: "Ordena: 'Yo voy'", spanish_translation: "Yo voy",
           word_bank: ["Naja", "niaw"], correct_order: ["Naja", "niaw"] },
         { id: "s5-b-7", type: "build_sentence", instruction: "Ordena: 'Yo duermo'", spanish_translation: "Yo duermo",
