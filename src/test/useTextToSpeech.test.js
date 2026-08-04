@@ -30,3 +30,42 @@ describe('isTtsSafe', () => {
     expect(isTtsSafe('Kwawit')).toBe(true) // kw→cua es aproximación tolerable
   })
 })
+
+/**
+ * Regresión: el dígrafo KW debe llegar INTACTO desde los datos.
+ *
+ * toSpeechWord() protege "kw" antes de aplicar la regla K→G. Si un
+ * pronunciationText llega pre-convertido a "ku", la protección no encuentra nada,
+ * la regla ve una "k" inicial y la convierte en "g": la tarjeta que enseña el
+ * sonido KW terminaba diciendo "gua" en lugar de "cua".
+ */
+describe('dígrafo KW en el contenido', () => {
+  it('"kwa" se sintetiza como "kua", no como "gua"', () => {
+    expect(toNahuatSpeechText('kwa')).toBe('kua')
+    expect(toNahuatSpeechText('kwa uit')).toBe('kua uit')
+  })
+
+  it('la regla K→G sigue aplicándose donde corresponde', () => {
+    expect(toNahuatSpeechText('kal')).toBe('gal')
+    expect(toNahuatSpeechText('ken')).toBe('gen')
+  })
+
+  it('ningún pronunciationText del contenido artesanal empieza con "ku" de KW', async () => {
+    const secs = await Promise.all(
+      [1, 2, 3, 4, 5].map((n) => import(`../data/sections/section${n}.js`).then((m) => m.default)),
+    )
+    const sospechosos = []
+    for (const s of secs) {
+      for (const l of [...s.lessons, ...(s.boss ? [s.boss] : [])]) {
+        for (const it of l.items || []) {
+          if (!it.pronunciationText || !it.nahuat_word) continue
+          // Si la palabra lleva KW, su cadena de voz debe conservar "kw".
+          if (/kw/i.test(it.nahuat_word) && /\bku/i.test(it.pronunciationText)) {
+            sospechosos.push(`${it.id}: ${it.nahuat_word} → "${it.pronunciationText}"`)
+          }
+        }
+      }
+    }
+    expect(sospechosos).toEqual([])
+  })
+})

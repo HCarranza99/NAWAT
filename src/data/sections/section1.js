@@ -5,6 +5,22 @@
  *
  *  REGLAS DE PRONUNCIACIÓN (Witzapan / Santo Domingo de Guzmán)
  *  Fuente: YULTAJTAKETZALIS — Sixta Pérez & Héctor Martínez, 2023
+ *  Sección "TAJTAJKWILULCHICHIN / ALFABETO", páginas 48–49 del libro.
+ *  Cotejado contra el PDF original el 28-jul-2026: las seis reglas de abajo son
+ *  transcripción fiel de las grafías #9 (K), #10 (KW), #19 (SH), #21 (TZ),
+ *  #23 (W) y #24 (Y).
+ *
+ *  Palabras de ejemplo, verificadas en el PDF:
+ *    Kwawit  p.122  "Bot. Árbol (no frutal), leña"  ej. Kwawit pal ne tit
+ *    Tzaput  p.228  "Sust. Zapote"                  ej. Ne tzaput: El zapote
+ *    Shiwit  p.185  "Sust. Año"                     ej. ¿Keski shiwit tikajshitij an?
+ *
+ *  Shiwit se glosaba antes como "Hierba / Año". El diccionario, en esa entrada,
+ *  solo registra "Año": se quitó "Hierba" por no estar atestiguada en la fuente.
+ *
+ *  EXCEPCIONES a la regla de la K que el diccionario señala y que applyKRule()
+ *  (src/hooks/useTextToSpeech.js) todavía NO contempla: "Kojtik" y "Kojtan",
+ *  donde la K no suena como G. Ninguna se enseña hoy.
  *
  *  K  → G al inicio de palabra, tras N, entre vocales  |  K al final de sílaba
  *  KW → "CUU" (como en "cual" pero alargada)
@@ -15,6 +31,12 @@
  *
  *  pronunciationText = cadena optimizada para TTS en español (no para el estudiante)
  *  pronunciation     = guía silábica visible al estudiante
+ *
+ *  CUIDADO con el dígrafo KW en pronunciationText: debe escribirse "kw", NO "ku".
+ *  toSpeechWord() protege "kw" antes de aplicar la regla K→G; si el dato llega
+ *  pre-convertido a "ku", esa protección no encuentra nada que proteger, la regla
+ *  ve una "k" inicial y la vuelve "g". La tarjeta del sonido KW llegó a decir
+ *  "gua" en vez de "cua" — justo el sonido contrario al que enseña.
  *
  *  Nota sobre "Padiush": el diccionario registra tanto "Padiush" como "Payush"
  *  con idéntico significado y ejemplo. Se usa "Padiush" para mantener consistencia
@@ -49,7 +71,7 @@ const section1 = {
             nahuat_word: "Kw",
             spanish_translation: "Sonido \"kw\" — como en \"cual\"",
             pronunciation: "kwa",
-            pronunciationText: "kua",
+            pronunciationText: "kwa",
             example_sentence: "Kwawit",
             example_translation: "Árbol / leña (ejemplo del sonido Kw)",
           },
@@ -76,7 +98,7 @@ const section1 = {
             pronunciation: "sha",
             pronunciationText: "sha",
             example_sentence: "Shiwit",
-            example_translation: "Hierba / Año",
+            example_translation: "Año",
           },
           // 4. Multiple choice — ¿Cuál palabra tiene el sonido Kw?
           {
@@ -85,7 +107,7 @@ const section1 = {
             nahuat_word: "Kw",
             spanish_translation: "Sonido kw",
             pronunciation: "kwa",
-            pronunciationText: "kua",
+            pronunciationText: "kwa",
             instruction: "¿Cuál palabra tiene el sonido Kw?",
             options: [
               { id: "a", text: "Kwawit", correct: true },
@@ -117,7 +139,7 @@ const section1 = {
             pronunciation: "tza-put",
             pronunciationText: "tsa put",
             options: [
-              { id: "a", text: "Hierba", correct: false },
+              { id: "a", text: "Año", correct: false },
               { id: "b", text: "Zapote", correct: true },
               { id: "c", text: "Tortilla", correct: false },
               { id: "d", text: "Agua", correct: false },
@@ -129,13 +151,13 @@ const section1 = {
             id: "s1-l1-7",
             type: "multiple_choice_text",
             nahuat_word: "Shiwit",
-            spanish_translation: "Hierba / Año",
+            spanish_translation: "Año",
             pronunciation: "shi-wit",
             pronunciationText: "shi uit",
             options: [
               { id: "a", text: "Zapote", correct: false },
               { id: "b", text: "Tortilla", correct: false },
-              { id: "c", text: "Hierba / Año", correct: true },
+              { id: "c", text: "Año", correct: true },
               { id: "d", text: "Agua caliente", correct: false },
             ],
           },
@@ -570,7 +592,7 @@ const section1 = {
           nahuat_word: "Kwawit",
           spanish_translation: "Árbol / Leña",
           pronunciation: "kwa-wit",
-          pronunciationText: "kua uit",
+          pronunciationText: "kwa uit",
           instruction: "¿Qué sonido especial tiene esta palabra?",
           options: [
             { id: "a", text: "Sh", correct: false },
