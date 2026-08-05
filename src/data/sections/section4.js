@@ -3,6 +3,12 @@
  *  SECCIÓN 4 — Mi entorno
  * ═══════════════════════════════════════════════════════════
  *
+ *  CORRECCIÓN — "Nikpia", no "Pia"  (05-ago-2026)
+ *  La lección 1 enseñaba `Pia` = "Tener" suelta, aunque en su propio
+ *  build_sentence ya usaba `nikpia`. El diccionario registra −Pia CON GUION:
+ *  es transitiva y exige prefijo de objeto. Se alineó con las secciones 3 y 5,
+ *  que ya usan Nikpia = "Yo tengo" ("Naja nikpia ume shiwit", atestiguada).
+ *
  *  CORRECCIÓN — "Metzti", no "Metzi"
  *  Esta sección enseñaba `Metzi` = luna. Esa forma aparece CERO veces en
  *  YULTAJTAKETZALIS: el diccionario registra `metzti` (y la usa también para los
@@ -39,12 +45,12 @@ const section4 = {
           { id: "s4-l1-2", type: "multiple_choice_image", nahuat_word: "Kal", spanish_translation: "Casa", pronunciationText: "kal",
             image_url: "/assets/images/kal_exercise.png", instruction: "Mira la imagen y elige la palabra correcta en Náhuat:",
             options: [{ id: "a", text: "At", correct: false },{ id: "b", text: "Kal", correct: true },{ id: "c", text: "Kwawit", correct: false },{ id: "d", text: "Pelu", correct: false }] },
-          { id: "s4-l1-3", type: "multiple_choice_text", nahuat_word: "Pia", spanish_translation: "Tener", pronunciationText: "pi a",
-            options: [{ id: "a", text: "Comer", correct: false },{ id: "b", text: "Tener", correct: true },{ id: "c", text: "Beber", correct: false },{ id: "d", text: "Ir", correct: false }] },
+          { id: "s4-l1-3", type: "multiple_choice_text", nahuat_word: "Nikpia", spanish_translation: "Yo tengo", pronunciationText: "nik pi a",
+            options: [{ id: "a", text: "Yo como", correct: false },{ id: "b", text: "Yo tengo", correct: true },{ id: "c", text: "Yo bebo", correct: false },{ id: "d", text: "Yo voy", correct: false }] },
           { id: "s4-l1-4", type: "build_sentence", instruction: "Ordena: 'Yo tengo casa'", spanish_translation: "Yo tengo casa",
             word_bank: ["kal", "nikpia", "Naja"], correct_order: ["Naja", "nikpia", "kal"] },
           { id: "s4-l1-5", type: "matching", instruction: "Une cada palabra con su significado",
-            pairs: [{ nahuat: "Kal", spanish: "Casa" },{ nahuat: "Pia", spanish: "Tener" }] },
+            pairs: [{ nahuat: "Kal", spanish: "Casa" },{ nahuat: "Nikpia", spanish: "Yo tengo" }] },
         ],
       },
       // ── L2 — Agua, árbol y naturaleza ──
