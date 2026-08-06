@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import fs from 'node:fs'
 import path from 'node:path'
-import modules, { toRunnerItems, getLesson } from '../data/curriculum'
+import modules, {
+  toRunnerItems,
+  getLesson,
+  cadenasConFuente,
+  unidadesDeVocabulario,
+  TIPOS_DE_LECCION,
+  TIPOS_DE_ITEM,
+} from '../data/curriculum'
 import { buildResultState } from '../lib/resultState'
 
 /**
@@ -30,21 +37,73 @@ for (const extra of ['tukay', 'uni']) ligadas.add(extra)
 
 const lecciones = modules.flatMap((m) => m.lessons)
 
+/**
+ * EL CONTRATO. Esto es lo que impide que la app cambie de forma cada vez que se
+ * escribe contenido nuevo.
+ *
+ * Los tipos de ÍTEM son interfaz: cada uno tiene su componente en LessonRunner.
+ * Si una lección nueva compilara a un tipo que nadie renderiza, el estudiante
+ * vería "Tipo de ejercicio no soportado". Acá el error salta antes, al escribir
+ * el contenido.
+ */
+describe('currículo v2 — el contrato con la interfaz', () => {
+  // Los que LessonRunner sabe dibujar hoy. Si se agrega un componente, se agrega
+  // acá y en TIPOS_DE_ITEM; si no, esta prueba avisa.
+  const RENDERIZABLES = new Set([
+    'dialogue', 'flashcard', 'note', 'task', 'matching', 'build_sentence',
+    'multiple_choice_text', 'multiple_choice_image', 'true_false', 'lightning', 'active_recall',
+  ])
+
+  it('la lista declarada de tipos de ítem es un subconjunto de lo que la app dibuja', () => {
+    const huerfanos = TIPOS_DE_ITEM.filter((t) => !RENDERIZABLES.has(t))
+    expect(huerfanos).toEqual([])
+  })
+
+  it('cada lección declara un tipo del conjunto cerrado', () => {
+    const invalidas = []
+    for (const l of lecciones) {
+      if (!TIPOS_DE_LECCION.includes(l.type)) invalidas.push(`${l.id} → ${l.type}`)
+    }
+    expect(invalidas).toEqual([])
+  })
+
+  it('NINGUNA lección compila a un ítem que la app no sepa dibujar', () => {
+    const desconocidos = []
+    for (const l of lecciones) {
+      for (const item of toRunnerItems(l)) {
+        if (!TIPOS_DE_ITEM.includes(item.type)) desconocidos.push(`${l.id}: ${item.type}`)
+      }
+    }
+    expect(desconocidos).toEqual([])
+  })
+
+  it('los dos tipos de lección conviven y cada uno produce una lección jugable', () => {
+    for (const tipo of TIPOS_DE_LECCION) {
+      const ejemplo = lecciones.find((l) => l.type === tipo)
+      expect(ejemplo, `no hay ninguna lección de tipo "${tipo}"`).toBeTruthy()
+      const items = toRunnerItems(ejemplo)
+      expect(items.length, `${tipo} no produce ítems`).toBeGreaterThan(2)
+      expect(items.at(-1).type, `${tipo} no cierra con la tarea`).toBe('task')
+    }
+  })
+})
+
 describe('currículo v2 — estructura', () => {
   it('hay al menos un módulo con lecciones', () => {
     expect(modules.length).toBeGreaterThan(0)
     expect(lecciones.length).toBeGreaterThan(0)
   })
 
-  it('cada lección trae situación, objetivo, diálogo, vocabulario, nota y tarea', () => {
+  // Lo que TODA lección debe traer, sea del tipo que sea. Lo específico de cada
+  // forma (diálogo, sonidos) lo comprueba el contrato, más arriba.
+  it('cada lección trae situación, objetivo, nota, tarea y pregunta', () => {
     for (const l of lecciones) {
       expect(l.situation, `${l.id} sin situación`).toBeTruthy()
       expect(l.objective, `${l.id} sin objetivo`).toBeTruthy()
-      expect(l.dialogue?.length, `${l.id} sin diálogo`).toBeGreaterThan(0)
-      expect(l.vocabulary?.length, `${l.id} sin vocabulario`).toBeGreaterThan(0)
       expect(l.note?.title, `${l.id} sin nota`).toBeTruthy()
       expect(l.task, `${l.id} sin tarea`).toBeTruthy()
       expect(l.speakerAsk, `${l.id} sin pregunta para el hablante`).toBeTruthy()
+      expect(cadenasConFuente(l).length, `${l.id} no enseña nada en náhuat`).toBeGreaterThan(0)
     }
   })
 
@@ -54,67 +113,45 @@ describe('currículo v2 — estructura', () => {
   })
 })
 
+/**
+ * Estas comprobaciones NO conocen la forma de cada tipo de lección: trabajan
+ * sobre `cadenasConFuente()`, que las uniforma. Por eso un tipo nuevo no las
+ * rompe — solo hay que enseñarle la forma nueva a esa única función.
+ */
 describe('currículo v2 — procedencia obligatoria', () => {
-  it('ninguna línea de diálogo se queda sin fuente', () => {
-    const sinFuente = []
-    for (const l of lecciones) {
-      for (const linea of l.dialogue) {
-        if (!linea.source?.trim()) sinFuente.push(`${l.id}: "${linea.nawat}"`)
-      }
-    }
-    expect(sinFuente).toEqual([])
+  const todas = lecciones.flatMap((l) => cadenasConFuente(l).map((x) => ({ ...x, id: l.id })))
+
+  it('hay cadenas que comprobar', () => {
+    expect(todas.length).toBeGreaterThan(30)
   })
 
-  it('ninguna palabra del vocabulario se queda sin fuente', () => {
-    const sinFuente = []
-    for (const l of lecciones) {
-      for (const v of l.vocabulary) {
-        if (!v.source?.trim()) sinFuente.push(`${l.id}: "${v.nawat}"`)
-      }
-    }
-    expect(sinFuente).toEqual([])
-  })
-
-  it('ningún ejemplo de la nota teórica se queda sin fuente', () => {
-    const sinFuente = []
-    for (const l of lecciones) {
-      for (const e of l.note.examples || []) {
-        if (!e.source?.trim()) sinFuente.push(`${l.id}: "${e.nawat}"`)
-      }
-    }
+  it('ninguna cadena en náhuat se queda sin fuente', () => {
+    const sinFuente = todas
+      .filter((x) => !x.source?.trim())
+      .map((x) => `${x.id} (${x.donde}): "${x.nawat}"`)
     expect(sinFuente).toEqual([])
   })
 
   it('`evidence` solo admite "directa" o "compuesta"', () => {
-    const invalidas = []
-    for (const l of lecciones) {
-      for (const x of [...l.dialogue, ...l.vocabulary]) {
-        if (!['directa', 'compuesta'].includes(x.evidence)) {
-          invalidas.push(`${l.id}: "${x.nawat}" → ${x.evidence}`)
-        }
-      }
-    }
+    const invalidas = todas
+      .filter((x) => !['directa', 'compuesta'].includes(x.evidence))
+      .map((x) => `${x.id} (${x.donde}): "${x.nawat}" → ${x.evidence}`)
     expect(invalidas).toEqual([])
   })
 
   it('toda fuente nombra una obra reconocida', () => {
-    const desconocidas = []
-    for (const l of lecciones) {
-      for (const x of [...l.dialogue, ...l.vocabulary, ...(l.note.examples || [])]) {
-        if (!/YULTAJTAKETZALIS|Timumachtikan/.test(x.source)) {
-          desconocidas.push(`${l.id}: "${x.nawat}" → ${x.source}`)
-        }
-      }
-    }
+    const desconocidas = todas
+      .filter((x) => !/YULTAJTAKETZALIS|Timumachtikan/.test(x.source))
+      .map((x) => `${x.id} (${x.donde}): "${x.nawat}" → ${x.source}`)
     expect(desconocidas).toEqual([])
   })
 })
 
 describe('currículo v2 — el error que ya nos costó cuatro veces', () => {
-  it('ninguna forma ligada se enseña desnuda en el vocabulario', () => {
+  it('ninguna forma ligada se enseña desnuda', () => {
     const infractoras = []
     for (const l of lecciones) {
-      for (const v of l.vocabulary) {
+      for (const v of unidadesDeVocabulario(l)) {
         if (ligadas.has(clave(v.nawat))) {
           infractoras.push(`${l.id}: "${v.nawat}" exige prefijo`)
         }
@@ -126,7 +163,7 @@ describe('currículo v2 — el error que ya nos costó cuatro veces', () => {
   it('las palabras sueltas del vocabulario existen en el corpus o se declaran compuestas', () => {
     const huerfanas = []
     for (const l of lecciones) {
-      for (const v of l.vocabulary) {
+      for (const v of unidadesDeVocabulario(l)) {
         if (/\s/.test(v.nawat.trim())) continue // las frases se validan por su fuente
         if (v.evidence === 'compuesta') continue // ya está declarada como derivada
         if (!enCorpus.has(clave(v.nawat))) huerfanas.push(`${l.id}: "${v.nawat}"`)

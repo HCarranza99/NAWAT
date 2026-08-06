@@ -57,6 +57,7 @@ const module1 = {
     {
       id: 'm1-l1',
       order: 1,
+      type: 'dialogo',
       title: { nawat: 'Yek tunal', es: 'Saludar según la hora' },
       situation:
         'Vas llegando a Witzapan por la mañana. En el camino te cruzás con alguien que viene de frente.',
@@ -103,6 +104,7 @@ const module1 = {
     {
       id: 'm1-l2',
       order: 2,
+      type: 'dialogo',
       title: { nawat: 'Ken tinemi?', es: 'Preguntar cómo está alguien' },
       situation:
         'La misma persona del camino se detiene. Ahora la conversación pasa de saludar a preguntar de verdad.',
@@ -141,6 +143,7 @@ const module1 = {
     {
       id: 'm1-l3',
       order: 3,
+      type: 'dialogo',
       title: { nawat: 'Tejemet wan anmejemet', es: 'Hablar de varios' },
       situation: 'Ya no son dos: llegan más personas y hay que hablar de un grupo.',
       objective: 'Pasar de una persona a varias.',
@@ -178,6 +181,7 @@ const module1 = {
     {
       id: 'm1-l4',
       order: 4,
+      type: 'dialogo',
       title: { nawat: 'Ken mutukay?', es: 'Decir tu nombre' },
       situation: 'La conversación siguió y todavía no saben cómo se llama cada quien.',
       objective: 'Preguntar el nombre de alguien y decir el tuyo.',
@@ -214,6 +218,7 @@ const module1 = {
     {
       id: 'm1-l5',
       order: 5,
+      type: 'dialogo',
       title: { nawat: 'Niawa wan shiawa', es: 'Despedirse' },
       situation: 'Se hizo tarde. Uno sigue camino y el otro se queda.',
       objective: 'Despedirte y contestar una despedida.',

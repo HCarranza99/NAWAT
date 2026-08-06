@@ -8,12 +8,15 @@ import { Lightbulb } from 'lucide-react'
  * 1–5, y produce gente que sabe la regla y no reconoce la frase.
  */
 export default function NoteCard({ item, onContinue }) {
-  const { title, body, examples = [] } = item
+  // `kicker`: el encabezado por defecto ("¿qué pasó ahí?") solo tiene sentido
+  // después de un diálogo. Las lecciones de sonidos abren con esta misma tarjeta
+  // y necesitan otro texto. Es un campo del dato, no un tipo de ítem nuevo.
+  const { title, body, examples = [], kicker = 'Ahora sí, ¿qué pasó ahí?' } = item
 
   return (
     <div className="flex flex-col gap-4">
       <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-[#6d756e]">
-        Ahora sí, ¿qué pasó ahí?
+        {kicker}
       </p>
 
       <div className="rounded-lg border border-[#f4e2ad] bg-[#fffbf0] p-4">

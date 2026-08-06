@@ -1,3 +1,4 @@
+import module0 from './module0'
 import module1 from './module1'
 
 /**
@@ -40,9 +41,79 @@ import module1 from './module1'
  *  tenían ninguna frase que las mostrara en uso.
  */
 
-const modules = [module1]
+const modules = [module0, module1]
 
 export default modules
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ *  EL CONTRATO — lo que NO puede cambiar al agregar contenido
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ *  La app no debe cambiar de forma cada vez que se escribe un módulo. Para eso
+ *  hay dos vocabularios cerrados, y solo uno de ellos toca la interfaz.
+ *
+ *  1. TIPOS DE LECCIÓN (`lesson.type`) — es contenido, no interfaz.
+ *
+ *       'dialogo'  una situación con una conversación. El caso normal.
+ *       'sonidos'  contrastes de pronunciación. No admite diálogo: no se puede
+ *                  conversar sobre un fonema. Trae pares mínimos y ejemplos.
+ *
+ *     Se pueden agregar más con el tiempo. Agregar uno NO obliga a tocar la
+ *     interfaz, porque todos terminan compilando a los mismos ítems de abajo.
+ *
+ *  2. TIPOS DE ÍTEM — esto SÍ es interfaz, y está congelado.
+ *
+ *       dialogue · flashcard · note · task · matching · build_sentence
+ *
+ *     Cada uno tiene su componente en LessonRunner. Un tipo nuevo acá significa
+ *     un componente nuevo, o sea que la app cambia de forma. Por eso la prueba
+ *     `curriculum.test.js` falla si `toRunnerItems` emite algo fuera de esta
+ *     lista: el error salta al escribir contenido, no cuando el estudiante ve
+ *     "Tipo de ejercicio no soportado".
+ *
+ *  El resultado práctico: agregar un módulo es agregar UN ARCHIVO DE DATOS.
+ *  Ni componentes, ni rutas, ni cambios en el motor.
+ */
+export const TIPOS_DE_LECCION = ['dialogo', 'sonidos']
+export const TIPOS_DE_ITEM = ['dialogue', 'flashcard', 'note', 'task', 'matching', 'build_sentence']
+
+/**
+ * Vista uniforme de TODO el náhuat de una lección, con su procedencia.
+ *
+ * Cada tipo de lección guarda su contenido distinto: la de situación tiene
+ * `dialogue` y `vocabulary`; la de sonidos tiene `sounds`. Las comprobaciones de
+ * procedencia no deben saber eso — si lo supieran, agregar un tipo rompería
+ * todas las pruebas a la vez (pasó exactamente eso al escribir el módulo 0).
+ *
+ * Un tipo de lección nuevo se soporta extendiendo SOLO esta función.
+ *
+ * @returns {Array<{nawat, es, source, evidence, donde}>}
+ */
+export function cadenasConFuente(lesson) {
+  if (!lesson) return []
+  const salida = []
+  const add = (x, donde) => {
+    if (x?.nawat) salida.push({ nawat: x.nawat, es: x.es, source: x.source, evidence: x.evidence, donde })
+  }
+
+  for (const d of lesson.dialogue || []) add(d, 'diálogo')
+  for (const v of lesson.vocabulary || []) add(v, 'vocabulario')
+  for (const s of lesson.sounds || []) {
+    add({ nawat: s.grapheme, es: s.description, source: s.source, evidence: 'directa' }, 'sonido')
+    add({ ...s.example, evidence: 'directa' }, 'ejemplo del sonido')
+  }
+  for (const e of lesson.note?.examples || []) add({ ...e, evidence: 'directa' }, 'nota')
+
+  return salida
+}
+
+/** Lo que la lección enseña como unidad de vocabulario, sea cual sea su tipo. */
+export function unidadesDeVocabulario(lesson) {
+  if (!lesson) return []
+  if (lesson.type === 'sonidos') return [] // las grafías no son palabras
+  return lesson.vocabulary || []
+}
 
 /** Índice plano de lecciones, para rutas y búsquedas. */
 export const lessonsById = new Map(
@@ -83,8 +154,80 @@ function desordenar(palabras, semilla) {
   return igual && copia.length > 1 ? [copia.at(-1), ...copia.slice(0, -1)] : copia
 }
 
+/**
+ * Convierte una lección en la lista de ítems que consume LessonRunner.
+ *
+ * Acá es donde el contrato se sostiene: cada tipo de lección COMPILA a los
+ * mismos seis tipos de ítem. Por eso un tipo de lección nuevo no obliga a
+ * escribir un componente nuevo — y por eso la app no cambia de forma cuando
+ * crece el contenido.
+ *
+ * La práctica se DERIVA del contenido, nunca se escribe a mano. Así un ejercicio
+ * no puede contradecir a su lección —que es lo que pasó con `Pia` y `Nikpia`
+ * conviviendo en la sección 4— y basta corregir la fuente para que el resto se
+ * acomode solo.
+ */
 export function toRunnerItems(lesson) {
   if (!lesson) return []
+  return lesson.type === 'sonidos' ? compilarSonidos(lesson) : compilarDialogo(lesson)
+}
+
+/**
+ * Lección de pronunciación. No lleva diálogo: no se puede conversar sobre un
+ * fonema. El sonido se presenta con su palabra de ejemplo y se practica
+ * emparejando sonido con ejemplo, que es la discriminación que importa.
+ */
+function compilarSonidos(lesson) {
+  const items = [
+    {
+      id: `${lesson.id}-intro`,
+      type: 'note',
+      kicker: 'De qué se trata',
+      title: lesson.objective,
+      body: lesson.situation,
+      examples: [],
+    },
+    ...lesson.sounds.map((s, i) => ({
+      id: `${lesson.id}-son${i + 1}`,
+      type: 'flashcard',
+      nahuat_word: s.grapheme,
+      spanish_translation: s.description,
+      pronunciation: s.pron,
+      pronunciationText: s.pronText,
+      example_sentence: s.example.nawat,
+      example_translation: s.example.es,
+      source: s.source,
+    })),
+    {
+      id: `${lesson.id}-nota`,
+      type: 'note',
+      // "¿Qué pasó ahí?" solo funciona después de un diálogo; acá no hubo uno.
+      kicker: 'Para tener en cuenta',
+      title: lesson.note.title,
+      body: lesson.note.body,
+      examples: lesson.note.examples,
+    },
+  ]
+
+  const pares = lesson.sounds.map((s) => ({ nahuat: s.grapheme, spanish: s.example.nawat }))
+  if (pares.length >= 2 && new Set(pares.map((p) => p.spanish)).size === pares.length) {
+    items.push({
+      id: `${lesson.id}-unir`,
+      type: 'matching',
+      instruction: 'Une cada sonido con la palabra que lo lleva',
+      // Sin esto la columna derecha se rotula "Español" y contiene náhuat.
+      left_label: 'Sonido',
+      right_label: 'Palabra',
+      pairs: pares.slice(0, 5),
+    })
+  }
+
+  items.push({ id: `${lesson.id}-tarea`, type: 'task', body: lesson.task })
+  return items
+}
+
+/** Lección de situación: diálogo → vocabulario → nota → práctica → tarea. */
+function compilarDialogo(lesson) {
   const items = []
 
   items.push({
