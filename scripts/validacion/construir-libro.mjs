@@ -222,6 +222,7 @@ const leeme = {
     [null, C('N1. Diálogos'), C(`Las ${moduloNuevo.lessons.reduce((n, l) => n + l.dialogue.length, 0)} líneas de conversación del módulo 1. Ninguna se inventó: todas son frases atestiguadas, solo se ordenaron. Lo que hay que juzgar es si suenan naturales en ese orden.`)],
     [null, C('N2. Vocabulario'), C(`Las ${moduloNuevo.lessons.reduce((n, l) => n + l.vocabulary.length, 0)} palabras del módulo, con su fuente.`)],
     [null, C('N3. Notas y preguntas'), C('Las explicaciones gramaticales, las tareas, y las preguntas que quedaron abiertas a propósito. La nota cultural de cada lección está VACÍA esperando su respuesta.')],
+    [null, C('N4. Lo que falta'), C('LA HOJA MÁS ÚTIL SI HAY POCO TIEMPO. Las palabras que la app ya enseña pero que no se pueden pasar al modelo nuevo porque no existe ninguna frase donde se usen en conversación. Una frase corta por palabra desbloquea cada una.')],
     [],
     [null, T('El contenido que ya está publicado (hojas 1 a 6)')],
     [null, C('1. Vocabulario'), C(`Las ${formas.size} palabras y expresiones que la app enseña hoy, con la página del diccionario donde se verificó cada una.`)],
@@ -515,12 +516,83 @@ const hojaNotasM1 = {
   ],
 }
 
+// ── QUÉ FALTA PARA JUBILAR LAS SECCIONES VIEJAS ──────────────────────────────
+// El módulo nuevo se arma con frases atestiguadas, y ahí está el cuello de
+// botella: de las 248 frases del corpus, la mayoría son descripciones en tercera
+// persona ("El canasto grande") que no sirven como turno de diálogo. Esta hoja
+// calcula, palabra por palabra, cuáles se quedaron sin una sola frase usable.
+const GRAFIAS = new Set(['kw', 'tz', 'sh'])
+const enModuloNuevo = new Set()
+for (const l of moduloNuevo.lessons) {
+  for (const v of l.vocabulary) enModuloNuevo.add(clave(v.nawat))
+  for (const d of l.dialogue) {
+    enModuloNuevo.add(clave(d.nawat))
+    for (const p of d.nawat.split(/\s+/)) enModuloNuevo.add(clave(p))
+  }
+}
+const frasesCorpusTodas = corpus.items.filter((i) => i.kind === 'phrase')
+const esConversacional = (f) => {
+  const n = f.text_nawat
+  const es = f.text_es || ''
+  return (
+    /\?/.test(n) || /\?/.test(es) ||
+    /^(naja|taja|tejemet|anmejemet)\b/i.test(n) ||
+    /^(ni|ti|an|nik|tik|shi|mu)/i.test(n.split(/\s+/)[0]) ||
+    /^(yo|tú|tu|usted|ustedes|nosotros)\b/i.test(es)
+  )
+}
+const pendientes = []
+for (const f of filasVocab) {
+  const key = clave(f.forma)
+  if (enModuloNuevo.has(key)) continue
+  if (GRAFIAS.has(key)) continue // no son palabras: van en una lección de sonidos
+  const conLaPalabra = frasesCorpusTodas.filter((p) =>
+    new RegExp(`(^|\\s)${key}(\\s|$)`, 'i').test(p.text_nawat),
+  )
+  const usables = conLaPalabra.filter(esConversacional)
+  pendientes.push({
+    forma: f.forma,
+    es: f.glosa,
+    sec: f.sec,
+    total: conLaPalabra.length,
+    usables: usables.length,
+    ejemplo: usables[0] ? `${usables[0].text_nawat} = ${usables[0].text_es}` : '',
+  })
+}
+const sinMaterial = pendientes.filter((p) => p.usables === 0)
+
+const hojaFalta = {
+  name: 'N4. Lo que falta',
+  widths: [5, 18, 30, 7, 11, 11, 44, 40, 26],
+  freeze: 3,
+  tallRows: [3],
+  rows: [
+    [T(`Las ${sinMaterial.length} palabras que bloquean el reemplazo`)],
+    [
+      null,
+      N('Para pasar una palabra al modelo nuevo hace falta una frase donde se use de verdad, en primera o segunda persona. El diccionario da muchas frases, pero casi todas son descripciones ("El canasto grande") que no sirven como turno de conversación. Estas se quedaron sin ninguna. Una frase corta y natural por palabra alcanza para desbloquearla.'),
+    ],
+    [
+      H('N°'), H('Náhuat'), H('Significado en la app'), H('Sec.'),
+      H('Frases en el corpus'), H('Usables'), H('La única usable, si la hay'),
+      H('UNA FRASE NATURAL CON ESTA PALABRA'), H('Traducción'),
+    ],
+    ...pendientes
+      .sort((a, b) => a.usables - b.usables || a.sec - b.sec)
+      .map((p, i) => [
+        C(i + 1), C(p.forma), C(p.es), C(p.sec),
+        C(p.total), C(p.usables), C(p.ejemplo || '—'), I(), I(),
+      ]),
+  ],
+}
+
 // ── empaquetado ──────────────────────────────────────────────────────────────
 const partes = buildXlsx([
   leeme,
   hojaDialogos,
   hojaVocM1,
   hojaNotasM1,
+  hojaFalta,
   vocab,
   hojaFrases,
   hojaEj,
