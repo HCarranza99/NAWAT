@@ -8,6 +8,7 @@ import modules, {
   unidadesDeVocabulario,
   TIPOS_DE_LECCION,
   TIPOS_DE_ITEM,
+  TIPOS_QUE_MIDEN,
 } from '../data/curriculum'
 import { buildResultState } from '../lib/resultState'
 
@@ -190,9 +191,26 @@ describe('currículo v2 — ejercicios derivados', () => {
     expect(iNota).toBeGreaterThan(iVoc)
   })
 
-  it('todo el vocabulario llega a pantalla', () => {
-    const tarjetas = items.filter((i) => i.type === 'flashcard')
-    expect(tarjetas.length).toBe(lección.vocabulary.length)
+  // Antes esto exigía una tarjeta por palabra. Ya no: una palabra puede llegar
+  // por el diálogo, por una tarjeta o por un ejercicio. Lo que no puede es
+  // faltar — se comprueba que aparezca en ALGÚN lado.
+  it('todo el vocabulario llega a pantalla, por la vía que sea', () => {
+    for (const l of lecciones.filter((x) => x.type === 'dialogo')) {
+      const items = toRunnerItems(l)
+      const enPantalla = new Set()
+      for (const it of items) {
+        if (it.type === 'dialogue') {
+          for (const línea of it.lines) for (const w of línea.nawat.split(/\s+/)) enPantalla.add(clave(w))
+        }
+        if (it.nahuat_word) enPantalla.add(clave(it.nahuat_word))
+        for (const p of it.pairs || []) enPantalla.add(clave(p.nahuat))
+        for (const w of it.word_bank || []) enPantalla.add(clave(w))
+      }
+      const faltantes = l.vocabulary
+        .filter((v) => !enPantalla.has(clave(v.nawat)))
+        .map((v) => `${l.id}: "${v.nawat}"`)
+      expect(faltantes).toEqual([])
+    }
   })
 
   // m1-l1 no genera este ejercicio: sus seis líneas son de dos palabras y una
@@ -217,7 +235,8 @@ describe('currículo v2 — ejercicios derivados', () => {
       expect(ordenar.word_bank.join(' '), `${l.id} regala la respuesta`).not.toBe(
         ordenar.correct_order.join(' '),
       )
-      expect([...ordenar.word_bank].sort()).toEqual([...ordenar.correct_order].sort())
+      // El banco ya no es una permutación exacta: lleva señuelos a propósito.
+      expect(ordenar.word_bank.length).toBeGreaterThan(ordenar.correct_order.length)
     }
   })
 
@@ -233,6 +252,69 @@ describe('currículo v2 — ejercicios derivados', () => {
     expect(typeof estado.lessonTitle).toBe('string')
     expect(estado.lessonTitle.length).toBeGreaterThan(0)
     expect(Number.isFinite(Math.round(estado.score * 100))).toBe(true)
+  })
+
+  /**
+   * La tarjeta de memoria se autoevalúa, así que no es medida de aprendizaje.
+   * Sirve para presentar lo que el diálogo no mostró, y para nada más.
+   */
+  it('las tarjetas de memoria no dominan ninguna lección', () => {
+    for (const l of lecciones) {
+      const items = toRunnerItems(l)
+      const tarjetas = items.filter((i) => i.type === 'flashcard').length
+      const miden = items.filter((i) => TIPOS_QUE_MIDEN.includes(i.type)).length
+      expect(miden, `${l.id}: solo ${miden} ejercicios que midan`).toBeGreaterThanOrEqual(3)
+      expect(tarjetas, `${l.id}: ${tarjetas} tarjetas contra ${miden} ejercicios`).toBeLessThanOrEqual(miden)
+    }
+  })
+
+  it('no hay tarjeta para una palabra que el diálogo ya mostró', () => {
+    const redundantes = []
+    for (const l of lecciones.filter((x) => x.type === 'dialogo')) {
+      const enDialogo = new Set(
+        l.dialogue.flatMap((d) => d.nawat.split(/\s+/).map((w) => clave(w))),
+      )
+      for (const item of toRunnerItems(l)) {
+        if (item.type === 'flashcard' && enDialogo.has(clave(item.nahuat_word))) {
+          redundantes.push(`${l.id}: "${item.nahuat_word}" ya salía en el diálogo`)
+        }
+      }
+    }
+    expect(redundantes).toEqual([])
+  })
+
+  it('cada lección pide escribir al menos una palabra de memoria', () => {
+    for (const l of lecciones.filter((x) => x.type === 'dialogo')) {
+      const escribir = toRunnerItems(l).filter((i) => i.type === 'active_recall')
+      expect(escribir.length, `${l.id} no pide escribir nada`).toBeGreaterThan(0)
+    }
+  })
+
+  it('el banco de ordenar lleva señuelos que NO van en la frase', () => {
+    let comprobadas = 0
+    for (const l of lecciones) {
+      const ordenar = toRunnerItems(l).find((i) => i.type === 'build_sentence')
+      if (!ordenar) continue
+      comprobadas++
+      const correctas = ordenar.correct_order.map((w) => clave(w))
+      const senuelos = ordenar.word_bank.filter((w) => !correctas.includes(clave(w)))
+      expect(senuelos.length, `${l.id} no tiene señuelos`).toBeGreaterThanOrEqual(2)
+      // Y las correctas siguen estando todas.
+      for (const w of ordenar.correct_order) {
+        expect(ordenar.word_bank.map(clave), `${l.id} perdió "${w}"`).toContain(clave(w))
+      }
+    }
+    expect(comprobadas).toBeGreaterThan(0)
+  })
+
+  it('ninguna opción múltiple repite opción ni tiene dos correctas', () => {
+    for (const l of lecciones) {
+      for (const item of toRunnerItems(l).filter((i) => i.type === 'multiple_choice_text')) {
+        const textos = item.options.map((o) => o.text.toLowerCase())
+        expect(new Set(textos).size, `${item.id} repite una opción`).toBe(textos.length)
+        expect(item.options.filter((o) => o.correct).length, `${item.id}`).toBe(1)
+      }
+    }
   })
 
   it('el emparejamiento nunca repite un significado', () => {

@@ -64,7 +64,12 @@ export default modules
  *
  *  2. TIPOS DE ÍTEM — esto SÍ es interfaz, y está congelado.
  *
- *       dialogue · flashcard · note · task · matching · build_sentence
+ *       dialogue · flashcard · note · task
+ *       matching · build_sentence · multiple_choice_text · active_recall
+ *
+ *     Los cuatro últimos son los que MIDEN: tienen una respuesta correcta que el
+ *     estudiante no elige por sí mismo. La tarjeta de memoria no mide (se
+ *     autoevalúa), así que se usa lo mínimo — ver `compilarDialogo`.
  *
  *     Cada uno tiene su componente en LessonRunner. Un tipo nuevo acá significa
  *     un componente nuevo, o sea que la app cambia de forma. Por eso la prueba
@@ -76,7 +81,13 @@ export default modules
  *  Ni componentes, ni rutas, ni cambios en el motor.
  */
 export const TIPOS_DE_LECCION = ['dialogo', 'sonidos']
-export const TIPOS_DE_ITEM = ['dialogue', 'flashcard', 'note', 'task', 'matching', 'build_sentence']
+export const TIPOS_DE_ITEM = [
+  'dialogue', 'flashcard', 'note', 'task',
+  'matching', 'build_sentence', 'multiple_choice_text', 'active_recall',
+]
+
+/** Los que tienen respuesta correcta comprobable. La tarjeta de memoria no está. */
+export const TIPOS_QUE_MIDEN = ['matching', 'build_sentence', 'multiple_choice_text', 'active_recall']
 
 /**
  * Vista uniforme de TODO el náhuat de una lección, con su procedencia.
@@ -137,20 +148,29 @@ export function getLesson(id) {
  * fuente para que todo lo demás se acomode.
  */
 /**
- * Baraja estable: el banco de palabras no puede salir ya ordenado (regalaría la
- * respuesta) ni cambiar en cada render (rompería las pruebas). Se siembra con el
- * id de la lección, así cada una tiene su propio orden y siempre el mismo.
+ * Azar DETERMINISTA sembrado con el id de la lección.
+ *
+ * Los ejercicios no pueden salir en el mismo orden que la respuesta (la
+ * regalarían) ni cambiar en cada render (romperían las pruebas y confundirían a
+ * quien repite la lección). Sembrado con el id, cada lección tiene su propia
+ * mezcla y siempre la misma.
  */
-function desordenar(palabras, semilla) {
+function pseudoAzar(semilla) {
   let a = [...semilla].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7)
-  const copia = [...palabras]
-  for (let i = copia.length - 1; i > 0; i--) {
+  return () => {
     a = (a * 1664525 + 1013904223) >>> 0
-    const j = a % (i + 1)
+    return a / 4294967296
+  }
+}
+
+/** Baraja con el generador sembrado; nunca devuelve el orden original. */
+function mezclar(lista, rnd) {
+  const copia = [...lista]
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1))
     ;[copia[i], copia[j]] = [copia[j], copia[i]]
   }
-  // Si la mezcla devolvió el orden original, se rota para que nunca coincida.
-  const igual = copia.every((p, i) => p === palabras[i])
+  const igual = copia.every((x, i) => x === lista[i])
   return igual && copia.length > 1 ? [copia.at(-1), ...copia.slice(0, -1)] : copia
 }
 
@@ -222,13 +242,57 @@ function compilarSonidos(lesson) {
     })
   }
 
+  // Discriminar el sonido dentro de una palabra: esto SÍ mide, la tarjeta no.
+  const rnd = pseudoAzar(lesson.id)
+  for (const [i, s] of lesson.sounds.entries()) {
+    const otras = lesson.sounds.filter((o) => o.grapheme !== s.grapheme).map((o) => o.example.nawat)
+    if (otras.length < 2) continue
+    const opciones = mezclar(
+      [{ text: s.example.nawat, correct: true }, ...otras.map((t) => ({ text: t, correct: false }))],
+      rnd,
+    )
+    items.push({
+      id: `${lesson.id}-disc${i + 1}`,
+      type: 'multiple_choice_text',
+      nahuat_word: s.grapheme,
+      spanish_translation: s.example.nawat,
+      pronunciation: s.pron,
+      pronunciationText: s.pronText,
+      instruction: `¿Cuál palabra lleva el sonido ${s.grapheme}?`,
+      options: opciones.map((o, j) => ({ id: `o${j + 1}`, ...o })),
+    })
+  }
+
   items.push({ id: `${lesson.id}-tarea`, type: 'task', body: lesson.task })
   return items
 }
 
-/** Lección de situación: diálogo → vocabulario → nota → práctica → tarea. */
+/** Normaliza una palabra para comparar: sin puntuación, minúsculas. */
+const desnudo = (s = '') => s.toLowerCase().normalize('NFC').replace(/[¿?¡!.,]/g, '').trim()
+
+/** Todo el vocabulario del currículo, para sacar distractores de otras lecciones. */
+function vocabularioGlobal() {
+  return modules.flatMap((m) => m.lessons.flatMap((l) => l.vocabulary || []))
+}
+
+/**
+ * Lección de situación: diálogo → presentación mínima → nota → práctica → tarea.
+ *
+ * SOBRE LAS TARJETAS DE MEMORIA. Se usan lo menos posible, por dos razones:
+ *
+ *  1. Se autoevalúan ("lo sabía" / "no lo sabía"), así que no miden nada. Sirven
+ *     para presentar, no para comprobar.
+ *  2. En este modelo son casi siempre redundantes: el diálogo YA mostró la
+ *     palabra en contexto y con su traducción.
+ *
+ * De ahí la regla: una palabra recibe tarjeta SOLO si no aparece en el diálogo.
+ * En la lección 1 eso baja de ocho tarjetas a dos (Teutak y Tayua, que solo
+ * salen en la nota). Todo lo demás se comprueba con ejercicios que sí tienen
+ * respuesta correcta: opción múltiple, emparejar, ordenar y escribir.
+ */
 function compilarDialogo(lesson) {
   const items = []
+  const rnd = pseudoAzar(lesson.id)
 
   items.push({
     id: `${lesson.id}-dialogo`,
@@ -238,7 +302,12 @@ function compilarDialogo(lesson) {
     lines: lesson.dialogue,
   })
 
-  for (const [i, v] of lesson.vocabulary.entries()) {
+  // ── Presentación: solo lo que el diálogo no mostró ──
+  const enDialogo = new Set(
+    lesson.dialogue.flatMap((l) => l.nawat.split(/\s+/).map(desnudo)),
+  )
+  const sinPresentar = lesson.vocabulary.filter((v) => !enDialogo.has(desnudo(v.nawat)))
+  for (const [i, v] of sinPresentar.entries()) {
     items.push({
       id: `${lesson.id}-voc${i + 1}`,
       type: 'flashcard',
@@ -258,7 +327,39 @@ function compilarDialogo(lesson) {
     examples: lesson.note.examples,
   })
 
-  // Emparejar: solo si hay pares suficientes y ningún significado repetido.
+  // ── Práctica: todo con respuesta correcta comprobable ──
+
+  // Opción múltiple sobre las dos primeras palabras, con distractores reales.
+  const ajenas = vocabularioGlobal().filter(
+    (v) => !lesson.vocabulary.some((p) => desnudo(p.nawat) === desnudo(v.nawat)),
+  )
+  for (const [i, v] of lesson.vocabulary.slice(0, 2).entries()) {
+    const distractores = []
+    const vistos = new Set([v.es.toLowerCase()])
+    for (const otra of mezclar(ajenas, rnd)) {
+      if (vistos.has(otra.es.toLowerCase())) continue
+      vistos.add(otra.es.toLowerCase())
+      distractores.push(otra.es)
+      if (distractores.length === 3) break
+    }
+    if (distractores.length < 3) continue
+    const opciones = mezclar(
+      [{ text: v.es, correct: true }, ...distractores.map((t) => ({ text: t, correct: false }))],
+      rnd,
+    )
+    items.push({
+      id: `${lesson.id}-op${i + 1}`,
+      type: 'multiple_choice_text',
+      nahuat_word: v.nawat,
+      spanish_translation: v.es,
+      pronunciation: v.pron,
+      pronunciationText: v.pronText,
+      instruction: '¿Qué significa esta palabra?',
+      options: opciones.map((o, j) => ({ id: `o${j + 1}`, ...o })),
+    })
+  }
+
+  // Emparejar: solo si ningún significado se repite (si no, hay pares ambiguos).
   const pares = lesson.vocabulary.map((v) => ({ nahuat: v.nawat, spanish: v.es }))
   const significados = new Set(pares.map((p) => p.spanish.toLowerCase()))
   if (pares.length >= 2 && significados.size === pares.length) {
@@ -270,19 +371,41 @@ function compilarDialogo(lesson) {
     })
   }
 
-  // Ordenar la frase: se toma una línea ATESTIGUADA del diálogo, la primera que
-  // tenga al menos tres palabras. Nunca una frase inventada para el ejercicio.
+  // Ordenar: se toma una línea ATESTIGUADA del diálogo. Nunca una frase inventada
+  // para el ejercicio. El banco lleva DISTRACTORES —palabras que no van en la
+  // frase— porque con solo las correctas el ejercicio se resuelve por descarte.
   const ordenable = lesson.dialogue.find((l) => l.nawat.trim().split(/\s+/).length >= 3)
   if (ordenable) {
     const palabras = ordenable.nawat.replace(/[¿?¡!.]/g, '').trim().split(/\s+/)
+    const enFrase = new Set(palabras.map(desnudo))
+    const senuelos = mezclar(ajenas, rnd)
+      .map((v) => v.nawat.toLowerCase())
+      .filter((w) => !enFrase.has(desnudo(w)))
+      .filter((w, i, arr) => arr.indexOf(w) === i)
+      .slice(0, Math.min(3, Math.max(2, palabras.length - 1)))
     items.push({
       id: `${lesson.id}-ordenar`,
       type: 'build_sentence',
       instruction: `Ordena: "${ordenable.es}"`,
       spanish_translation: ordenable.es,
-      word_bank: desordenar(palabras, lesson.id),
+      word_bank: mezclar([...palabras, ...senuelos], rnd),
       correct_order: palabras,
       source: ordenable.source,
+    })
+  }
+
+  // Escribir de memoria: el único ejercicio de producción pura. Se elige la
+  // palabra más corta del vocabulario para que sea exigente y no cruel.
+  const paraEscribir = [...lesson.vocabulary].sort((a, b) => a.nawat.length - b.nawat.length)[0]
+  if (paraEscribir) {
+    items.push({
+      id: `${lesson.id}-escribir`,
+      type: 'active_recall',
+      nahuat_word: paraEscribir.nawat,
+      spanish_translation: paraEscribir.es,
+      pronunciation: paraEscribir.pron,
+      pronunciationText: paraEscribir.pronText,
+      instruction: `¿Cómo se escribe "${paraEscribir.es}" en náhuat?`,
     })
   }
 
