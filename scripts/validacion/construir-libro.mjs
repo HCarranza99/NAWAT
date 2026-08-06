@@ -28,6 +28,7 @@ const secciones = await Promise.all(
   ),
 )
 const corpus = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs', 'catalogo_extraido.json'), 'utf8'))
+const moduloNuevo = (await import(new URL('../../src/data/curriculum/module1.js', import.meta.url).href)).default
 
 // ── utilidades ───────────────────────────────────────────────────────────────
 const clave = (s = '') =>
@@ -216,8 +217,14 @@ const leeme = {
     [null, C('3'), C('Si algo hay que cambiarlo, se escribe la forma correcta en "Corrección propuesta". Con eso basta: el cambio se aplica y se regenera este libro.')],
     [null, C('4'), C('Si no da tiempo de todo: la hoja 1 (vocabulario) y la hoja 2 (frases) son las importantes. La hoja 3 es el detalle ejercicio por ejercicio.')],
     [],
-    [null, T('Las hojas')],
-    [null, C('1. Vocabulario'), C(`Las ${formas.size} palabras y expresiones que la app enseña, con la página del diccionario donde se verificó cada una.`)],
+    [null, T('EMPIECE POR ACÁ — el módulo nuevo (hojas N1, N2, N3)')],
+    [null, null, N('Es contenido reescrito desde cero con otra estructura: cada lección es una situación con un diálogo, y el vocabulario sale del diálogo en vez de ir suelto. Es lo que se quiere publicar validado. Son pocas líneas y es donde su tiempo rinde más.')],
+    [null, C('N1. Diálogos'), C(`Las ${moduloNuevo.lessons.reduce((n, l) => n + l.dialogue.length, 0)} líneas de conversación del módulo 1. Ninguna se inventó: todas son frases atestiguadas, solo se ordenaron. Lo que hay que juzgar es si suenan naturales en ese orden.`)],
+    [null, C('N2. Vocabulario'), C(`Las ${moduloNuevo.lessons.reduce((n, l) => n + l.vocabulary.length, 0)} palabras del módulo, con su fuente.`)],
+    [null, C('N3. Notas y preguntas'), C('Las explicaciones gramaticales, las tareas, y las preguntas que quedaron abiertas a propósito. La nota cultural de cada lección está VACÍA esperando su respuesta.')],
+    [],
+    [null, T('El contenido que ya está publicado (hojas 1 a 6)')],
+    [null, C('1. Vocabulario'), C(`Las ${formas.size} palabras y expresiones que la app enseña hoy, con la página del diccionario donde se verificó cada una.`)],
     [null, C('2. Frases'), C(`Las ${frases.size} frases completas que aparecen en pantalla. Se distingue entre las copiadas de una fuente y las ARMADAS para un ejercicio: estas últimas son las que más riesgo tienen.`)],
     [null, C('3. Ejercicios'), C(`Los ${totalEj} ejercicios tal como los ve el estudiante, con su respuesta correcta y sus opciones falsas.`)],
     [null, C('4. Cómo arma los ejercicios'), C('La app no guarda los ejercicios ya hechos: los arma en el momento. Aquí se explica qué decide la máquina y qué no, y se listan los pares de palabras que podrían confundirse.')],
@@ -435,8 +442,92 @@ const hojaPreguntas = {
   ],
 }
 
+// ── MÓDULO NUEVO (currículo v2) ──────────────────────────────────────────────
+// Va primero en el libro: es lo que se le pide validar a un hablante AHORA.
+const lecsM1 = moduloNuevo.lessons
+
+const filasDialogo = []
+for (const l of lecsM1) {
+  for (const [i, d] of l.dialogue.entries()) {
+    filasDialogo.push({ lec: l, turno: i + 1, ...d })
+  }
+}
+const hojaDialogos = {
+  name: 'N1. Diálogos (módulo nuevo)',
+  widths: [5, 26, 8, 8, 30, 30, 13, 46, 18, 28, 28],
+  freeze: 2,
+  tallRows: [2],
+  autofilter: `A2:K${filasDialogo.length + 2}`,
+  validations: [{ ref: `I3:I${filasDialogo.length + 2}`, values: SI_NO }],
+  rows: [
+    [T(`Módulo 1 "${moduloNuevo.title.nawat}" — las ${filasDialogo.length} líneas de los diálogos`)],
+    [
+      H('N°'), H('Lección'), H('Turno'), H('Quién'), H('Náhuat'), H('Traducción'),
+      H('Evidencia'), H('Fuente'), H('¿Está bien?'), H('Corrección propuesta'), H('Comentario'),
+    ],
+    ...filasDialogo.map((f, i) => [
+      C(i + 1), C(f.lec.title.es), C(f.turno), C(f.speaker === 'a' ? 'A' : 'B'),
+      C(f.nawat), C(f.es), C(f.evidence), C(f.source), I(), I(), I(),
+    ]),
+  ],
+}
+
+const filasVocM1 = lecsM1.flatMap((l) => l.vocabulary.map((v) => ({ lec: l, ...v })))
+const hojaVocM1 = {
+  name: 'N2. Vocabulario (módulo nuevo)',
+  widths: [5, 26, 18, 32, 16, 13, 46, 18, 28, 28],
+  freeze: 2,
+  tallRows: [2],
+  autofilter: `A2:J${filasVocM1.length + 2}`,
+  validations: [{ ref: `H3:H${filasVocM1.length + 2}`, values: SI_NO }],
+  rows: [
+    [T(`Módulo 1 — las ${filasVocM1.length} palabras que se enseñan`)],
+    [
+      H('N°'), H('Lección'), H('Náhuat'), H('Significado'), H('Pronunciación'),
+      H('Evidencia'), H('Fuente'), H('¿Está bien?'), H('Corrección propuesta'), H('Comentario'),
+    ],
+    ...filasVocM1.map((v, i) => [
+      C(i + 1), C(v.lec.title.es), C(v.nawat), C(v.es), C(v.pron),
+      C(v.evidence), C(v.source), I(), I(), I(),
+    ]),
+  ],
+}
+
+const hojaNotasM1 = {
+  name: 'N3. Notas, tareas y preguntas',
+  widths: [3, 26, 78, 30, 30],
+  rows: [
+    [null, T('Lo que la app EXPLICA y lo que PIDE hacer')],
+    [null, null, N('Las notas gramaticales y las tareas no se pueden verificar contra un diccionario: o son ciertas y útiles, o no lo son. Esta hoja existe para eso.')],
+    [],
+    [null, H('Lección'), H('Nota teórica'), H('¿Es correcta?'), H('Corrección')],
+    ...lecsM1.map((l) => [
+      null, C(l.title.es), C(`${l.note.title}\n\n${l.note.body}`), I(), I(),
+    ]),
+    [],
+    [null, H('Lección'), H('Tarea que se le pide al estudiante'), H('¿Tiene sentido?'), H('Comentario')],
+    ...lecsM1.map((l) => [null, C(l.title.es), C(l.task), I(), I()]),
+    [],
+    [null, T('LAS PREGUNTAS — esto es lo que solo usted puede contestar')],
+    [null, null, N('Cada lección quedó con un hueco a propósito: la nota cultural la escribe quien pertenece a la comunidad. Inventarla sería el error que este módulo existe para no repetir.')],
+    [null, H('Lección'), H('Pregunta'), H('Respuesta'), H('')],
+    ...lecsM1.map((l) => [null, C(l.title.es), C(l.speakerAsk), I(), C('')]),
+  ],
+}
+
 // ── empaquetado ──────────────────────────────────────────────────────────────
-const partes = buildXlsx([leeme, vocab, hojaFrases, hojaEj, hojaMotor, hojaCorpus, hojaPreguntas])
+const partes = buildXlsx([
+  leeme,
+  hojaDialogos,
+  hojaVocM1,
+  hojaNotasM1,
+  vocab,
+  hojaFrases,
+  hojaEj,
+  hojaMotor,
+  hojaCorpus,
+  hojaPreguntas,
+])
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'xlsx-'))
 const manifiesto = []

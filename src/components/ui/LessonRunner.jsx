@@ -16,6 +16,10 @@ import TutorChat from './TutorChat'
 import Torogoz from './Torogoz'
 import ReviewBadge from './ReviewBadge'
 import MultipleChoiceText from '../exercises/MultipleChoiceText'
+import Flashcard from '../exercises/Flashcard'
+import DialogueCard from '../exercises/DialogueCard'
+import NoteCard from '../exercises/NoteCard'
+import TaskCard from '../exercises/TaskCard'
 import TrueFalse from '../exercises/TrueFalse'
 import LightningRound from '../exercises/LightningRound'
 import Matching from '../exercises/Matching'
@@ -23,10 +27,20 @@ import BuildSentence from '../exercises/BuildSentence'
 import ActiveRecall from '../exercises/ActiveRecall'
 import MultipleChoiceImage from '../exercises/MultipleChoiceImage'
 
+/**
+ * Tipos que se MUESTRAN pero no se responden: el diálogo, las tarjetas de
+ * vocabulario, la nota teórica y la tarea final del currículo v2. No pueden
+ * contar en la precisión —una lección con un diálogo y ocho tarjetas daría 8%
+ * aunque el estudiante no fallara nada— ni quitar vidas.
+ */
+const TIPOS_INFORMATIVOS = new Set(['dialogue', 'note', 'task', 'flashcard'])
+const esEvaluable = (item) => !TIPOS_INFORMATIVOS.has(item?.type)
+
 export default function LessonRunner({
   lesson,
   isBoss = false,
   sectionWords = [],
+  orderedItems = null,
   onStart = async () => null,
   onComplete = () => {},
   onExit = () => {},
@@ -54,9 +68,12 @@ export default function LessonRunner({
   // distinta mezcla de tipos y distinto orden cada vez que se repite la lección.
   const [seed] = useState(() => (Date.now() >>> 0) ^ Math.floor(Math.random() * 0xffffffff))
   const exercises = useMemo(() => {
+    // Currículo v2: el orden ES el contenido (diálogo → vocabulario → nota →
+    // práctica → tarea). Se respeta tal cual y no pasa por el motor, que baraja.
+    if (orderedItems?.length) return orderedItems
     const built = buildExercises(lesson, { seed, sectionWords })
     return built.length ? built : lesson.items
-  }, [lesson, seed, sectionWords])
+  }, [lesson, seed, sectionWords, orderedItems])
 
   const items = retryMode ? failedItems : exercises
   const current = items[currentIndex]
@@ -214,7 +231,9 @@ export default function LessonRunner({
   }
 
   const finishLesson = (finalScore) => {
-    const totalItems = exercises.length
+    // Solo lo que se puede acertar o fallar entra en la precisión.
+    const evaluables = exercises.filter(esEvaluable).length
+    const totalItems = evaluables || exercises.length
     const ratio = totalItems > 0 ? Math.min(1, finalScore.correct / totalItems) : 0
     playComplete()
     onComplete(ratio, finalScore.xp, attemptIdRef.current, lessonStartRef.current)
@@ -280,6 +299,19 @@ export default function LessonRunner({
     goNext(updated)
   }
 
+  /**
+   * Avance de las tarjetas que se muestran pero no se responden (currículo v2).
+   * No suma ni resta: no toca vidas ni puntaje. Si la tarjeta trae una palabra,
+   * la autoevaluación sí alimenta el repaso espaciado — es información útil
+   * sobre qué recuerda el estudiante, aunque no sea una calificación.
+   */
+  const handlePresented = (recordaba = null) => {
+    if (recordaba !== null && current?.nahuat_word) {
+      recordReview(srsKeyForItem(current), recordaba)
+    }
+    goNext(score)
+  }
+
   const handleMatchingComplete = () => {
     playCorrect()
     const xp = xpForType('matching')
@@ -305,6 +337,21 @@ export default function LessonRunner({
         return <ActiveRecall item={current} onCorrect={handleCorrect} onWrong={handleWrong} />
       case 'multiple_choice_image':
         return <MultipleChoiceImage item={current} onCorrect={handleCorrect} onWrong={handleWrong} />
+      // ── Currículo v2: se muestran, no se responden ──
+      case 'dialogue':
+        return <DialogueCard item={current} onContinue={() => handlePresented()} />
+      case 'flashcard':
+        return (
+          <Flashcard
+            item={current}
+            onKnew={() => handlePresented(true)}
+            onDidntKnow={() => handlePresented(false)}
+          />
+        )
+      case 'note':
+        return <NoteCard item={current} onContinue={() => handlePresented()} />
+      case 'task':
+        return <TaskCard item={current} onContinue={() => handlePresented()} />
       default:
         return (
           <div className="rounded-lg border border-[#e3ded2] bg-white p-5 text-center text-sm font-semibold text-[#6d756e]">

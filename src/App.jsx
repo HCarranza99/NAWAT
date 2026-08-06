@@ -13,6 +13,7 @@ import LessonScreen from './screens/LessonScreen'
 import ResultScreen from './screens/ResultScreen'
 import SectionsScreen from './screens/SectionsScreen'
 import SectionLessonScreen from './screens/SectionLessonScreen'
+import CurriculumLessonScreen from './screens/CurriculumLessonScreen'
 import ReviewScreen from './screens/ReviewScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import LogrosScreen from './screens/LogrosScreen'
@@ -155,6 +156,9 @@ export default function App() {
       <Route path="/sections" element={<SectionsScreen />} />
       <Route path="/section/:sectionId/lesson/:lessonId" element={<SectionLessonScreen />} />
       <Route path="/section/:sectionId/boss" element={<SectionLessonScreen />} />
+      {/* Currículo v2 (situaciones). Convive con /section/... hasta que un
+          hablante valide el módulo nuevo; ver src/data/curriculum/index.js */}
+      <Route path="/curriculo/:lessonId" element={<CurriculumLessonScreen />} />
       <Route path="/review" element={<ReviewScreen />} />
       <Route path="/profile" element={<ProfileScreen />} />
       <Route path="/logros" element={<LogrosScreen />} />
