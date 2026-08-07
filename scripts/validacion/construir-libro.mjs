@@ -18,6 +18,7 @@ import os from 'node:os'
 import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { buildXlsx, S } from './xlsx.mjs'
+import { MODULOS_PROPUESTOS, PATRONES } from './paquete.js'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const SALIDA = path.join(ROOT, 'docs', 'validacion-lecciones-artesanales.xlsx')
@@ -222,7 +223,8 @@ const leeme = {
     [null, C('N1. Diálogos'), C(`Las ${moduloNuevo.lessons.reduce((n, l) => n + l.dialogue.length, 0)} líneas de conversación del módulo 1. Ninguna se inventó: todas son frases atestiguadas, solo se ordenaron. Lo que hay que juzgar es si suenan naturales en ese orden.`)],
     [null, C('N2. Vocabulario'), C(`Las ${moduloNuevo.lessons.reduce((n, l) => n + l.vocabulary.length, 0)} palabras del módulo, con su fuente.`)],
     [null, C('N3. Notas y preguntas'), C('Las explicaciones gramaticales, las tareas, y las preguntas que quedaron abiertas a propósito. La nota cultural de cada lección está VACÍA esperando su respuesta.')],
-    [null, C('N4. Lo que falta'), C('LA HOJA MÁS ÚTIL SI HAY POCO TIEMPO. Las palabras que la app ya enseña pero que no se pueden pasar al modelo nuevo porque no existe ninguna frase donde se usen en conversación. Una frase corta por palabra desbloquea cada una.')],
+    [null, C('P0 · P1 · P2'), C('EMPEZAR POR ACÁ SI HAY POCO TIEMPO. Cuatro módulos nuevos ya armados: 45 palabras y 49 frases en secuencia, esperando un sí, un no o una corrección. Es lo que más rinde por minuto invertido.')],
+    [null, C('N4. Lo que falta'), C(' Las palabras que la app ya enseña pero que no se pueden pasar al modelo nuevo porque no existe ninguna frase donde se usen en conversación. Una frase corta por palabra desbloquea cada una.')],
     [],
     [null, T('El contenido que ya está publicado (hojas 1 a 6)')],
     [null, C('1. Vocabulario'), C(`Las ${formas.size} palabras y expresiones que la app enseña hoy, con la página del diccionario donde se verificó cada una.`)],
@@ -586,9 +588,100 @@ const hojaFalta = {
   ],
 }
 
+// ── PAQUETE PARA VALIDAR: 4 módulos nuevos, ya armados ───────────────────────
+// La idea es que el hablante VALIDE en vez de CREAR: confirmar una frase escrita
+// toma segundos, redactarla no. Las páginas de las palabras salen del corpus, no
+// de lo que yo escriba (ver la cabecera de ./paquete.js).
+const pagDe = (forma) => {
+  const hit = indiceCorpus.get(clave(forma))
+  if (hit) return hit[0].source.replace('Diccionario YULTAJTAKETZALIS, ', '')
+  const raiz = clave(forma).replace(/^(nu|mu|i)/, '')
+  const rh = indiceCorpus.get(raiz)
+  return rh ? `${rh[0].source.replace('Diccionario YULTAJTAKETZALIS, ', '')} (raíz "${rh[0].text_nawat}")` : 'sin localizar'
+}
+
+const filasPaqPalabras = MODULOS_PROPUESTOS.flatMap((m) =>
+  m.palabras.map((p) => ({ ...p, modulo: m.id, tituloModulo: m.titulo })),
+)
+const filasPaqFrases = MODULOS_PROPUESTOS.flatMap((m) =>
+  m.frases.map((f) => ({ ...f, modulo: m.id, tituloModulo: m.titulo })),
+)
+const nAtestiguadas = filasPaqFrases.filter((f) => f.evidencia === 'atestiguada').length
+
+const hojaPaqueteIntro = {
+  name: 'P0. El paquete',
+  widths: [3, 26, 96],
+  rows: [
+    [null, T('4 módulos nuevos, listos para validar')],
+    [null, null, N('Todo esto ya está armado y en secuencia. No hace falta escribir contenido: solo decir si sirve, y corregir lo que no.')],
+    [],
+    [null, C('Qué hay acá'), C(`${filasPaqPalabras.length} palabras y ${filasPaqFrases.length} frases, repartidas en 4 módulos que siguen al que ya existe. ${nAtestiguadas} de las frases salen del diccionario tal cual; las otras ${filasPaqFrases.length - nAtestiguadas} las armamos con patrones del propio diccionario.`)],
+    [null, C('Qué se pide'), C('De las ATESTIGUADAS: ¿se dicen así en la vida diaria? ¿sirven para alguien que empieza? De las CONSTRUIDAS: ¿están bien dichas? Con un "sí" o un "no" basta; si hay corrección, mejor.')],
+    [],
+    [null, T('Por qué en este orden')],
+    [null, C('Gramatical, no temático'), C('Primero los verbos INTRANSITIVOS, que solo piden prefijo de sujeto (ni-, ti-) y se pueden enseñar enteros. Los transitivos —los que el diccionario escribe con guion, como −Pia o −Uni— hasta el final. Enseñarlos al revés fue la causa de los cuatro errores que ya se corrigieron.')],
+    [],
+    ...MODULOS_PROPUESTOS.map((m) => [null, C(m.titulo), C(`${m.objetivo}\n\n${m.porQue}`)]),
+    [],
+    [null, T('Los patrones usados para construir')],
+    [null, H('Patrón'), H('Modelo atestiguado')],
+    ...PATRONES.map((p) => [null, C(`${p.id} · ${p.forma}\n${p.es}`), C(`${p.modelo}   [${p.ref}]`)]),
+    [],
+    [null, C('Sobre las líneas'), C('"l.12345" remite al archivo docs/YULTAJTAKETZALIS.md, que es la transcripción del diccionario. Se puede abrir y buscar esa línea para ver la frase en su contexto original.')],
+  ],
+}
+
+const OPINION = ['Se dice así', 'Hay que corregirla', 'No la usaría', 'Tengo dudas']
+
+const hojaPaquetePalabras = {
+  name: 'P1. Palabras propuestas',
+  widths: [5, 8, 18, 30, 22, 30, 20, 26, 30],
+  freeze: 2,
+  autofilter: `A2:I${filasPaqPalabras.length + 2}`,
+  tallRows: [2],
+  validations: [{ ref: `G3:G${filasPaqPalabras.length + 2}`, values: OPINION }],
+  rows: [
+    [T(`${filasPaqPalabras.length} palabras propuestas, en el orden en que se enseñarían`)],
+    [
+      H('N°'), H('Módulo'), H('Náhuat'), H('Significado propuesto'), H('Rol gramatical'),
+      H('Dónde está en el diccionario'), H('¿Sirve?'), H('Corrección'), H('Comentario'),
+    ],
+    ...filasPaqPalabras.map((p, i) => [
+      C(i + 1), C(p.modulo), C(p.nawat), C(p.es), C(p.rol), C(pagDe(p.nawat)), I(), I(), I(),
+    ]),
+  ],
+}
+
+const hojaPaqueteFrases = {
+  name: 'P2. Frases propuestas',
+  widths: [5, 8, 36, 34, 14, 16, 40, 20, 32, 30],
+  freeze: 2,
+  autofilter: `A2:J${filasPaqFrases.length + 2}`,
+  tallRows: [2],
+  validations: [{ ref: `H3:H${filasPaqFrases.length + 2}`, values: OPINION }],
+  rows: [
+    [T(`${filasPaqFrases.length} frases propuestas — ${nAtestiguadas} atestiguadas, ${filasPaqFrases.length - nAtestiguadas} construidas`)],
+    [
+      H('N°'), H('Módulo'), H('Frase en náhuat'), H('Traducción propuesta'),
+      H('Evidencia'), H('Línea / Patrón'), H('Nota'),
+      H('¿Se dice así?'), H('Corrección'), H('Comentario'),
+    ],
+    ...filasPaqFrases.map((f, i) => [
+      C(i + 1), C(f.modulo), C(f.nawat), C(f.es),
+      C(f.evidencia === 'atestiguada' ? 'Del diccionario' : 'La armamos'),
+      C(f.evidencia === 'atestiguada' ? `l.${f.linea}` : `patrón ${f.patron}`),
+      C(f.nota || '—'),
+      I(), I(), I(),
+    ]),
+  ],
+}
+
 // ── empaquetado ──────────────────────────────────────────────────────────────
 const partes = buildXlsx([
   leeme,
+  hojaPaqueteIntro,
+  hojaPaquetePalabras,
+  hojaPaqueteFrases,
   hojaDialogos,
   hojaVocM1,
   hojaNotasM1,
