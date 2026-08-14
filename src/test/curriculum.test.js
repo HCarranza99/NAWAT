@@ -33,8 +33,10 @@ const ligadas = new Set(
     .filter((i) => i.kind === 'word' && i.notes?.includes('Forma de cita'))
     .map((i) => clave(i.text_nawat)),
 )
-// El corpus perdió la marca de guion en estas dos; verificadas a mano en el PDF.
-for (const extra of ['tukay', 'uni']) ligadas.add(extra)
+// El corpus perdió la marca de guion en estas; verificadas a mano en el PDF.
+// `tukey` es la forma de Witzapan (p.222), confirmada por Héctor el 14-ago-2026;
+// `tukay` sigue vigilada porque también es ligada y aparece en otros materiales.
+for (const extra of ['tukay', 'tukey', 'uni']) ligadas.add(extra)
 
 const lecciones = modules.flatMap((m) => m.lessons)
 
@@ -140,11 +142,32 @@ describe('currículo v2 — procedencia obligatoria', () => {
     expect(invalidas).toEqual([])
   })
 
-  it('toda fuente nombra una obra reconocida', () => {
+  /**
+   * Desde el 14-ago-2026 hay una tercera fuente admitida, y es la de más peso:
+   * un HABLANTE. Las dos obras son documentación; Héctor Martínez habla la
+   * variante que enseña la app y es coautor del diccionario. Cuando corrigió
+   * −Tukay → −Tukey contradijo la etiqueta impresa del propio libro, y tiene
+   * razón él: el libro describe el náhuat en general.
+   *
+   * Se exige el nombre completo a propósito. "Un hablante dijo" no es una
+   * fuente; "Héctor Martínez, 14-ago-2026" sí, porque se puede volver a
+   * preguntar.
+   */
+  const FUENTES_RECONOCIDAS = /YULTAJTAKETZALIS|Timumachtikan|Héctor Martínez/
+
+  it('toda fuente nombra una obra reconocida o a un hablante identificado', () => {
     const desconocidas = todas
-      .filter((x) => !/YULTAJTAKETZALIS|Timumachtikan/.test(x.source))
+      .filter((x) => !FUENTES_RECONOCIDAS.test(x.source))
       .map((x) => `${x.id} (${x.donde}): "${x.nawat}" → ${x.source}`)
     expect(desconocidas).toEqual([])
+  })
+
+  it('lo que viene de un hablante dice quién y cuándo', () => {
+    const sinFecha = todas
+      .filter((x) => /Héctor Martínez/.test(x.source))
+      .filter((x) => !/\d{1,2}-[a-z]{3}-\d{4}/.test(x.source))
+      .map((x) => `${x.id} (${x.donde}): "${x.nawat}" → ${x.source}`)
+    expect(sinFecha).toEqual([])
   })
 })
 
@@ -170,8 +193,10 @@ describe('currículo v2 — el error que ya nos costó cuatro veces', () => {
         if (!enCorpus.has(clave(v.nawat))) huerfanas.push(`${l.id}: "${v.nawat}"`)
       }
     }
-    // Nutukay y Mutukay son formas poseídas: el corpus guarda la raíz, no ellas.
-    expect(huerfanas).toEqual(['m1-l4: "Nutukay"', 'm1-l4: "Mutukay"'])
+    // Nutukey y Mutukey son formas poseídas: el corpus guarda la raíz, no ellas.
+    // Y la raíz que guardó es «tukay»: la variante de Witzapan que confirmó
+    // Héctor no está en el corpus extraído, solo en la p.222 del PDF.
+    expect(huerfanas).toEqual(['m1-l4: "Nutukey"', 'm1-l4: "Mutukey"'])
   })
 })
 

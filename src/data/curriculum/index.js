@@ -286,7 +286,7 @@ function vocabularioGlobal() {
  *     palabra en contexto y con su traducción.
  *
  * De ahí la regla: una palabra recibe tarjeta SOLO si no aparece en el diálogo.
- * En la lección 1 eso baja de ocho tarjetas a dos (Teutak y Tayua, que solo
+ * En la lección 1 eso baja de ocho tarjetas a dos (Tiutak y Tayua, que solo
  * salen en la nota). Todo lo demás se comprueba con ejercicios que sí tienen
  * respuesta correcta: opción múltiple, emparejar, ordenar y escribir.
  */

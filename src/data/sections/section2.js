@@ -3,18 +3,27 @@
  *  SECCIÓN 2 — Mi mundo y mi familia
  * ═══════════════════════════════════════════════════════════
  *
- *  NOMBRES Y POSESIÓN (−Tukay)
+ *  NOMBRES Y POSESIÓN (−Tukey)
  *  Fuente: YULTAJTAKETZALIS — Sixta Pérez & Héctor Martínez, 2023
  *
- *  El diccionario registra "Tukay" CON GUION INICIAL (−Tukay, "nombre"), señal
- *  de que no va suelto: exige prefijo posesivo. Ejemplo del diccionario:
- *  "Nutukay: Mi nombre".
+ *  CORREGIDO EL 14-AGO-2026 POR HÉCTOR MARTÍNEZ, hablante de Witzapan y coautor
+ *  del diccionario. Acá decía "tukay". El diccionario trae LAS DOS entradas en
+ *  la p.222 y etiqueta −Tukay «forma actual» y −Tukey «forma antigua»; aun así,
+ *  en Witzapan se usa con e. Cuando la etiqueta impresa y el hablante se
+ *  contradicen manda el hablante: la etiqueta describe el náhuat en general, y
+ *  esta app enseña UNA variante.
  *
- *  Por eso aquí se enseña siempre poseído:
- *    - "Nutukay"  (nu- = mi)  → atestiguado literal en el diccionario.
- *    - "Itukay"   (i-  = su)  → DERIVADO por analogía con el prefijo i- de 3ª
- *      persona, que el diccionario sí atestigua ("Inan: Su madre"). La forma
- *      exacta "itukay" no aparece literal: PENDIENTE de confirmar con hablante.
+ *  El diccionario registra la palabra CON GUION INICIAL (−Tukey, "nombre"),
+ *  señal de que no va suelta: exige prefijo posesivo. Ejemplo del diccionario:
+ *  "Nutukey: Mi nombre".
+ *
+ *  Por eso aquí se enseña siempre poseída:
+ *    - "Nutukey"          → atestiguada literal en el diccionario, y confirmada.
+ *    - "Ne takat itukey"  → la escribió Héctor de su puño en el libro de
+ *      validación, corrigiendo dos cosas del original "Takat itukay": la vocal
+ *      y el artículo que faltaba. El patrón completo está atestiguado en el
+ *      diccionario: "Ne tepet itukey Ilamatepet: El volcán se llama Ilamatepec"
+ *      y "Juan itukey kenha naja: Juan se llama igual a mí".
  *
  *  Los términos de parentesco siguen la misma regla y ya están poseídos:
  *  Nunan (mi mamá), Nuteku (mi papá), Nutatanoy (mi abuelo).
@@ -54,7 +63,7 @@ const section2 = {
           { id: "s2-l1-5", type: "matching", instruction: "Une cada pronombre con su significado",
             pairs: [{ nahuat: "Naja", spanish: "Yo" },{ nahuat: "Taja", spanish: "Tú" }] },
           { id: "s2-l1-6", type: "build_sentence", instruction: "Ordena: 'Yo me llamo...'", spanish_translation: "Yo me llamo...",
-            word_bank: ["nutukay", "Naja"], correct_order: ["Naja", "nutukay"] },
+            word_bank: ["nutukey", "Naja"], correct_order: ["Naja", "nutukey"] },
         ],
       },
       // ── L2 — Él / ella y niño / niña ──
@@ -86,9 +95,9 @@ const section2 = {
           { id: "s2-l3-4", type: "multiple_choice_text", nahuat_word: "Siwat", spanish_translation: "Mujer", pronunciationText: "si uat",
             options: [{ id: "a", text: "Hombre", correct: false },{ id: "b", text: "Padre", correct: false },{ id: "c", text: "Mujer", correct: true },{ id: "d", text: "Niña", correct: false }] },
           { id: "s2-l3-5", type: "matching", instruction: "Une cada palabra con su significado",
-            pairs: [{ nahuat: "Takat", spanish: "Hombre" },{ nahuat: "Siwat", spanish: "Mujer" },{ nahuat: "Nutukay", spanish: "Mi nombre" }] },
+            pairs: [{ nahuat: "Takat", spanish: "Hombre" },{ nahuat: "Siwat", spanish: "Mujer" },{ nahuat: "Nutukey", spanish: "Mi nombre" }] },
           { id: "s2-l3-6", type: "build_sentence", instruction: "Ordena: 'El hombre se llama...'", spanish_translation: "El hombre se llama...",
-            word_bank: ["itukay", "Takat"], correct_order: ["Takat", "itukay"] },
+            word_bank: ["takat", "itukey", "Ne"], correct_order: ["Ne", "takat", "itukey"] },
         ],
       },
       // ── L4 — Mi familia ──
@@ -128,13 +137,13 @@ const section2 = {
         { id: "s2-b-5", type: "matching", instruction: "Une familia con su palabra",
           pairs: [{ nahuat: "Nunan", spanish: "Mi mamá" },{ nahuat: "Nuteku", spanish: "Mi papá" },{ nahuat: "Nutatanoy", spanish: "Mi abuelo" },{ nahuat: "Piltzín", spanish: "Niño" }] },
         { id: "s2-b-6", type: "build_sentence", instruction: "Ordena: 'Yo me llamo...'", spanish_translation: "Yo me llamo...",
-          word_bank: ["nutukay", "Naja"], correct_order: ["Naja", "nutukay"] },
+          word_bank: ["nutukey", "Naja"], correct_order: ["Naja", "nutukey"] },
         { id: "s2-b-7", type: "multiple_choice_text", nahuat_word: "Nunan", spanish_translation: "Mi mamá", pronunciationText: "nu nan",
           options: [{ id: "a", text: "Mi papá", correct: false },{ id: "b", text: "Mi mamá", correct: true },{ id: "c", text: "Mi abuela", correct: false },{ id: "d", text: "Mujer", correct: false }] },
         { id: "s2-b-8", type: "multiple_choice_text", nahuat_word: "Takat", spanish_translation: "Hombre", pronunciationText: "ta kat",
           options: [{ id: "a", text: "Mujer", correct: false },{ id: "b", text: "Niño", correct: false },{ id: "c", text: "Hombre", correct: true },{ id: "d", text: "Mi papá", correct: false }] },
         { id: "s2-b-9", type: "build_sentence", instruction: "Ordena: 'El hombre se llama...'", spanish_translation: "El hombre se llama...",
-          word_bank: ["itukay", "Takat"], correct_order: ["Takat", "itukay"] },
+          word_bank: ["takat", "itukey", "Ne"], correct_order: ["Ne", "takat", "itukey"] },
         { id: "s2-b-10", type: "multiple_choice_text", nahuat_word: "Nutatanoy", spanish_translation: "Mi abuelo", pronunciationText: "nu ta ta noi",
           options: [{ id: "a", text: "Mi abuelo", correct: true },{ id: "b", text: "Mi papá", correct: false },{ id: "c", text: "Hombre", correct: false },{ id: "d", text: "Niño", correct: false }] },
       ],

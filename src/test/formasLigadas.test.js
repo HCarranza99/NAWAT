@@ -7,7 +7,7 @@ import artisanalSections from '../data/sections/artisanal'
  * Regresión — formas ligadas enseñadas sueltas.
  *
  * El diccionario YULTAJTAKETZALIS escribe con GUION INICIAL las formas que no
- * van solas: −Pia, −Uni, −Tukay, −Tatanoy… Son transitivas o inalienables y
+ * van solas: −Pia, −Uni, −Tukey, −Tatanoy… Son transitivas o inalienables y
  * exigen un prefijo (de objeto o posesivo). Enseñarlas desnudas es enseñar algo
  * que nadie diría.
  *
@@ -35,9 +35,16 @@ const clave = (s = '') =>
  *
  * `Uni` además es un caso de homonimia: el corpus registra un `Uni` = "Ese, esa,
  * eso" (p.242) que NO lleva guion, distinto del verbo −Uni "beber".
+ *
+ * `tukey` se agregó el 14-ago-2026. La p.222 del diccionario trae DOS entradas
+ * con guion —−Tukay «forma actual» y −Tukey «forma antigua»— y Héctor Martínez,
+ * hablante de Witzapan, confirmó que la de acá es la de la e. La app pasó a
+ * tukey; las dos quedan vigiladas porque las dos son ligadas y cualquiera de
+ * las dos, suelta, es el mismo error.
  */
 const LIGADAS_VERIFICADAS_A_MANO = {
   tukay: { text_nawat: 'tukay', source: 'YULTAJTAKETZALIS — entrada −Tukay, ej. "Nutukay: Mi nombre"' },
+  tukey: { text_nawat: 'tukey', source: 'YULTAJTAKETZALIS p.222 — entrada −Tukey, ej. "Nutukey: Mi nombre". Forma de Witzapan según Héctor Martínez, 14-ago-2026' },
   uni: { text_nawat: 'uni', source: 'YULTAJTAKETZALIS — entrada −Uni, ej. "Nikuni atutun: Tomo café"' },
 }
 

@@ -15,7 +15,7 @@
  *      prefijo de sujeto. Los transitivos —los que exigen marcador de objeto y
  *      que el diccionario escribe con guion— quedan para módulos posteriores.
  *      Enseñarlos de primero fue la causa de los cuatro errores corregidos en
- *      julio y agosto de 2026 (−tukay, −uni, −pia dos veces).
+ *      julio y agosto de 2026 (−tukey, −uni, −pia dos veces).
  *   4. Cada cadena en náhuat lleva su procedencia como dato, no como
  *      comentario. Ver `source` y `evidence` en cada línea.
  *
@@ -32,6 +32,28 @@
  *                  atestiguada. No hay ninguna en este módulo; el campo existe
  *                  para módulos futuros, donde habrá que marcarlas.
  *
+ *  REVISADO POR HABLANTE — 14 de agosto de 2026
+ *
+ *  Héctor Martínez, hablante de Witzapan y coautor del diccionario, revisó el
+ *  módulo y corrigió DOS cosas. Las dos son el mismo hallazgo: había contenido
+ *  de OTRA VARIANTE del náhuat, no de la que enseña la app.
+ *
+ *   1. −tukay → −tukey. El diccionario trae las dos entradas y etiqueta «tukay»
+ *      como forma actual y «tukey» como antigua (p.222). En Witzapan se usa
+ *      tukey. Cuando la etiqueta impresa y el hablante se contradicen, manda el
+ *      hablante: la etiqueta describe el náhuat en general, la app enseña una
+ *      variante. Él escribió además «Ne takat itukey», con el artículo, que es
+ *      como aparece en los ejemplos del propio diccionario.
+ *
+ *   2. Yek tunal → Yek peyna. «Yek tunal» venía del curso de King (p.19), que
+ *      documenta otra variante. La palabra de Witzapan para la mañana es
+ *      «peyna» y está en el diccionario (p.164) — la teníamos y no la usamos.
+ *      Por lo mismo «teutak» (King) pasó a «tiutak», que es la forma del
+ *      diccionario (p.220).
+ *
+ *  Regla que deja este módulo: si una cadena viene SOLO de King, es candidata a
+ *  ser de otra variante. Buscarla primero en el diccionario.
+ *
  *  LO QUE FALTA Y SOLO UN HABLANTE PUEDE DAR
  *
  *  `speakerAsk` es una pregunta abierta por lección, no contenido. Deliberado:
@@ -42,6 +64,10 @@
 
 const M = 'Diccionario YULTAJTAKETZALIS (Pérez & Martínez, 2023)'
 const K = 'Curso Timumachtikan (King)'
+// Fuente de mayor peso que las dos anteriores: es un hablante de la variante que
+// enseña la app, no un texto. Lo que él corrige manda, aunque el libro diga otra
+// cosa (pasó literal con −Tukay/−Tukey).
+const H = 'Héctor Martínez — hablante de Witzapan y coautor del diccionario, 14-ago-2026'
 
 const module1 = {
   id: 'm1',
@@ -58,14 +84,14 @@ const module1 = {
       id: 'm1-l1',
       order: 1,
       type: 'dialogo',
-      title: { nawat: 'Yek tunal', es: 'Saludar según la hora' },
+      title: { nawat: 'Yek peyna', es: 'Saludar según la hora' },
       situation:
         'Vas llegando a Witzapan por la mañana. En el camino te cruzás con alguien que viene de frente.',
       objective: 'Saludar y devolver el saludo según la hora del día.',
 
       dialogue: [
-        { speaker: 'a', nawat: 'Yek tunal.', es: 'Buen día.', evidence: 'directa', source: `${K}, p.19` },
-        { speaker: 'b', nawat: 'Yek tunal.', es: 'Buen día.', evidence: 'directa', source: `${K}, p.19` },
+        { speaker: 'a', nawat: 'Yek peyna.', es: 'Buena mañana.', evidence: 'directa', source: H },
+        { speaker: 'b', nawat: 'Yek peyna.', es: 'Buena mañana.', evidence: 'directa', source: H },
         { speaker: 'a', nawat: 'Ken tinemi?', es: '¿Cómo estás?', evidence: 'directa', source: `${K}, p.19` },
         { speaker: 'b', nawat: 'Ninemi yek.', es: 'Estoy bien.', evidence: 'directa', source: `${K}, p.19` },
         { speaker: 'b', nawat: 'Wan taja?', es: '¿Y tú?', evidence: 'directa', source: `${K}, p.21` },
@@ -74,9 +100,9 @@ const module1 = {
 
       vocabulary: [
         { nawat: 'Yek', es: 'Bueno, bien', pron: 'yek', pronText: 'yek', evidence: 'directa', source: `${M}, p.254` },
-        { nawat: 'Tunal', es: 'Día, sol', pron: 'tu-nal', pronText: 'tu nal', evidence: 'directa', source: `${M}, p.223` },
-        { nawat: 'Teutak', es: 'Tarde', pron: 'teu-tak', pronText: 'teu tak', evidence: 'directa', source: `${K}, p.19` },
-        { nawat: 'Tayua', es: 'Noche', pron: 'ta-yu-a', pronText: 'ta yu a', evidence: 'directa', source: `${M}, p.207` },
+        { nawat: 'Peyna', es: 'Mañana (parte del día)', pron: 'pey-na', pronText: 'pei na', evidence: 'directa', source: `${M}, p.164 — "Ka peyna: En la mañana"` },
+        { nawat: 'Tiutak', es: 'Tarde (parte del día)', pron: 'tiu-tak', pronText: 'tiu tak', evidence: 'directa', source: `${M}, p.220 — "Kajka tiutak: En las tardes"` },
+        { nawat: 'Tayua', es: 'Noche', pron: 'ta-yu-a', pronText: 'ta yu a', evidence: 'directa', source: `${M}, p.207 — "Niu-nikisa ka tayua: Saldré en la noche"` },
         { nawat: 'Ken', es: 'Cómo', pron: 'ken', pronText: 'ken', evidence: 'directa', source: `${M}, p.110` },
         { nawat: 'Wan', es: 'Y', pron: 'wan', pronText: 'wan', evidence: 'directa', source: `${M}, p.246` },
         { nawat: 'Taja', es: 'Tú', pron: 'ta-ja', pronText: 'ta ja', evidence: 'directa', source: `${K}, p.19` },
@@ -86,18 +112,18 @@ const module1 = {
       note: {
         title: 'Un saludo se arma con "Yek" y el momento del día',
         body:
-          'Yek significa «bueno». Puesto delante de una parte del día, forma el saludo: Yek tunal (buen día), Yek teutak (buena tarde), Yek tayua (buena noche).\n\nFijate en algo del diálogo: quien saluda y quien responde dicen exactamente lo mismo. En náhuat el saludo se devuelve igual, no se cambia.',
+          'Yek significa «bueno». Puesto delante de una parte del día, forma el saludo: Yek peyna (buena mañana), Yek tiutak (buena tarde), Yek tayua (buena noche).\n\nFijate en algo del diálogo: quien saluda y quien responde dicen exactamente lo mismo. En náhuat el saludo se devuelve igual, no se cambia.\n\nSi lo buscás en otro lado vas a encontrar «Yek tunal» para saludar. No está mal escrito: es de otra variante del náhuat. En Witzapan se dice Yek peyna.',
         examples: [
-          { nawat: 'Yek tunal', es: 'Buen día', source: `${K}, p.19` },
-          { nawat: 'Yek teutak', es: 'Buena tarde', source: `${K}, p.19` },
-          { nawat: 'Yek tayua', es: 'Buena noche', source: `${K}, p.19` },
+          { nawat: 'Yek peyna', es: 'Buena mañana', source: H },
+          { nawat: 'Yek tiutak', es: 'Buena tarde', source: `Patrón «Yek + parte del día» confirmado por ${H}; «tiutak» del ${M}, p.220. La frase entera está PENDIENTE de confirmar.` },
+          { nawat: 'Yek tayua', es: 'Buena noche', source: `Patrón «Yek + parte del día» confirmado por ${H}; «tayua» del ${M}, p.207. La frase entera está PENDIENTE de confirmar.` },
         ],
       },
 
-      task: 'Hoy, a la hora que sea, saludá en voz alta como corresponda: tunal, teutak o tayua. Decilo aunque estés solo — lo que importa es que salga la boca, no que haya quien conteste.',
+      task: 'Hoy, a la hora que sea, saludá en voz alta como corresponda: peyna, tiutak o tayua. Decilo aunque estés solo — lo que importa es que salga la boca, no que haya quien conteste.',
 
       speakerAsk:
-        '¿Se saluda así en Witzapan hoy, o hay otro saludo más usado en la calle? ¿Qué hora marca el paso de tunal a teutak?',
+        'Yek peyna ya está confirmado. Falta: ¿«Yek tiutak» y «Yek tayua» se dicen así en Witzapan, o el saludo de la tarde y el de la noche son otros? ¿Qué hora marca el paso de peyna a tiutak?',
     },
 
     // ─────────────────────────────────────────────────────────────────────
@@ -182,36 +208,37 @@ const module1 = {
       id: 'm1-l4',
       order: 4,
       type: 'dialogo',
-      title: { nawat: 'Ken mutukay?', es: 'Decir tu nombre' },
+      title: { nawat: 'Ken mutukey?', es: 'Decir tu nombre' },
       situation: 'La conversación siguió y todavía no saben cómo se llama cada quien.',
       objective: 'Preguntar el nombre de alguien y decir el tuyo.',
 
       dialogue: [
-        { speaker: 'a', nawat: 'Ken mutukay?', es: '¿Cómo te llamas?', evidence: 'directa', source: `${K}, p.21` },
-        { speaker: 'b', nawat: 'Nutukay Hugo.', es: 'Mi nombre es Hugo.', evidence: 'compuesta', source: `${M}, entrada −Tukay: "Nutukay: Mi nombre" (p.222). El nombre propio es del estudiante; la estructura es la atestiguada.` },
+        { speaker: 'a', nawat: 'Ken mutukey?', es: '¿Cómo te llamas?', evidence: 'directa', source: `${H} — escribió esta línea de su puño en el libro de validación, corrigiendo «Ken mutukay?» del ${K}, p.21` },
+        { speaker: 'b', nawat: 'Nutukey Hugo.', es: 'Mi nombre es Hugo.', evidence: 'compuesta', source: `${M}, entrada −Tukey: "Nutukey: Mi nombre" (p.222), forma confirmada por ${H}. El nombre propio es del estudiante; la estructura es la atestiguada.` },
         { speaker: 'b', nawat: 'Wan taja?', es: '¿Y tú?', evidence: 'directa', source: `${K}, p.21` },
-        { speaker: 'a', nawat: 'Nutukay Sixta.', es: 'Mi nombre es Sixta.', evidence: 'compuesta', source: `${M}, entrada −Tukay (p.222). Ver la línea anterior.` },
+        { speaker: 'a', nawat: 'Nutukey Sixta.', es: 'Mi nombre es Sixta.', evidence: 'compuesta', source: `${M}, entrada −Tukey (p.222). Ver la línea anterior.` },
       ],
 
       vocabulary: [
-        { nawat: 'Nutukay', es: 'Mi nombre', pron: 'nu-tu-kay', pronText: 'nu tu kay', evidence: 'directa', source: `${M}, p.222 — "Nutukay: Mi nombre"` },
-        { nawat: 'Mutukay', es: 'Tu nombre', pron: 'mu-tu-kay', pronText: 'mu tu kay', evidence: 'directa', source: `${K}, p.21 — en "Ken mutukay?"` },
+        { nawat: 'Nutukey', es: 'Mi nombre', pron: 'nu-tu-key', pronText: 'nu tu kei', evidence: 'directa', source: `${M}, p.222 — "Nutukey: Mi nombre"; confirmada por ${H}` },
+        { nawat: 'Mutukey', es: 'Tu nombre', pron: 'mu-tu-key', pronText: 'mu tu kei', evidence: 'directa', source: `${H} — en "Ken mutukey?"` },
       ],
 
       note: {
         title: 'Hay palabras que nunca andan solas',
         body:
-          '«Tukay» quiere decir nombre, pero nadie dice «tukay» a secas. Siempre lleva adelante de quién es:\n\n  nu-tukay  →  mi nombre\n  mu-tukay  →  tu nombre\n\nEl diccionario lo avisa escribiéndola con un guion delante: −Tukay. Ese guion significa «acá falta algo». Pasa con las partes del cuerpo, la familia y varios verbos.\n\nEs la misma idea de la lección 2: el náhuat pega la información adelante de la palabra, no en palabras sueltas.',
+          '«Tukey» quiere decir nombre, pero nadie dice «tukey» a secas. Siempre lleva adelante de quién es:\n\n  nu-tukey  →  mi nombre\n  mu-tukey  →  tu nombre\n\nEl diccionario lo avisa escribiéndola con un guion delante: −Tukey. Ese guion significa «acá falta algo». Pasa con las partes del cuerpo, la familia y varios verbos.\n\nEs la misma idea de la lección 2: el náhuat pega la información adelante de la palabra, no en palabras sueltas.\n\nVas a ver escrito «tukay» en otros materiales, y el diccionario trae las dos entradas. En Witzapan se usa con e: tukey.',
         examples: [
-          { nawat: 'Ken mutukay?', es: '¿Cómo te llamas?', source: `${K}, p.21` },
-          { nawat: 'Nutukay…', es: 'Mi nombre es…', source: `${M}, p.222` },
+          { nawat: 'Ken mutukey?', es: '¿Cómo te llamas?', source: H },
+          { nawat: 'Nutukey…', es: 'Mi nombre es…', source: `${M}, p.222` },
+          { nawat: 'Ne takat itukey…', es: 'El hombre se llama…', source: `${H}; el patrón está en ${M}: "Ne tepet itukey Ilamatepet: El volcán se llama Ilamatepec"` },
         ],
       },
 
-      task: 'Decí tu propio nombre completo en náhuat: «Nutukay ___». Es la primera frase del curso que dice algo cierto sobre vos.',
+      task: 'Decí tu propio nombre completo en náhuat: «Nutukey ___». Es la primera frase del curso que dice algo cierto sobre vos.',
 
       speakerAsk:
-        '¿«Nutukay Hugo» es la forma natural de presentarse, o se dice de otra manera? ¿Y cómo se responde cuando a uno le preguntan?',
+        '¿«Nutukey Hugo» es la forma natural de presentarse, o se dice de otra manera? ¿Y cómo se responde cuando a uno le preguntan?',
     },
 
     // ─────────────────────────────────────────────────────────────────────

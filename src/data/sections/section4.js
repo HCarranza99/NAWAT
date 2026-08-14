@@ -14,10 +14,15 @@
  *  YULTAJTAKETZALIS: el diccionario registra `metzti` (y la usa también para los
  *  meses, p. ej. "Metzti chiknawi" = septiembre, "novena luna"). Corregido.
  *
+ *  CORRECCIÓN — el ejemplo de "Tunal" ya no es "Yek tunal"  (14-ago-2026)
+ *  Héctor Martínez, hablante de Witzapan, avisó que "Yek tunal" es el saludo de
+ *  OTRA VARIANTE; acá se dice "Yek peyna". La palabra `Tunal` = "Sol" no tiene
+ *  problema (diccionario p.223): el que era de otra variante era el ejemplo.
+ *  Se cambió por una frase del propio diccionario. Lección aprendida: lo que
+ *  viene SOLO del curso de King hay que buscarlo antes en el diccionario.
+ *
  *  PROCEDENCIA DE LAS FRASES DE EJEMPLO
- *    Tunal  "Yek tunal" = Buen día        → Curso Timumachtikan (King) p.19
- *                                           Y "Ne tunal: El sol" en el diccionario.
- *                                           ATESTIGUADA EN DOS FUENTES.
+ *    Tunal  "An kisak ne tunal" = Hoy salió el sol → YULTAJTAKETZALIS l.2998
  *    Kal    "Nukal" = Mi casa             → YULTAJTAKETZALIS l.7196
  *    At     "Ne at" = El agua             → YULTAJTAKETZALIS l.12716
  *    Pelu   "Ne pelu nupal" = Mi perro    → YULTAJTAKETZALIS l.13712
@@ -93,7 +98,7 @@ const section4 = {
         id: "s4-l4", title: "Sol y Luna", icon: "🌙", description: "Elementos del cielo",
         color: "#81C784", xpReward: 50,
         items: [
-          { id: "s4-l4-1", type: "flashcard", nahuat_word: "Tunal", spanish_translation: "Sol", pronunciation: "tu-nal", pronunciationText: "tu nal", example_sentence: "Yek tunal", example_translation: "Buen día" },
+          { id: "s4-l4-1", type: "flashcard", nahuat_word: "Tunal", spanish_translation: "Sol", pronunciation: "tu-nal", pronunciationText: "tu nal", example_sentence: "An kisak ne tunal", example_translation: "Hoy salió el sol" },
           { id: "s4-l4-2", type: "flashcard", nahuat_word: "Metzti", spanish_translation: "Luna", pronunciation: "mets-ti", pronunciationText: "mets ti", example_sentence: "Ne chikawtuk metzti", example_translation: "La luna creciente" },
           { id: "s4-l4-3", type: "multiple_choice_text", nahuat_word: "Tunal", spanish_translation: "Sol", pronunciationText: "tu nal",
             options: [{ id: "a", text: "Luna", correct: false },{ id: "b", text: "Sol", correct: true },{ id: "c", text: "Agua", correct: false },{ id: "d", text: "Estrella", correct: false }] },
