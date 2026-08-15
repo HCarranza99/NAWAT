@@ -1,11 +1,12 @@
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { ArrowRight, Flame, Medal, RotateCcw, Star, Target, Trophy, Zap } from 'lucide-react'
+import { ArrowRight, Flame, Medal, RotateCcw, Star, Target, Zap } from 'lucide-react'
 
 import useGameStore from '../store/useGameStore'
 import Torogoz from '../components/ui/Torogoz'
 import { computeStars, MIN_SCORE_TO_PASS } from '../data/gameConfig'
 import { useSections } from '../hooks/useSections'
+import { findNextLesson, rutaDeLaLeccion } from '../lib/lessonPath'
 
 function ResultStat({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
   return (
@@ -28,44 +29,16 @@ export default function ResultScreen() {
     return <Navigate to="/" replace />
   }
 
-  const { lessonId, lessonTitle, score, xpEarned, isBoss, sectionId, returnTo, review } = state
+  const { lessonTitle, score, xpEarned, returnTo, review, retryTo } = state
   const pct = Math.round(score * 100)
   const stars = computeStars(score)
   const passed = score >= MIN_SCORE_TO_PASS
 
-  const findNextLesson = () => {
-    for (let sIdx = 0; sIdx < sections.length; sIdx++) {
-      const section = sections[sIdx]
-      if (sIdx > 0) {
-        const prevSection = sections[sIdx - 1]
-        const prevProg = sectionProgress[prevSection.id]
-        if (!prevProg?.bossCompleted) continue
-      }
-
-      const prog = sectionProgress[section.id] || { lessonsCompleted: {}, bossCompleted: false }
-
-      for (let lIdx = 0; lIdx < section.lessons.length; lIdx++) {
-        const lesson = section.lessons[lIdx]
-        if (lIdx > 0) {
-          const prevLesson = section.lessons[lIdx - 1]
-          if (!prog.lessonsCompleted?.[prevLesson.id]?.completed) break
-        }
-        if (!prog.lessonsCompleted?.[lesson.id]?.completed) {
-          return { section, lesson, isBoss: false }
-        }
-      }
-
-      const allLessonsDone = section.lessons.every(
-        (l) => prog.lessonsCompleted?.[l.id]?.completed
-      )
-      if (allLessonsDone && !prog.bossCompleted && section.boss) {
-        return { section, lesson: section.boss, isBoss: true }
-      }
-    }
-    return null
-  }
-
-  const nextLesson = findNextLesson()
+  // Acá vivía una segunda copia de findNextLesson, igual a la de lib/lessonPath
+  // pero con su propia versión del desbloqueo. Se usa la compartida: con dos, la
+  // corrección del boss habría quedado aplicada en una sola y la pantalla de
+  // resultado mandaría a una lección distinta de la que ofrece el inicio.
+  const nextLesson = findNextLesson(sections, sectionProgress)
 
   return (
     <div className="screen justify-between bg-[#f7f5ef] px-5 py-5 lg:mx-auto lg:w-full lg:max-w-[560px] lg:py-10">
@@ -97,7 +70,7 @@ export default function ResultScreen() {
             transition={{ type: 'spring', stiffness: 220, damping: 16 }}
             className="relative"
           >
-            <Torogoz emotion={passed ? (isBoss ? 'achievement' : 'celebrate') : 'sad'} size={132} />
+            <Torogoz emotion={passed ? 'celebrate' : 'sad'} size={132} />
           </motion.div>
         </div>
 
@@ -123,15 +96,13 @@ export default function ResultScreen() {
         </div>
 
         <span className="inline-flex max-w-full items-center gap-2 rounded-md border border-[#e3ded2] bg-white px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#6d756e] shadow-sm">
-          {isBoss ? <Trophy className="h-4 w-4 text-[#c77918]" /> : <Medal className="h-4 w-4 text-[#1f7a57]" />}
+          <Medal className="h-4 w-4 text-[#1f7a57]" />
           <span className="truncate">{lessonTitle}</span>
         </span>
 
         <div>
           <h1 className="text-3xl font-black leading-tight tracking-normal text-[#17211d]">
-            {passed
-              ? (isBoss ? 'Sección completada' : 'Lección completada')
-              : 'Sigue practicando'}
+            {passed ? 'Lección completada' : 'Sigue practicando'}
           </h1>
           <p className="mx-auto mt-2 max-w-[300px] text-sm font-medium leading-snug text-[#6d756e]">
             {passed
@@ -155,25 +126,10 @@ export default function ResultScreen() {
       </main>
 
       <footer className="space-y-3">
-        {!passed && sectionId && (
+        {!passed && (
           <button
             className="btn-3d btn-3d-soft"
-            onClick={() => {
-              if (isBoss) {
-                navigate(`/section/${sectionId}/boss`)
-              } else {
-                navigate(`/section/${sectionId}/lesson/${lessonId}`)
-              }
-            }}
-          >
-            <RotateCcw className="h-5 w-5" />
-            Intentar de nuevo
-          </button>
-        )}
-        {!passed && !sectionId && (
-          <button
-            className="btn-3d btn-3d-soft"
-            onClick={() => navigate(review ? '/review' : `/lesson/${lessonId}`)}
+            onClick={() => navigate(review ? '/review' : retryTo || '/sections')}
           >
             <RotateCcw className="h-5 w-5" />
             Intentar de nuevo
@@ -184,13 +140,9 @@ export default function ResultScreen() {
           <>
             <button
               className="btn-3d btn-3d-primary"
-              onClick={() => {
-                if (nextLesson.isBoss) {
-                  navigate(`/section/${nextLesson.section.id}/boss`)
-                } else {
-                  navigate(`/section/${nextLesson.section.id}/lesson/${nextLesson.lesson.id}`)
-                }
-              }}
+              onClick={() =>
+                navigate(rutaDeLaLeccion(nextLesson.section, nextLesson.lesson, nextLesson.isBoss))
+              }
             >
               Siguiente lección
               <ArrowRight className="h-5 w-5" />
@@ -209,7 +161,7 @@ export default function ResultScreen() {
                 className="btn-3d btn-3d-soft"
                 onClick={() => navigate('/sections')}
               >
-                Ver secciones
+                Ver módulos
                 <ArrowRight className="h-5 w-5" />
               </button>
             )}

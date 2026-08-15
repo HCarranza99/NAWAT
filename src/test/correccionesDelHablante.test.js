@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import artisanalSections from '../data/sections/artisanal'
+import secciones from '../data/curriculum/asSections'
 import modules, { cadenasConFuente, unidadesDeVocabulario } from '../data/curriculum'
 
 /**
@@ -32,8 +32,8 @@ function todoElNahuatEnPantalla() {
     if (typeof texto === 'string' && texto.trim()) salida.push({ texto, donde })
   }
 
-  // Contenido artesanal (secciones 1–5, lo que hoy ve el usuario).
-  for (const seccion of artisanalSections) {
+  // Los ejercicios ya compilados: lo que el estudiante ve en pantalla.
+  for (const seccion of secciones) {
     for (const leccion of [...seccion.lessons, ...(seccion.boss ? [seccion.boss] : [])]) {
       for (const item of leccion.items || []) {
         const donde = `${item.id} (${item.type})`
@@ -108,7 +108,7 @@ describe('correcciones de Héctor Martínez (14-ago-2026)', () => {
     expect(conItukey.length).toBeGreaterThan(0)
 
     const sinArticulo = []
-    for (const seccion of artisanalSections) {
+    for (const seccion of secciones) {
       for (const leccion of [...seccion.lessons, ...(seccion.boss ? [seccion.boss] : [])]) {
         for (const item of leccion.items || []) {
           if (item.type !== 'build_sentence') continue

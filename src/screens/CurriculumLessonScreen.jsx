@@ -7,20 +7,21 @@ import { getLesson, toRunnerItems } from '../data/curriculum'
 import { buildResultState } from '../lib/resultState'
 
 /**
- * Pantalla del currículo v2 (situaciones).
+ * Pantalla de lección. Desde el 14-ago-2026 es la ÚNICA: las secciones 1–5 y su
+ * pantalla se jubilaron cuando el currículo v2 quedó completo y validado.
  *
- * Corre en paralelo a SectionLessonScreen, que sigue sirviendo las secciones
- * 1–5. Se mantienen las dos hasta que un hablante valide el módulo nuevo: recién
- * ahí se decide qué se jubila. Mientras tanto nadie pierde su progreso.
+ * Lo propio de acá es que NO se llama al motor de ejercicios: el orden de una
+ * lección v2 es parte del contenido, no algo que se baraje.
  *
- * La diferencia con la pantalla vieja es que acá NO se llama al motor de
- * ejercicios: el orden de una lección v2 es parte del contenido, no algo que se
- * baraje.
+ * El progreso se guarda con `completeSectionLesson(moduleId, lessonId, …)`, la
+ * misma función de siempre. La clave es el id del módulo ('m0'…'m5'), que no
+ * choca con las claves numéricas del contenido viejo: quien ya jugó las
+ * secciones conserva aquel progreso guardado, pero no le adelanta nada acá.
  */
 export default function CurriculumLessonScreen() {
   const { lessonId } = useParams()
   const navigate = useNavigate()
-  const { recordPlay, addXP } = useGameStore()
+  const { recordPlay, completeSectionLesson } = useGameStore()
 
   const lesson = getLesson(lessonId)
   const items = useMemo(() => toRunnerItems(lesson), [lesson])
@@ -45,10 +46,13 @@ export default function CurriculumLessonScreen() {
       orderedItems={items}
       onComplete={(ratio, xpEarned) => {
         recordPlay()
-        addXP(xpEarned)
+        // Suma el XP y marca la lección: `completeSectionLesson` hace las dos
+        // cosas. Antes acá se llamaba a addXP por separado y no se guardaba nada
+        // más, porque el currículo vivía suelto detrás de una URL.
+        completeSectionLesson(lesson.moduleId, lesson.id, ratio, xpEarned)
         navigate('/result', { state: buildResultState(lesson, items, ratio, xpEarned) })
       }}
-      onExit={() => navigate('/')}
+      onExit={() => navigate('/sections')}
     />
   )
 }

@@ -60,10 +60,9 @@ describe('dígrafo KW en el contenido', () => {
     expect(toNahuatSpeechText('ken')).toBe('gen')
   })
 
-  it('ningún pronunciationText del contenido artesanal empieza con "ku" de KW', async () => {
-    const secs = await Promise.all(
-      [1, 2, 3, 4, 5].map((n) => import(`../data/sections/section${n}.js`).then((m) => m.default)),
-    )
+  it('ningún pronunciationText del contenido confunde KW con "ku"', async () => {
+    // Mira el currículo, que desde el 14-ago-2026 es el único contenido.
+    const secs = (await import('../data/curriculum/asSections')).default
     const sospechosos = []
     for (const s of secs) {
       for (const l of [...s.lessons, ...(s.boss ? [s.boss] : [])]) {

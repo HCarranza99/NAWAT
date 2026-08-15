@@ -8,6 +8,7 @@ import { GAME_CONFIG } from '../data/gameConfig'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import { useIsDesktop } from '../hooks/useMediaQuery'
 import { useSections } from '../hooks/useSections'
+import { seccionCompleta } from '../lib/lessonPath'
 
 function buildAchievements({ xp, streak, totalLessons, totalStars, totalSections, level }) {
   return [
@@ -51,7 +52,10 @@ export default function LogrosScreen() {
     const ls = Object.values(prog.lessonsCompleted).reduce((sum, l) => sum + (l.stars || 0), 0)
     return acc + ls + (prog.bossStars || 0)
   }, 0)
-  const completedSections = sections.filter((s) => sectionProgress[s.id]?.bossCompleted === true)
+  // Un módulo está completo cuando se terminan sus lecciones: el currículo v2 no
+  // tiene examen final. Con la regla vieja (bossCompleted) este contador se
+  // quedaba clavado en cero y ningún logro de módulo se desbloqueaba nunca.
+  const completedSections = sections.filter((s) => seccionCompleta(s, sectionProgress))
   const totalSections = completedSections.length
 
   const achievements = buildAchievements({ xp, streak, totalLessons, totalStars, totalSections, level })
@@ -93,7 +97,7 @@ export default function LogrosScreen() {
           <SummaryStat icon={Zap} value={xp} label="XP total" tone="text-[#1f7a57]" />
           <SummaryStat icon={Star} value={totalStars} label="Estrellas" tone="text-[#d89a1d]" />
           <SummaryStat icon={BookOpen} value={totalLessons} label="Lecciones" tone="text-[#2f6fb2]" />
-          <SummaryStat icon={Crown} value={totalSections} label="Secciones" tone="text-[#8d4ac3]" />
+          <SummaryStat icon={Crown} value={totalSections} label="Módulos" tone="text-[#8d4ac3]" />
         </section>
 
         {/* Insignias por sección */}

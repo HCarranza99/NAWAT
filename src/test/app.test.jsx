@@ -7,12 +7,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import useGameStore, { PHASES } from '../store/useGameStore'
-import sections from '../data/sections'
-// Currículo que la app REALMENTE muestra: con el vocabulario generado apagado
-// (ver INCLUDE_GENERATED en src/data/sections/registry.js) solo se rinden las
-// secciones artesanales. `sections` sigue siendo el corpus completo y lo usan
-// las pruebas de datos.
-import artisanalSections from '../data/sections/artisanal'
+// La ruta de aprendizaje que la app muestra: los módulos del currículo v2.
+// Desde el 14-ago-2026 es el único contenido — las secciones 1–5 y la capa
+// generada se borraron.
+import sections from '../data/curriculum/asSections'
 
 // Mock analytics to prevent real Supabase calls
 vi.mock('../services/analytics', () => ({
@@ -107,7 +105,7 @@ describe('Navigation — Home Screen', () => {
       expect(screen.queryByLabelText('Navegación principal')).toBeInTheDocument()
     })
     const nav = screen.queryByLabelText('Navegación principal')
-    expect(within(nav).getByLabelText('Secciones')).toBeInTheDocument()
+    expect(within(nav).getByLabelText('Módulos')).toBeInTheDocument()
     expect(within(nav).getByLabelText('Inicio')).toBeInTheDocument()
     expect(within(nav).getByLabelText('Perfil')).toBeInTheDocument()
   })
@@ -117,33 +115,28 @@ describe('Navigation — Sections Screen', () => {
 
   it('navigates to sections screen via BottomNav', async () => {
     render(<App />)
-    await clickNavTab('Secciones')
+    await clickNavTab('Módulos')
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Secciones' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Módulos' })).toBeInTheDocument()
       expect(screen.getByText('Tu camino para aprender náhuat')).toBeInTheDocument()
     })
   })
 
-  // Lanzamiento solo-artesanal: se muestran las 5 secciones hechas a mano y NO
-  // el vocabulario generado. Si algún día se reactiva (VITE_INCLUDE_GENERATED_LESSONS)
-  // este conteo sube y hay que actualizarlo a propósito, no por accidente.
-  it('displays only the artisanal sections while generated vocabulary is off', async () => {
+  it('muestra una tarjeta por cada módulo del currículo', async () => {
     render(<App />)
-    await clickNavTab('Secciones')
+    await clickNavTab('Módulos')
 
     await waitFor(() => {
       const cards = document.querySelectorAll('[data-testid="section-card"]')
-      expect(cards.length).toBe(artisanalSections.length)
+      expect(cards.length).toBe(sections.length)
     })
-    expect(artisanalSections.length).toBe(5)
-    // El corpus completo sigue siendo mayor: lo generado existe, solo no se envía.
-    expect(sections.length).toBeGreaterThan(artisanalSections.length)
+    expect(sections.length).toBeGreaterThan(1)
   })
 
   it('first section is unlocked', async () => {
     render(<App />)
-    await clickNavTab('Secciones')
+    await clickNavTab('Módulos')
 
     await waitFor(() => {
       const cards = document.querySelectorAll('[data-testid="section-card"]')
@@ -182,42 +175,62 @@ describe('Study flow — Phase gating', () => {
 })
 
 describe('Section unlocking logic', () => {
+  /** Marca todas las lecciones de un módulo como aprobadas. */
+  const modulaTerminado = (modulo) => ({
+    [modulo.id]: {
+      lessonsCompleted: Object.fromEntries(
+        modulo.lessons.map((l) => [l.id, { completed: true, score: 0.9, stars: 3 }]),
+      ),
+      bossCompleted: false,
+    },
+  })
 
-  it('completing all S1 lessons + boss unlocks S2', async () => {
-    const s1 = sections[0]
-    const progress = { lessonsCompleted: {}, bossCompleted: true, bossScore: 0.9, bossStars: 3 }
-    s1.lessons.forEach((l) => {
-      progress.lessonsCompleted[l.id] = { completed: true, score: 0.9, stars: 3 }
-    })
-    useGameStore.setState({ sectionProgress: { 1: progress } })
+  // El currículo v2 no tiene examen final: un módulo se abre cuando se
+  // terminan las lecciones del anterior. Antes esto pedía `bossCompleted`, y
+  // como ningún módulo tiene boss, la ruta quedaba trabada en el primero.
+  it('terminar las lecciones del primer módulo abre el segundo', async () => {
+    useGameStore.setState({ sectionProgress: modulaTerminado(sections[0]) })
 
     render(<App />)
-    await clickNavTab('Secciones')
+    await clickNavTab('Módulos')
 
     await waitFor(() => {
       const cards = document.querySelectorAll('[data-testid="section-card"]')
-      // Section 2 (index 1) should not be locked
       expect(cards[1]).not.toHaveClass('opacity-35')
     })
   })
 
-  it('sections after S2 remain locked if only S1 is done', async () => {
-    const s1 = sections[0]
-    const progress = { lessonsCompleted: {}, bossCompleted: true, bossScore: 0.9, bossStars: 3 }
-    s1.lessons.forEach((l) => {
-      progress.lessonsCompleted[l.id] = { completed: true, score: 0.9, stars: 3 }
-    })
-    useGameStore.setState({ sectionProgress: { 1: progress } })
+  it('los módulos siguientes siguen cerrados', async () => {
+    useGameStore.setState({ sectionProgress: modulaTerminado(sections[0]) })
 
     render(<App />)
-    await clickNavTab('Secciones')
+    await clickNavTab('Módulos')
 
     await waitFor(() => {
       const cards = document.querySelectorAll('[data-testid="section-card"]')
-      // Sections 3, 4, 5 should still be locked
-      expect(cards[2]).toHaveClass('opacity-35')
-      expect(cards[3]).toHaveClass('opacity-35')
-      expect(cards[4]).toHaveClass('opacity-35')
+      for (let i = 2; i < sections.length; i++) {
+        expect(cards[i], `el módulo ${sections[i].id} no debería estar abierto`).toHaveClass('opacity-35')
+      }
+    })
+  })
+
+  // El progreso viejo se guardaba con claves numéricas (1..5). Los módulos usan
+  // 'm0'..'m5' justamente para que no se herede: quien jugó las secciones no
+  // debe aparecer con módulos ya aprobados.
+  it('el progreso del contenido viejo no desbloquea nada', async () => {
+    useGameStore.setState({
+      sectionProgress: {
+        1: { lessonsCompleted: { 's1-l1': { completed: true } }, bossCompleted: true },
+        2: { lessonsCompleted: { 's2-l1': { completed: true } }, bossCompleted: true },
+      },
+    })
+
+    render(<App />)
+    await clickNavTab('Módulos')
+
+    await waitFor(() => {
+      const cards = document.querySelectorAll('[data-testid="section-card"]')
+      expect(cards[1]).toHaveClass('opacity-35')
     })
   })
 })

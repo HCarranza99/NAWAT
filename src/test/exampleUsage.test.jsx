@@ -12,12 +12,22 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 
-import section1 from '../data/sections/section1'
+import { getLesson, toRunnerItems } from '../data/curriculum'
 import { buildExercises } from '../lib/exerciseEngine'
 import FeedbackModal from '../components/ui/FeedbackModal'
 
+/**
+ * `buildExercises` sigue vivo aunque las lecciones del currículo no pasen por
+ * él: lo usa el REPASO (ReviewScreen), que rebaraja los ítems ya vistos. Por eso
+ * esta prueba sigue haciendo falta — si el motor pierde la frase de ejemplo, se
+ * pierde en el repaso, que es justo donde más sirve volver a verla.
+ *
+ * Se apoya en la lección de sonidos, que es la que trae `example_sentence` en
+ * sus ítems (cada grafía con su palabra: Kw → Kwawit).
+ */
 describe('exerciseEngine: arrastra la frase de ejemplo', () => {
-  const lesson = section1.lessons.find((l) => l.id === 's1-l3') // Sí, No y Gracias
+  const leccionOriginal = getLesson('m0-l1')
+  const lesson = { ...leccionOriginal, items: toRunnerItems(leccionOriginal) }
 
   it('la lección de partida trae frases en sus flashcards', () => {
     const conFrase = lesson.items.filter((it) => it.example_sentence)
@@ -33,7 +43,7 @@ describe('exerciseEngine: arrastra la frase de ejemplo', () => {
     }
     // Antes del arreglo esto era 0.
     expect(vistas.size).toBeGreaterThan(0)
-    expect([...vistas].some((f) => f.includes('nikneki'))).toBe(true)
+    expect([...vistas].some((f) => f.includes('Kwawit'))).toBe(true)
   })
 
   it('no inventa frases donde la palabra no tenía', () => {

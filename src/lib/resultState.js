@@ -15,6 +15,12 @@ export function buildResultState(lesson, items, ratio, xpEarned) {
     score: ratio,
     xpEarned,
     totalItems: items.length,
-    returnTo: '/',
+    returnTo: '/sections',
+    // Adónde manda "Intentar de nuevo". Va en el estado y no se arma en la
+    // pantalla porque la pantalla no sabe de qué tipo de lección viene: cuando
+    // lo armaba sola mandaba a /lesson/:id, la ruta del contenido viejo, y
+    // reintentar una lección del currículo terminaba en "no encontramos esa
+    // lección".
+    retryTo: `/curriculo/${lesson.id}`,
   }
 }

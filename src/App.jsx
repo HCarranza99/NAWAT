@@ -9,10 +9,8 @@ import PretestScreen from './screens/PretestScreen'
 import PosttestScreen from './screens/PosttestScreen'
 import AccountPromptScreen from './screens/AccountPromptScreen'
 import HomeScreen from './screens/HomeScreen'
-import LessonScreen from './screens/LessonScreen'
 import ResultScreen from './screens/ResultScreen'
 import SectionsScreen from './screens/SectionsScreen'
-import SectionLessonScreen from './screens/SectionLessonScreen'
 import CurriculumLessonScreen from './screens/CurriculumLessonScreen'
 import ReviewScreen from './screens/ReviewScreen'
 import ProfileScreen from './screens/ProfileScreen'
@@ -25,7 +23,6 @@ import DesktopSidebar from './components/ui/DesktopSidebar'
 import { useIsDesktop } from './hooks/useMediaQuery'
 import { startSession, endSession, createParticipant } from './services/analytics'
 import { saveProgressToCloud } from './services/auth'
-import { ensureGeneratedSections } from './data/sections/registry'
 import { useAuth } from './hooks/useAuth'
 import { INTERVENTION_MS } from './data/questionnaires'
 
@@ -66,11 +63,8 @@ export default function App() {
     sessionIdRef.current = currentSessionId
   }, [currentSessionId])
 
-  // Precarga en segundo plano del vocabulario generado (chunk diferido), tras el
-  // primer render, para que esté listo y la PWA pueda cachearlo sin bloquear el inicio.
-  useEffect(() => {
-    ensureGeneratedSections()
-  }, [])
+  // Acá se precargaba el chunk del vocabulario generado. Ya no existe: el
+  // currículo entero son 22 lecciones de datos y viaja en el bundle principal.
 
   // Inicia sesión cuando el participante está identificado (skip in demo)
   useEffect(() => {
@@ -149,16 +143,16 @@ export default function App() {
   const appRoutes = (
     <Routes>
       <Route path="/" element={<HomeScreen />} />
-      {/* Legacy lesson routes */}
-      <Route path="/lesson/:id" element={<LessonScreen />} />
       <Route path="/result" element={<ResultScreen />} />
-      {/* Section-based routes */}
+      {/* La ruta de aprendizaje: los módulos del currículo v2 */}
       <Route path="/sections" element={<SectionsScreen />} />
-      <Route path="/section/:sectionId/lesson/:lessonId" element={<SectionLessonScreen />} />
-      <Route path="/section/:sectionId/boss" element={<SectionLessonScreen />} />
-      {/* Currículo v2 (situaciones). Convive con /section/... hasta que un
-          hablante valide el módulo nuevo; ver src/data/curriculum/index.js */}
       <Route path="/curriculo/:lessonId" element={<CurriculumLessonScreen />} />
+      {/* Las secciones 1–5 se jubilaron el 14-ago-2026, cuando el currículo v2
+          quedó completo y validado por un hablante. Sus URLs se redirigen en vez
+          de morir en un 404: pueden estar guardadas en marcadores o en la
+          pantalla de inicio de un teléfono. */}
+      <Route path="/section/:sectionId/lesson/:lessonId" element={<Navigate to="/sections" replace />} />
+      <Route path="/section/:sectionId/boss" element={<Navigate to="/sections" replace />} />
       <Route path="/review" element={<ReviewScreen />} />
       <Route path="/profile" element={<ProfileScreen />} />
       <Route path="/logros" element={<LogrosScreen />} />

@@ -10,7 +10,7 @@ import useGameStore from '../store/useGameStore'
 import { GAME_CONFIG } from '../data/gameConfig'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import Torogoz from '../components/ui/Torogoz'
-import { findNextLesson, buildSteps } from '../lib/lessonPath'
+import { findNextLesson, buildSteps, rutaDeLaLeccion } from '../lib/lessonPath'
 import { buildItemsByKey, reviewStats } from '../lib/srs'
 import { useSections } from '../hooks/useSections'
 
@@ -37,7 +37,7 @@ export default function HomeMobile({ greeting }) {
 
   const goNext = () => {
     if (!next) { navigate('/sections'); return }
-    navigate(`/section/${next.section.id}/${next.isBoss ? 'boss' : `lesson/${next.lesson.id}`}`)
+    navigate(rutaDeLaLeccion(next.section, next.lesson, next.isBoss))
   }
 
   return (

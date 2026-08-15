@@ -9,7 +9,7 @@ import {
 import useGameStore from '../store/useGameStore'
 import { GAME_CONFIG } from '../data/gameConfig'
 import Torogoz from '../components/ui/Torogoz'
-import { findNextLesson, globalLessonIndex } from '../lib/lessonPath'
+import { findNextLesson, globalLessonIndex, rutaDeLaLeccion } from '../lib/lessonPath'
 import { buildItemsByKey, reviewStats } from '../lib/srs'
 import { useSections } from '../hooks/useSections'
 
@@ -68,7 +68,7 @@ export default function HomeDesktop({ greeting }) {
 
   const goNext = () => {
     if (!next) { navigate('/sections'); return }
-    navigate(`/section/${next.section.id}/${next.isBoss ? 'boss' : `lesson/${next.lesson.id}`}`)
+    navigate(rutaDeLaLeccion(next.section, next.lesson, next.isBoss))
   }
 
   const dailyDots = [0, 1, 2].map((i) => i < Math.min(streak, 3))

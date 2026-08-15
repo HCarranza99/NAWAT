@@ -16,12 +16,26 @@ function formatClock(ms) {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
+/**
+ * Los saludos del Torogoz. Es el PRIMER náhuat que ve cualquiera que abre la
+ * app, así que va con su fuente, igual que el contenido de las lecciones.
+ *
+ * Corregidos el 14-ago-2026. Los que había antes no aparecían en el diccionario:
+ * «Piyali», «Tikweli», «Nawat tiwelli» y «Ximomachti» dan CERO coincidencias, y
+ * esta última además está escrita en ortografía del náhuatl mexicano (x-, mo-),
+ * que no es la de Witzapan. «Yawi» sí existe pero significa "va", no "vamos".
+ *
+ * Es el mismo problema que Héctor encontró en «Yek tunal»: material de otras
+ * variantes colándose por parecerse. Ahora todas salen de las lecciones ya
+ * verificadas — no hay náhuat en la app que no se pueda rastrear.
+ */
+const M = 'Diccionario YULTAJTAKETZALIS (Pérez & Martínez, 2023)'
 const TOROGOZ_GREETINGS = [
-  { nahuat: '¡Yawi!', spanish: '¡Vamos a aprender!' },
-  { nahuat: '¡Tikweli!', spanish: '¡Tú puedes hacerlo!' },
-  { nahuat: '¡Ximomachti!', spanish: '¡A estudiar se ha dicho!' },
-  { nahuat: '¡Nawat tiwelli!', spanish: '¿Vamos a practicar?' },
-  { nahuat: '¡Piyali!', spanish: '¡Hola! ¿Listo para aprender?' },
+  { nahuat: '¡Yek peyna!', spanish: '¡Buena mañana!', source: 'Héctor Martínez, hablante de Witzapan, 14-ago-2026' },
+  { nahuat: '¿Ken tinemi?', spanish: '¿Cómo estás?', source: 'Curso Timumachtikan (King), p.19' },
+  { nahuat: '¡Yek, padiush!', spanish: '¡Bien, gracias!', source: 'Curso Timumachtikan (King), p.24' },
+  { nahuat: '¡Nemi pal timumachtia!', spanish: '¡Hay que estudiar!', source: `${M}, l.12838 — "Nemi pal nimumachtia: Tengo que estudiar"` },
+  { nahuat: '¡Chujchupika!', spanish: '¡Poco a poco!', source: `${M}, l.40276 — "Naja nimumachtia nawat chujchupika"` },
 ]
 
 function StudyTimerBubble({ msLeft }) {

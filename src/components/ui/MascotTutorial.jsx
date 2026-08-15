@@ -8,7 +8,10 @@ export default function MascotTutorial({ onClose }) {
 
   const steps = [
     {
-      title: '¡Yek peykan! (¡Bienvenido!)',
+      // Decía "¡Yek peykan!" para "bienvenido". Esa forma no existe en el
+      // diccionario: cero coincidencias. «Padiush» sí (p.160), y agradecerle a
+      // alguien que llegó dice lo mismo con una palabra que sí se usa.
+      title: '¡Padiush! (¡Gracias por venir!)',
       text: 'Soy tu guía en este hermoso viaje de aprendizaje. Juntos rescataremos y mantendremos viva la lengua Náhuat de nuestros ancestros pipiles de El Salvador.',
       highlightClass: '', // no highlight, just intro
       emotion: 'greeting',

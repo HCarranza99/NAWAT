@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import fs from 'node:fs'
 import path from 'node:path'
-import artisanalSections from '../data/sections/artisanal'
+import seccionesEnPantalla from '../data/curriculum/asSections'
 
 /**
  * Regresión — formas ligadas enseñadas sueltas.
@@ -17,6 +17,12 @@ import artisanalSections from '../data/sections/artisanal'
  * sección 4. Esta prueba recorre TODO lo que aparece en pantalla, venga del tipo
  * de ejercicio que venga, y contrasta contra el corpus: si el diccionario marcó
  * una forma con guion, la app no puede mostrarla desnuda.
+ *
+ * Desde el 14-ago-2026 mira el CURRÍCULO, que es el único contenido que queda.
+ * Lo hace sobre los ejercicios YA COMPILADOS —banco de palabras, pares, opciones—
+ * y no sobre los datos de la lección: es la diferencia entre revisar lo que se
+ * escribió y revisar lo que el estudiante ve, y esa diferencia fue exactamente
+ * la que dejó pasar el cuarto error.
  */
 
 const corpus = JSON.parse(
@@ -63,7 +69,7 @@ function cadenasEnPantalla() {
     if (typeof texto === 'string' && texto.trim()) salida.push({ texto, donde })
   }
 
-  for (const seccion of artisanalSections) {
+  for (const seccion of seccionesEnPantalla) {
     for (const leccion of [...seccion.lessons, ...(seccion.boss ? [seccion.boss] : [])]) {
       for (const item of leccion.items || []) {
         const donde = `${item.id} (${item.type})`

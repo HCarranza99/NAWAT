@@ -19,10 +19,17 @@ import ReviewBadge from '../components/ui/ReviewBadge'
 import { isLessonUnverified } from '../lib/verification'
 import { useIsDesktop } from '../hooks/useMediaQuery'
 import { useSections } from '../hooks/useSections'
+import { rutaDeLaLeccion, seccionCompleta } from '../lib/lessonPath'
 
-function SectionGlyph({ sectionId, color }) {
+/**
+ * Recibe el ÍNDICE, no el id. Antes hacía `sectionId - 1` para elegir el ícono,
+ * lo cual funcionaba mientras los ids eran 1..5. Con los ids del currículo
+ * ('m0'…'m5') esa resta da NaN, `icons[NaN]` es undefined y React revienta con
+ * "Element type is invalid" — que se lee como un problema de imports y no lo es.
+ */
+function SectionGlyph({ index, color }) {
   const icons = [Sprout, Map, Play, Crown, Check]
-  const Icon = icons[(sectionId - 1) % icons.length]
+  const Icon = icons[index % icons.length]
 
   return (
     <div
@@ -54,22 +61,26 @@ export default function SectionsScreen() {
 
   const isSectionUnlocked = (sectionIndex) => {
     if (sectionIndex === 0) return true
-    const prevSection = sections[sectionIndex - 1]
-    const prevProg = sectionProgress[prevSection.id]
-    return prevProg?.bossCompleted === true
+    return seccionCompleta(sections[sectionIndex - 1], sectionProgress)
   }
 
   const getSectionStats = (section) => {
     const prog = sectionProgress[section.id] || { lessonsCompleted: {}, bossCompleted: false }
     const totalLessons = section.lessons.length
-    const completedLessons = Object.values(prog.lessonsCompleted || {}).filter((lesson) => lesson.completed).length
+    // Se cuentan SOLO las lecciones de esta sección. Antes se contaban todas las
+    // claves completadas del objeto de progreso, que con contenido viejo guardado
+    // podía dar más lecciones hechas que las que la sección tiene.
+    const completedLessons = section.lessons.filter(
+      (l) => prog.lessonsCompleted?.[l.id]?.completed,
+    ).length
     const allLessonsDone = completedLessons >= totalLessons
-    const bossAvailable = allLessonsDone
+    const bossAvailable = allLessonsDone && Boolean(section.boss)
     const bossCompleted = prog.bossCompleted === true
-    const sectionCompleted = allLessonsDone && bossCompleted
-    const progressPct = totalLessons > 0
-      ? Math.round(((completedLessons + (bossCompleted ? 1 : 0)) / (totalLessons + 1)) * 100)
-      : 0
+    const sectionCompleted = seccionCompleta(section, sectionProgress)
+    // El boss cuenta como un paso más solo si la sección tiene uno.
+    const pasos = totalLessons + (section.boss ? 1 : 0)
+    const hechos = completedLessons + (section.boss && bossCompleted ? 1 : 0)
+    const progressPct = pasos > 0 ? Math.round((hechos / pasos) * 100) : 0
 
     return { totalLessons, completedLessons, allLessonsDone, bossAvailable, bossCompleted, sectionCompleted, progressPct }
   }
@@ -89,7 +100,7 @@ export default function SectionsScreen() {
           <TorogozBadge size={48} />
           <div>
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#9ddfc6]">Ruta de aprendizaje</p>
-            <h1 className="mt-1 text-3xl font-black leading-none tracking-normal">Secciones</h1>
+            <h1 className="mt-1 text-3xl font-black leading-none tracking-normal">Módulos</h1>
             <p className="mt-2 text-sm font-medium text-white/65">Tu camino para aprender náhuat</p>
           </div>
         </div>
@@ -99,7 +110,7 @@ export default function SectionsScreen() {
         {isDesktop && (
         <div className="mb-3">
           <p className="text-[0.66rem] font-black uppercase tracking-[0.2em] text-[#6d756e]">Ruta de aprendizaje</p>
-          <h1 className="mt-1 text-3xl font-black tracking-tight text-[#17211d]">Secciones</h1>
+          <h1 className="mt-1 text-3xl font-black tracking-tight text-[#17211d]">Módulos</h1>
           <p className="mt-1.5 text-sm font-medium text-[#6d756e]">Tu camino para aprender el idioma</p>
         </div>
         )}
@@ -125,18 +136,21 @@ export default function SectionsScreen() {
                 disabled={!unlocked}
               >
                 <div className="h-16 w-16 overflow-hidden rounded-md bg-[#f0ede5]">
-                  <img
-                    src={`/assets/images/section${section.id}.png`}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={section.image} alt="" className="h-full w-full object-cover" />
                 </div>
 
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <SectionGlyph sectionId={section.id} color={section.color} />
+                    <SectionGlyph index={sectionIndex} color={section.color} />
                     <div className="min-w-0">
-                      <p className="truncate text-base font-black leading-tight text-[#17211d]">{section.title}</p>
+                      {/* El nombre náhuat va primero: es el nombre del módulo,
+                          no un adorno. El español queda como apoyo. */}
+                      <p className="truncate text-base font-black leading-tight text-[#17211d]">
+                        {section.nawatTitle || section.title}
+                      </p>
+                      {section.nawatTitle && (
+                        <p className="truncate text-xs font-bold text-[#46524a]">{section.title}</p>
+                      )}
                       <p className="mt-0.5 line-clamp-1 text-xs font-medium text-[#6d756e]">{section.description}</p>
                     </div>
                   </div>
@@ -196,7 +210,7 @@ export default function SectionsScreen() {
                       <button
                         key={lesson.id}
                         className={getLessonCardClass()}
-                        onClick={() => !disabled && navigate(`/section/${section.id}/lesson/${lesson.id}`)}
+                        onClick={() => !disabled && navigate(rutaDeLaLeccion(section, lesson))}
                         disabled={disabled}
                       >
                         <div className={getLessonIconClass()}>

@@ -6,7 +6,7 @@ import { useIsDesktop } from '../../hooks/useMediaQuery'
 
 const tabs = [
   { id: 'home', label: 'Inicio', icon: Home, path: '/' },
-  { id: 'sections', label: 'Secciones', shortLabel: 'Ruta', icon: Route, path: '/sections' },
+  { id: 'sections', label: 'Módulos', shortLabel: 'Ruta', icon: Route, path: '/sections' },
   { id: 'logros', label: 'Logros', icon: Trophy, path: '/logros' },
   { id: 'profile', label: 'Perfil', icon: UserRound, path: '/profile' },
 ]
