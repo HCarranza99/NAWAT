@@ -23,6 +23,7 @@ import CreditsScreen from './screens/CreditsScreen'
 import BottomNav from './components/ui/BottomNav'
 import DesktopSidebar from './components/ui/DesktopSidebar'
 import { useIsDesktop } from './hooks/useMediaQuery'
+import { esModoEnfocado } from './lib/modoEnfocado'
 import { startSession, endSession, createParticipant } from './services/analytics'
 import { saveProgressToCloud } from './services/auth'
 import { useAuth } from './hooks/useAuth'
@@ -284,13 +285,7 @@ function AppChrome({ children }) {
   const location = useLocation()
   const isDesktop = useIsDesktop()
   // Modo enfocado: durante lecciones/resultado se oculta todo el chrome
-  const focused = location.pathname.startsWith('/section/') ||
-    location.pathname.startsWith('/lesson/') ||
-    location.pathname === '/review' ||
-    location.pathname === '/result' ||
-    // La encuesta se responde sin distracciones: nada de barra de navegación
-    // que invite a abandonarla a media pregunta.
-    location.pathname === '/encuesta'
+  const focused = esModoEnfocado(location.pathname)
 
   const showSidebar = isDesktop && !focused
 
@@ -311,15 +306,7 @@ function AppChrome({ children }) {
 /* ── Demo Banner ───────────────────────────────────────────────── */
 function DemoBanner() {
   const location = useLocation()
-  const hidden = location.pathname.startsWith('/section/') ||
-    location.pathname.startsWith('/lesson/') ||
-    location.pathname === '/review' ||
-    location.pathname === '/result' ||
-    // La encuesta se responde sin distracciones: nada de barra de navegación
-    // que invite a abandonarla a media pregunta.
-    location.pathname === '/encuesta'
-
-  if (hidden) return null
+  if (esModoEnfocado(location.pathname)) return null
 
   return (
     <div className="fixed bottom-[76px] left-1/2 -translate-x-1/2 z-[200] pointer-events-none">

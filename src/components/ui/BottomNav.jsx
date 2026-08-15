@@ -3,10 +3,14 @@ import { motion } from 'motion/react'
 import { Home, Route, Trophy, UserRound } from 'lucide-react'
 
 import { useIsDesktop } from '../../hooks/useMediaQuery'
+import { esModoEnfocado } from '../../lib/modoEnfocado'
 
+// `shortLabel` existía para que en móvil dijera "Ruta" en vez de "Secciones",
+// que no cabía. "Módulos" sí cabe, así que la pestaña dice lo mismo en las dos
+// pantallas — tener dos nombres para lo mismo ya confundió una vez.
 const tabs = [
   { id: 'home', label: 'Inicio', icon: Home, path: '/' },
-  { id: 'sections', label: 'Módulos', shortLabel: 'Ruta', icon: Route, path: '/sections' },
+  { id: 'sections', label: 'Módulos', icon: Route, path: '/sections' },
   { id: 'logros', label: 'Logros', icon: Trophy, path: '/logros' },
   { id: 'profile', label: 'Perfil', icon: UserRound, path: '/profile' },
 ]
@@ -16,17 +20,14 @@ export default function BottomNav() {
   const navigate = useNavigate()
   const isDesktop = useIsDesktop()
 
-  const hidden = isDesktop ||
-    location.pathname.startsWith('/section/') ||
-    location.pathname.startsWith('/lesson/') ||
-    location.pathname === '/review' ||
-    location.pathname === '/result' ||
-    // La encuesta se responde sin distracciones: nada de barra de navegación
-    // que invite a abandonarla a media pregunta.
-    location.pathname === '/encuesta'
-  if (hidden) return null
+  if (isDesktop || esModoEnfocado(location.pathname)) return null
 
-  const activeTab = tabs.find((tab) => tab.path === location.pathname)?.id || 'home'
+  // La pestaña de módulos queda marcada también dentro de una lección: se llegó
+  // desde ahí. (Hoy no se ve, porque en lección la barra se esconde; queda
+  // correcto por si alguna pantalla de lección deja de esconderla.)
+  const activeTab =
+    tabs.find((tab) => tab.path === location.pathname)?.id ||
+    (location.pathname.startsWith('/curriculo/') ? 'sections' : 'home')
 
   return (
     <div className="fixed bottom-3 left-1/2 z-50 w-[calc(480px-28px)] max-w-[calc(100vw-28px)] -translate-x-1/2 lg:hidden">
@@ -60,7 +61,7 @@ export default function BottomNav() {
                   <Icon className="h-[19px] w-[19px]" strokeWidth={2.5} />
                   {isActive && <span className="absolute -right-1.5 -top-1 h-2 w-2 rounded-full bg-[#f4a261] ring-2 ring-white" />}
                 </span>
-                <span className="leading-none">{tab.shortLabel || tab.label}</span>
+                <span className="leading-none">{tab.label}</span>
               </span>
             </button>
           )
