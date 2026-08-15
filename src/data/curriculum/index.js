@@ -1,5 +1,9 @@
 import module0 from './module0'
 import module1 from './module1'
+import module2 from './module2'
+import module3 from './module3'
+import module4 from './module4'
+import module5 from './module5'
 
 /**
  * ═══════════════════════════════════════════════════════════════════════════
@@ -41,7 +45,12 @@ import module1 from './module1'
  *  tenían ninguna frase que las mostrara en uso.
  */
 
-const modules = [module0, module1]
+// Agregar un módulo es agregar un archivo y su línea acá. Nada más: ni
+// componentes, ni rutas, ni cambios en el motor. Eso es el contrato de abajo,
+// y m2–m5 (escritos el 14-ago-2026, después de la validación de Héctor) son la
+// prueba de que aguanta: cuatro módulos, dieciséis lecciones, cero archivos de
+// interfaz tocados.
+const modules = [module0, module1, module2, module3, module4, module5]
 
 export default modules
 
@@ -270,6 +279,33 @@ function compilarSonidos(lesson) {
 /** Normaliza una palabra para comparar: sin puntuación, minúsculas. */
 const desnudo = (s = '') => s.toLowerCase().normalize('NFC').replace(/[¿?¡!.,]/g, '').trim()
 
+/**
+ * ¿El diálogo ya mostró esta palabra del vocabulario?
+ *
+ * No alcanza con comparar palabra por palabra. El náhuat pega los prefijos
+ * ADELANTE: el diálogo dice «nikuchi» y el vocabulario lista «Kuchi». Es la
+ * misma palabra, y ponerle tarjeta de memoria es repetir lo que el estudiante
+ * acaba de leer en contexto — justo lo que la regla de las tarjetas quiere
+ * evitar. Al escribir m2–m5 esto inflaba el módulo 3 a once tarjetas.
+ *
+ * Por eso también cuenta como mostrada si alguna palabra del diálogo TERMINA en
+ * ella. Dos guardas para que no se cuele cualquier cosa:
+ *
+ *   · la palabra del vocabulario tiene que medir 3 letras o más («an», «ka» y
+ *     «se» darían coincidencias por casualidad);
+ *   · lo que sobra adelante no puede pasar de 4 letras, que es lo que mide un
+ *     prefijo náhuat. Así «kalijtik» NO cuenta como haber mostrado «tik»: le
+ *     sobrarían cinco letras y son dos palabras distintas.
+ */
+function yaLaMostroElDialogo(v, palabrasDelDialogo) {
+  const palabra = desnudo(v.nawat)
+  if (palabrasDelDialogo.includes(palabra)) return true
+  if (palabra.length < 3) return false
+  return palabrasDelDialogo.some(
+    (p) => p.length > palabra.length && p.endsWith(palabra) && p.length - palabra.length <= 4,
+  )
+}
+
 /** Todo el vocabulario del currículo, para sacar distractores de otras lecciones. */
 function vocabularioGlobal() {
   return modules.flatMap((m) => m.lessons.flatMap((l) => l.vocabulary || []))
@@ -285,10 +321,11 @@ function vocabularioGlobal() {
  *  2. En este modelo son casi siempre redundantes: el diálogo YA mostró la
  *     palabra en contexto y con su traducción.
  *
- * De ahí la regla: una palabra recibe tarjeta SOLO si no aparece en el diálogo.
- * En la lección 1 eso baja de ocho tarjetas a dos (Tiutak y Tayua, que solo
- * salen en la nota). Todo lo demás se comprueba con ejercicios que sí tienen
- * respuesta correcta: opción múltiple, emparejar, ordenar y escribir.
+ * De ahí la regla: una palabra recibe tarjeta SOLO si el diálogo no la mostró
+ * —ni suelta ni con prefijo, ver `yaLaMostroElDialogo`—. En el currículo entero
+ * eso deja 19 tarjetas contra 106 ejercicios que sí miden: opción múltiple,
+ * emparejar, ordenar y escribir. Las que quedan son las palabras que solo
+ * aparecen en la nota, como «Tiutak» y «Tayua» en la lección 1.
  */
 function compilarDialogo(lesson) {
   const items = []
@@ -303,10 +340,8 @@ function compilarDialogo(lesson) {
   })
 
   // ── Presentación: solo lo que el diálogo no mostró ──
-  const enDialogo = new Set(
-    lesson.dialogue.flatMap((l) => l.nawat.split(/\s+/).map(desnudo)),
-  )
-  const sinPresentar = lesson.vocabulary.filter((v) => !enDialogo.has(desnudo(v.nawat)))
+  const palabrasDelDialogo = lesson.dialogue.flatMap((l) => l.nawat.split(/\s+/).map(desnudo))
+  const sinPresentar = lesson.vocabulary.filter((v) => !yaLaMostroElDialogo(v, palabrasDelDialogo))
   for (const [i, v] of sinPresentar.entries()) {
     items.push({
       id: `${lesson.id}-voc${i + 1}`,

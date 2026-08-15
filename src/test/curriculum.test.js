@@ -49,6 +49,42 @@ const lecciones = modules.flatMap((m) => m.lessons)
  * vería "Tipo de ejercicio no soportado". Acá el error salta antes, al escribir
  * el contenido.
  */
+/**
+ * Los seis módulos existen y están completos. Es la prueba de que el contrato
+ * sirvió para lo que se hizo: m2–m5 se escribieron el 14-ago-2026 agregando
+ * cuatro archivos de datos, sin tocar un solo componente, ruta ni motor.
+ */
+describe('currículo v2 — los módulos', () => {
+  it('están los seis, en orden y sin ids repetidos', () => {
+    expect(modules.map((m) => m.id)).toEqual(['m0', 'm1', 'm2', 'm3', 'm4', 'm5'])
+    expect(modules.map((m) => m.order)).toEqual([...modules.map((m) => m.order)].sort((a, b) => a - b))
+    const ids = lecciones.map((l) => l.id)
+    expect(new Set(ids).size, 'hay ids de lección repetidos').toBe(ids.length)
+  })
+
+  it('cada módulo declara lo que la pantalla necesita para dibujarlo', () => {
+    for (const m of modules) {
+      expect(m.title?.nawat, `${m.id} sin título náhuat`).toBeTruthy()
+      expect(m.title?.es, `${m.id} sin título español`).toBeTruthy()
+      expect(m.titleSource, `${m.id}: el título está en náhuat y no dice de dónde salió`).toBeTruthy()
+      expect(m.description, `${m.id} sin descripción`).toBeTruthy()
+      expect(m.icon, `${m.id} sin ícono`).toBeTruthy()
+      expect(m.color, `${m.id} sin color`).toMatch(/^#[0-9A-Fa-f]{6}$/)
+      expect(m.lessons.length, `${m.id} sin lecciones`).toBeGreaterThan(0)
+    }
+  })
+
+  it('toda lección declara situación, objetivo, tarea y su pregunta al hablante', () => {
+    const incompletas = []
+    for (const l of lecciones) {
+      for (const campo of ['situation', 'objective', 'task', 'speakerAsk']) {
+        if (!l[campo]?.trim()) incompletas.push(`${l.id} sin ${campo}`)
+      }
+    }
+    expect(incompletas).toEqual([])
+  })
+})
+
 describe('currículo v2 — el contrato con la interfaz', () => {
   // Los que LessonRunner sabe dibujar hoy. Si se agrega un componente, se agrega
   // acá y en TIPOS_DE_ITEM; si no, esta prueba avisa.
@@ -184,19 +220,53 @@ describe('currículo v2 — el error que ya nos costó cuatro veces', () => {
     expect(infractoras).toEqual([])
   })
 
-  it('las palabras sueltas del vocabulario existen en el corpus o se declaran compuestas', () => {
-    const huerfanas = []
+  /**
+   * Antes acá había una lista fija de excepciones. Se cambió al escribir m2–m5:
+   * una lista fija obliga a editar la prueba con cada módulo, y una prueba que
+   * hay que editar para que pase deja de proteger nada.
+   *
+   * Lo que se comprueba ahora es la REGLA. Una palabra del vocabulario que no
+   * está en el corpus extraído tiene que estar justificada de una de dos
+   * maneras, las dos verificables leyendo el dato:
+   *
+   *   a) es una forma POSEÍDA (nu-, mu-, i-). El corpus guarda la raíz, no la
+   *      forma con prefijo: «Nunan» no está, «−Nan» sí.
+   *   b) su `source` cita una LÍNEA del diccionario (l.NNNN), o sea que se
+   *      verificó dentro de una frase aunque no sea entrada del corpus. Es el
+   *      caso de «Chujchupika» y «Talul».
+   *
+   * El corpus extraído solo capturó el 5% de las frases de ejemplo del
+   * diccionario, así que "no está en el corpus" nunca significó "no existe".
+   */
+  it('toda palabra fuera del corpus está justificada: o es poseída, o cita su línea', () => {
+    const POSEIDA = /^(nu|mu|i)[a-záéíóúñ]/i
+
+    const sinJustificar = []
     for (const l of lecciones) {
       for (const v of unidadesDeVocabulario(l)) {
         if (/\s/.test(v.nawat.trim())) continue // las frases se validan por su fuente
         if (v.evidence === 'compuesta') continue // ya está declarada como derivada
-        if (!enCorpus.has(clave(v.nawat))) huerfanas.push(`${l.id}: "${v.nawat}"`)
+        if (enCorpus.has(clave(v.nawat))) continue
+
+        const esPoseida = POSEIDA.test(v.nawat.trim())
+        const citaLinea = /\bl\.\d{3,}/.test(v.source || '')
+        if (!esPoseida && !citaLinea) {
+          sinJustificar.push(`${l.id}: "${v.nawat}" — no está en el corpus, no es poseída y su fuente no cita línea: ${v.source}`)
+        }
       }
     }
-    // Nutukey y Mutukey son formas poseídas: el corpus guarda la raíz, no ellas.
-    // Y la raíz que guardó es «tukay»: la variante de Witzapan que confirmó
-    // Héctor no está en el corpus extraído, solo en la p.222 del PDF.
-    expect(huerfanas).toEqual(['m1-l4: "Nutukey"', 'm1-l4: "Mutukey"'])
+    expect(sinJustificar).toEqual([])
+  })
+
+  it('la prueba de arriba está viendo palabras fuera del corpus de verdad', () => {
+    // Si el corpus creciera y las cubriera todas, la de arriba pasaría sin
+    // comprobar nada. Esto avisa para revisarla, no para fallar por gusto.
+    const fuera = lecciones.flatMap((l) =>
+      unidadesDeVocabulario(l)
+        .filter((v) => !/\s/.test(v.nawat.trim()) && v.evidence !== 'compuesta')
+        .filter((v) => !enCorpus.has(clave(v.nawat))),
+    )
+    expect(fuera.length).toBeGreaterThan(0)
   })
 })
 
@@ -293,19 +363,42 @@ describe('currículo v2 — ejercicios derivados', () => {
     }
   })
 
-  it('no hay tarjeta para una palabra que el diálogo ya mostró', () => {
+  /**
+   * Vale tanto para la palabra suelta como para la palabra CON PREFIJO. El
+   * náhuat los pega adelante: el diálogo dice «nikuchi» y el vocabulario lista
+   * «Kuchi». Es la misma palabra, y darle tarjeta es repetir lo que el
+   * estudiante acaba de leer en contexto. Al escribir m2–m5 esto tenía al
+   * módulo 3 con once tarjetas; con la regla arreglada quedó en dos.
+   */
+  it('no hay tarjeta para una palabra que el diálogo ya mostró, ni suelta ni con prefijo', () => {
     const redundantes = []
     for (const l of lecciones.filter((x) => x.type === 'dialogo')) {
-      const enDialogo = new Set(
-        l.dialogue.flatMap((d) => d.nawat.split(/\s+/).map((w) => clave(w))),
-      )
+      const palabras = l.dialogue.flatMap((d) => d.nawat.split(/\s+/).map((w) => clave(w)))
       for (const item of toRunnerItems(l)) {
-        if (item.type === 'flashcard' && enDialogo.has(clave(item.nahuat_word))) {
-          redundantes.push(`${l.id}: "${item.nahuat_word}" ya salía en el diálogo`)
+        if (item.type !== 'flashcard') continue
+        const w = clave(item.nahuat_word)
+        if (palabras.includes(w)) {
+          redundantes.push(`${l.id}: "${item.nahuat_word}" ya salía suelta en el diálogo`)
+          continue
+        }
+        const conPrefijo = palabras.find(
+          (p) => w.length >= 3 && p.length > w.length && p.endsWith(w) && p.length - w.length <= 4,
+        )
+        if (conPrefijo) {
+          redundantes.push(`${l.id}: "${item.nahuat_word}" ya salía en el diálogo como "${conPrefijo}"`)
         }
       }
     }
     expect(redundantes).toEqual([])
+  })
+
+  it('las tarjetas que quedan son pocas frente a lo que sí mide', () => {
+    const todos = lecciones.flatMap((l) => toRunnerItems(l))
+    const tarjetas = todos.filter((i) => i.type === 'flashcard').length
+    const miden = todos.filter((i) => TIPOS_QUE_MIDEN.includes(i.type)).length
+    // No es un número mágico: es la proporción que el usuario pidió el
+    // 6-ago-2026 —tarjetas ocasionales, no como medida de aprendizaje—.
+    expect(tarjetas * 3, `${tarjetas} tarjetas contra ${miden} ejercicios que miden`).toBeLessThan(miden)
   })
 
   it('cada lección pide escribir al menos una palabra de memoria', () => {
