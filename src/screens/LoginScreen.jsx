@@ -135,8 +135,10 @@ export default function LoginScreen({ onBack }) {
           </button>
         </form>
 
+        {/* El registro de entrada es la puerta de los nuevos: se crea la cuenta
+            al terminarlo, no aquí. */}
         <p className="text-[0.82rem] text-muted-foreground text-center leading-[1.5] pt-2">
-          ¿Eres nuevo? Completa el cuestionario inicial para crear tu cuenta.
+          ¿Eres nuevo? Vuelve atrás y llena el registro: son tres datos.
         </p>
       </div>
     </div>

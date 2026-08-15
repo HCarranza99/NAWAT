@@ -104,13 +104,17 @@ export default function QuestionnaireRunner({ items, phase, onComplete }) {
   const progress = index / items.length
   const valid = isAnswerValid(item, answer)
   const showSusIntro = phase === 'posttest' && item.code === 'sus_c1' && !susIntroSeen
+  const esDelEstudio = phase === 'pretest' || phase === 'posttest'
   const studyCompleted = phase === 'posttest' ? 2 : 0
   const studyCurrent = phase === 'posttest' ? 'posttest' : 'pretest'
 
   const sectionLabel = useMemo(() => {
+    // La encuesta de entrada son cuatro preguntas: ponerles encabezado de
+    // sección las haría parecer un trámite más largo de lo que es.
+    if (!esDelEstudio) return null
     const map = phase === 'pretest' ? SECTION_LABELS : POSTTEST_SECTION_LABELS
     return map[item.section] ?? null
-  }, [item.section, phase])
+  }, [item.section, phase, esDelEstudio])
 
   useEffect(() => {
     itemStartRef.current = Date.now()
@@ -176,9 +180,13 @@ export default function QuestionnaireRunner({ items, phase, onComplete }) {
         </span>
       </div>
 
-      <div className="px-5 pb-2">
-        <StudyProgressBanner completed={studyCompleted} current={studyCurrent} />
-      </div>
+      {/* El banner del protocolo solo tiene sentido dentro del estudio: la
+          encuesta de entrada no es una de sus tres fases. */}
+      {esDelEstudio && (
+        <div className="px-5 pb-2">
+          <StudyProgressBanner completed={studyCompleted} current={studyCurrent} />
+        </div>
+      )}
 
       <div className="flex flex-1 flex-col px-5 pt-2 pb-4">
         {showSusIntro ? (
@@ -190,6 +198,7 @@ export default function QuestionnaireRunner({ items, phase, onComplete }) {
             answer={answer}
             onChange={handleChange}
             sectionLabel={sectionLabel}
+            showCode={esDelEstudio}
           />
         )}
       </div>

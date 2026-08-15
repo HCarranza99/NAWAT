@@ -24,6 +24,7 @@ export function useAuth() {
 
   const setAuthUser = useGameStore((s) => s.setAuthUser)
   const mergeCloudProgress = useGameStore((s) => s.mergeCloudProgress)
+  const adoptCloudIdentity = useGameStore((s) => s.adoptCloudIdentity)
   const goFree = useGameStore((s) => s.goFree)
 
   useEffect(() => {
@@ -44,6 +45,11 @@ export function useAuth() {
         if (cloudProgress) {
           const snapshotBeforeMerge = useGameStore.getState()
           const localXP = snapshotBeforeMerge.xp ?? 0
+
+          // Primero la identidad (nombre, edad, residencia y participante), que
+          // no depende del XP: quien ya tiene cuenta entra directo, sin pasar
+          // otra vez por el registro. Ver adoptCloudIdentity en el store.
+          adoptCloudIdentity(cloudProgress)
 
           // Hacer merge: la lógica de "gana más XP" vive en el store
           mergeCloudProgress(cloudProgress)

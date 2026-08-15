@@ -89,6 +89,15 @@ export const PHASES = Object.freeze({
 const GameStateSchema = z.object({
   participantId: z.string().nullable().catch(null),
   participantName: z.string().nullable().catch(null),
+  participantAge: z.number().nullable().catch(null),
+  participantResidence: z.string().nullable().catch(null),
+  participantDistrict: z.string().nullable().catch(null),
+  participantCountry: z.string().nullable().catch(null),
+  registrationCompletedAt: z.string().nullable().catch(null),
+  registrationSkipped: z.boolean().catch(false),
+  registrationPromptDismissed: z.boolean().catch(false),
+  entrySurveyCompletedAt: z.string().nullable().catch(null),
+  entrySurveyDismissed: z.boolean().catch(false),
   authUserId: z.string().nullable().catch(null),
   isGuestMode: z.boolean().catch(true),
   studyPhase: z.string().catch(PHASES.FREE),
@@ -112,6 +121,21 @@ const useGameStore = create(
     (set) => ({
       participantId: DEMO_MODE ? 'demo-user' : null,
       participantName: DEMO_MODE ? 'Demo' : null,
+      // Registro de entrada (nombre / edad / residencia). Se piden una sola vez,
+      // antes de la primera lección, y viajan al participante que ancla toda la
+      // telemetría. En demo nunca se preguntan.
+      participantAge: null,
+      participantResidence: null,
+      // Excluyentes: distrito para quien vive en el país, país para la diáspora.
+      participantDistrict: null,
+      participantCountry: null,
+      registrationCompletedAt: DEMO_MODE ? new Date().toISOString() : null,
+      registrationSkipped: false,
+      // El aviso de "completa tu perfil" se pide una vez y no insiste.
+      registrationPromptDismissed: false,
+      // Encuesta de entrada: se ofrece al terminar la primera lección, una vez.
+      entrySurveyCompletedAt: null,
+      entrySurveyDismissed: false,
       authUserId: null,
       isGuestMode: true,
       currentSessionId: null,
@@ -136,8 +160,94 @@ const useGameStore = create(
 
       setParticipant: (id, fullName) => set({ participantId: id, participantName: fullName }),
       setSessionId: (id) => set({ currentSessionId: id }),
+
+      /**
+       * Cierra el registro de entrada. Solo toca el estado local: el insert en
+       * Supabase lo hace App.jsx al ver `registrationCompletedAt`, de modo que
+       * un fallo de red se reintente solo en la siguiente carga en vez de
+       * dejar al usuario atorado en el formulario.
+       * @param {{ name: string, age: number, residence: string }} datos
+       */
+      completeRegistration: ({ name, age, residence, district = null, country = null }) => set({
+        participantName: name?.trim() || null,
+        participantAge: Number.isFinite(age) ? age : null,
+        participantResidence: residence || null,
+        participantDistrict: district || null,
+        participantCountry: country || null,
+        registrationCompletedAt: new Date().toISOString(),
+        registrationSkipped: false,
+      }),
+
+      /**
+       * El usuario prefirió no dar sus datos. Se marca igual como registro
+       * cerrado (con `registrationSkipped`) para que entre a la app y siga
+       * generando telemetría anónima: perder al usuario es peor que perder
+       * tres campos, y el omitido es un dato en sí mismo.
+       */
+      skipRegistration: () => set({
+        registrationCompletedAt: new Date().toISOString(),
+        registrationSkipped: true,
+      }),
+
+      /** Oculta para siempre el aviso de completar el perfil. */
+      dismissRegistrationPrompt: () => set({ registrationPromptDismissed: true }),
+
+      /**
+       * Cierra la encuesta de entrada, se haya respondido o no. En ambos casos
+       * no se vuelve a ofrecer: preguntar dos veces molesta y además duplicaría
+       * las respuestas de quien sí contestó.
+       */
+      finishEntrySurvey: ({ dismissed = false } = {}) => set({
+        entrySurveyCompletedAt: dismissed ? null : new Date().toISOString(),
+        entrySurveyDismissed: true,
+      }),
       setAuthUser: (userId) => set({ authUserId: userId, isGuestMode: userId === null }),
       setOnboardingSeen: (seen) => set({ onboardingSeen: seen }),
+
+      /**
+       * Adopta la identidad guardada en la cuenta al iniciar sesión.
+       *
+       * Va aparte de `mergeCloudProgress` porque aquel decide por XP (gana el
+       * que más progreso trae) y saber QUIÉN es el usuario no depende de eso.
+       *
+       * Dos reglas:
+       *  1. Lo local nunca se pisa. Si alguien acaba de registrarse en este
+       *     teléfono y luego inicia sesión, mandan los datos que acaba de
+       *     escribir, no los de un perfil viejo.
+       *  2. Tener cuenta cuenta como registro hecho. Aunque el perfil sea
+       *     anterior a estos campos y venga vacío, a quien ya entró alguna vez
+       *     no se le vuelve a poner el formulario enfrente.
+       *
+       * Adoptar `participantId` es lo que evita que iniciar sesión en un
+       * teléfono nuevo parta la telemetría de una persona en dos participantes.
+       */
+      adoptCloudIdentity: (cloudState) => set((state) => {
+        if (!cloudState) return {}
+        const patch = {}
+        if (!state.participantId && cloudState.participantId) {
+          patch.participantId = cloudState.participantId
+        }
+        if (!state.participantName && cloudState.participantName) {
+          patch.participantName = cloudState.participantName
+        }
+        if (state.participantAge == null && cloudState.participantAge != null) {
+          patch.participantAge = cloudState.participantAge
+        }
+        if (!state.participantResidence && cloudState.participantResidence) {
+          patch.participantResidence = cloudState.participantResidence
+        }
+        if (!state.participantDistrict && cloudState.participantDistrict) {
+          patch.participantDistrict = cloudState.participantDistrict
+        }
+        if (!state.participantCountry && cloudState.participantCountry) {
+          patch.participantCountry = cloudState.participantCountry
+        }
+        if (!state.registrationCompletedAt) {
+          patch.registrationCompletedAt =
+            cloudState.registrationCompletedAt ?? new Date().toISOString()
+        }
+        return patch
+      }),
 
       mergeCloudProgress: (cloudState) => set((state) => {
         if (!cloudState) return {}

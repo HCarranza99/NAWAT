@@ -15,7 +15,7 @@ function getMascotEmotion(item) {
  * Tarjeta de pregunta — encabezado + input según item_type.
  * Renderiza una sola pregunta por pantalla (coherente con el ritmo de las lecciones).
  */
-export default function QuestionCard({ item, answer, onChange, sectionLabel }) {
+export default function QuestionCard({ item, answer, onChange, sectionLabel, showCode = true }) {
   const mascotEmotion = getMascotEmotion(item)
   const isSusItem = /^sus_c\d+$/.test(item.code)
 
@@ -32,9 +32,14 @@ export default function QuestionCard({ item, answer, onChange, sectionLabel }) {
                 {sectionLabel}
               </span>
             )}
-            <p className="mt-1 text-[0.72rem] font-bold text-muted-foreground tabular-nums" data-testid="question-code">
-              {item.display_code ?? item.code}.
-            </p>
+            {/* El código es la numeración del instrumento del estudio (A1, C3):
+                ahí ubica al participante. Fuera de él no numera nada y solo
+                enseñaría un identificador interno, así que se omite. */}
+            {showCode && (
+              <p className="mt-1 text-[0.72rem] font-bold text-muted-foreground tabular-nums" data-testid="question-code">
+                {item.display_code ?? item.code}.
+              </p>
+            )}
             <h2 className="mt-1.5 text-[1.1rem] font-bold text-foreground leading-[1.35] tracking-[-0.2px]">
               {item.question_text}
             </h2>

@@ -1,11 +1,14 @@
 /**
  * AccountPromptScreen.jsx
  *
- * Pantalla que aparece después de completar el postest.
- * Ofrece 3 opciones:
- *   1. Crear cuenta con email + contraseña
- *   2. Continuar con Google (OAuth)
- *   3. Continuar sin cuenta (con advertencia)
+ * Oferta de cuenta. Se llega por tres caminos y el texto se adapta al que
+ * corresponda, porque no es lo mismo cerrar un estudio que acabar de darse
+ * de alta:
+ *   1. Al terminar el registro de entrada (RegistrationScreen) — caso normal.
+ *   2. Desde Perfil → "Crear cuenta".
+ *   3. Al completar el postest, si el estudio se reabre (ver STUDY_OPEN).
+ *
+ * Ofrece Google, correo + contraseña, o seguir sin cuenta.
  */
 import { useState } from 'react'
 import { signUpWithEmail, signInWithGoogle } from '../services/auth'
@@ -20,9 +23,15 @@ export default function AccountPromptScreen() {
   const [loadingGoogle, setLoadingGoogle] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  // La cuenta existe pero falta confirmar el correo: no hay sesión todavía,
+  // así que el progreso NO está en la nube y no se debe prometer que sí.
+  const [needsEmailConfirm, setNeedsEmailConfirm] = useState(false)
 
   const goFree = useGameStore((s) => s.goFree)
   const setAuthUser = useGameStore((s) => s.setAuthUser)
+  // Solo quien cerró el protocolo del estudio merece el texto del estudio.
+  const posttestCompletedAt = useGameStore((s) => s.posttestCompletedAt)
+  const vieneDelEstudio = Boolean(posttestCompletedAt)
 
   const canSubmit = email.trim().length > 0 && password.length >= 6 && !loading
 
@@ -32,7 +41,7 @@ export default function AccountPromptScreen() {
     setError('')
     setLoading(true)
 
-    const { user, error: err } = await signUpWithEmail(email.trim(), password)
+    const { user, session, error: err } = await signUpWithEmail(email.trim(), password)
     setLoading(false)
 
     if (err) {
@@ -43,9 +52,13 @@ export default function AccountPromptScreen() {
     }
 
     if (user) {
-      setAuthUser(user.id)
-      const state = useGameStore.getState()
-      await saveProgressToCloud(state)
+      if (session) {
+        setAuthUser(user.id)
+        const state = useGameStore.getState()
+        await saveProgressToCloud(state)
+      } else {
+        setNeedsEmailConfirm(true)
+      }
       setSuccess(true)
     }
   }
@@ -64,10 +77,14 @@ export default function AccountPromptScreen() {
       <div className="screen px-7 pt-12 pb-10 justify-between bg-background">
         <div className="onboarding-body-wrap">
           <div className="onboarding-slide">
-            <span className="onboarding-icon">☁️</span>
-            <h1 className="onboarding-title">¡Cuenta creada!</h1>
+            <span className="onboarding-icon">{needsEmailConfirm ? '📩' : '☁️'}</span>
+            <h1 className="onboarding-title">
+              {needsEmailConfirm ? 'Revisa tu correo' : '¡Cuenta creada!'}
+            </h1>
             <p className="onboarding-text">
-              Tu progreso ya está guardado en la nube. Puedes continuar desde cualquier dispositivo.
+              {needsEmailConfirm
+                ? 'Te enviamos un enlace para confirmar tu cuenta. Ábrelo y tu progreso empezará a guardarse en la nube.'
+                : 'Tu progreso ya está guardado en la nube. Puedes continuar desde cualquier dispositivo.'}
             </p>
           </div>
         </div>
@@ -139,14 +156,24 @@ export default function AccountPromptScreen() {
     <div className="screen px-7 pt-12 pb-10 justify-between bg-background">
       <div className="onboarding-body-wrap">
         <div className="onboarding-slide">
-          <span className="onboarding-icon">🎉</span>
-          <h1 className="onboarding-title">¡Gracias por participar!</h1>
-          <p className="onboarding-text">
-            Completaste las tres fases del estudio, así que tu participación ya quedó registrada como válida.
-          </p>
-          <p className="onboarding-text">
-            A partir de ahora la app queda libre para que sigas aprendiendo náhuat a tu ritmo.
-          </p>
+          <span className="onboarding-icon">{vieneDelEstudio ? '🎉' : '🌿'}</span>
+          <h1 className="onboarding-title">
+            {vieneDelEstudio ? '¡Gracias por participar!' : '¡Listo!'}
+          </h1>
+          {vieneDelEstudio ? (
+            <>
+              <p className="onboarding-text">
+                Completaste las tres fases del estudio, así que tu participación ya quedó registrada como válida.
+              </p>
+              <p className="onboarding-text">
+                A partir de ahora la app queda libre para que sigas aprendiendo náhuat a tu ritmo.
+              </p>
+            </>
+          ) : (
+            <p className="onboarding-text">
+              Ya puedes empezar a aprender náhuat.
+            </p>
+          )}
         </div>
 
         <div className="bg-white rounded-[20px] px-5 py-6 shadow-[0_4px_24px_rgba(0,0,0,0.12)] border border-border flex flex-col items-center gap-3 text-center my-4">

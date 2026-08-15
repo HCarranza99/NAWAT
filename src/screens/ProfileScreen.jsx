@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   BookOpen,
   ChevronRight,
@@ -9,15 +9,20 @@ import {
   Heart,
   LogOut,
   Medal,
+  Pencil,
   ShieldCheck,
+  UserRoundPen,
   Zap,
 } from 'lucide-react'
 
 import useGameStore, { PHASES } from '../store/useGameStore'
 import { DONATION_ENABLED } from '../data/donation'
 import { GAME_CONFIG } from '../data/gameConfig'
+import { distritoLabel, faltanDatosDeRegistro, paisLabel, residenciaLabel } from '../data/registro'
+import RegistrationFields from '../components/RegistrationFields'
 import TorogozBadge from '../components/ui/TorogozBadge'
-import { signOut } from '../services/auth'
+import { saveParticipantRegistration } from '../services/analytics'
+import { saveProgressToCloud, signOut } from '../services/auth'
 import { usePwaInstall } from '../hooks/usePwaInstall'
 
 function StatCard({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
@@ -33,12 +38,64 @@ function StatCard({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
 export default function ProfileScreen() {
   const [loggingOut, setLoggingOut] = useState(false)
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { canInstall, install } = usePwaInstall()
   const {
     xp, streak, lastPlayedDate,
-    participantName,
+    participantName, participantAge, participantResidence,
+    participantDistrict, participantCountry,
     isGuestMode, setAuthUser,
   } = useGameStore()
+
+  // ── Datos del registro ───────────────────────────────────────
+  // El aviso del inicio entra por aquí (/profile?completar=1) y abre el
+  // formulario de una, sin obligar a buscar el botón. Se lee al montar en vez
+  // de sincronizarlo con un efecto: es el estado inicial, no una suscripción.
+  const [editandoDatos, setEditandoDatos] = useState(() => searchParams.get('completar') === '1')
+  const [guardandoDatos, setGuardandoDatos] = useState(false)
+  const [errorDatos, setErrorDatos] = useState('')
+  const faltanDatos = faltanDatosDeRegistro({
+    participantName, participantAge, participantResidence,
+    participantDistrict, participantCountry,
+  })
+  // Lo más específico primero: quien dice "Nahuizalco" se reconoce ahí, no en
+  // "Sonsonate".
+  const lugar = participantCountry
+    ? paisLabel(participantCountry)
+    : (distritoLabel(participantDistrict) ?? residenciaLabel(participantResidence))
+
+  /** Cierra el formulario y limpia el parámetro para que recargar no lo reabra. */
+  const cerrarEditor = () => {
+    setEditandoDatos(false)
+    setErrorDatos('')
+    if (searchParams.has('completar')) setSearchParams({}, { replace: true })
+  }
+
+  const guardarDatos = async (datos) => {
+    setErrorDatos('')
+    setGuardandoDatos(true)
+
+    // Primero lo local: aunque la red falle, la app ya lo sabe y la próxima
+    // sincronización lo sube.
+    useGameStore.getState().completeRegistration(datos)
+    useGameStore.getState().dismissRegistrationPrompt()
+
+    const { participantId, authUserId } = useGameStore.getState()
+    // El participante ya existe, así que esto no puede ir en su fila: se envía
+    // a la tabla de solo-agregar. Si aún no existiera (registro fallido sin
+    // red), App.jsx lo crea con estos datos.
+    const guardado = participantId
+      ? await saveParticipantRegistration(participantId, datos)
+      : true
+    if (authUserId) await saveProgressToCloud(useGameStore.getState())
+
+    setGuardandoDatos(false)
+    if (!guardado) {
+      setErrorDatos('Se guardó en este dispositivo, pero no pudimos enviarlo. Revisa tu conexión.')
+      return
+    }
+    cerrarEditor()
+  }
 
   const xpPerLevel = GAME_CONFIG.xp.perLevel
   const level = Math.floor(xp / xpPerLevel) + 1
@@ -123,6 +180,50 @@ export default function ProfileScreen() {
           <StatCard icon={Heart} value={GAME_CONFIG.lives.max} label="Vidas por lección" tone="text-[#d94848]" />
         </section>
 
+        {/* Datos del registro. Dos caras del mismo botón: invitación cuando
+            faltan (los 463 participantes que ya existían nunca los dieron) y
+            resumen editable cuando ya están. */}
+        {faltanDatos ? (
+          <button
+            onClick={() => setEditandoDatos(true)}
+            className="flex w-full items-center gap-3 rounded-2xl border border-[#1f7a57]/30 bg-[#eef8f2] p-4 text-left transition active:scale-[0.99]"
+            data-testid="completar-registro"
+          >
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#52b788] to-[#1f7a57] text-white shadow-[0_6px_16px_rgba(31,122,87,0.28)]">
+              <UserRoundPen className="h-5 w-5" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[0.92rem] font-black leading-tight text-[#17211d]">
+                Cuéntanos quién eres
+              </span>
+              <span className="mt-1 block text-[0.76rem] font-semibold leading-snug text-[#6d756e]">
+                Nombre, edad y de dónde eres. Toma menos de un minuto y nos ayuda a
+                mejorar la app.
+              </span>
+            </span>
+            <ChevronRight className="h-5 w-5 shrink-0 text-[#1f7a57]" />
+          </button>
+        ) : (
+          <button
+            onClick={() => setEditandoDatos(true)}
+            className="flex w-full items-center gap-3 rounded-2xl border border-hairline bg-white px-4 py-3 text-left transition hover:bg-[#faf9f5] active:scale-[0.99]"
+            data-testid="editar-registro"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eef8f2] text-[#1f7a57]">
+              <Pencil className="h-[18px] w-[18px]" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[0.86rem] font-black leading-tight text-[#17211d]">
+                Tus datos
+              </span>
+              <span className="mt-0.5 block truncate text-[0.74rem] font-semibold leading-snug text-[#6d756e]">
+                {participantName} · {participantAge} años · {lugar}
+              </span>
+            </span>
+            <ChevronRight className="h-4 w-4 shrink-0 text-[#a8b0a8]" />
+          </button>
+        )}
+
         {lastPlayedDate && (
           <p className="rounded-md border border-[#e3ded2] bg-white px-4 py-3 text-center text-sm font-medium text-[#6d756e] shadow-sm">
             Última sesión: {new Date(lastPlayedDate).toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -187,6 +288,72 @@ export default function ProfileScreen() {
           )}
         </section>
       </main>
+
+      {editandoDatos && (
+        <EditorDeDatos
+          initial={{
+            nombre: participantName ?? '',
+            edad: participantAge,
+            residencia: participantResidence ?? '',
+            distrito: participantDistrict ?? '',
+            pais: participantCountry ?? '',
+          }}
+          loading={guardandoDatos}
+          error={errorDatos}
+          onSubmit={guardarDatos}
+          onClose={cerrarEditor}
+        />
+      )}
+    </div>
+  )
+}
+
+/* ── Formulario de datos, sobre la pantalla de perfil ────────────── */
+function EditorDeDatos({ initial, loading, error, onSubmit, onClose }) {
+  return (
+    <div
+      className="fixed inset-0 z-[300] overflow-y-auto bg-black/45 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Tus datos"
+    >
+      <div className="mx-auto flex min-h-svh w-full max-w-[480px] flex-col bg-background px-6 pb-8 pt-6">
+        <header className="flex flex-col gap-2">
+          <button
+            type="button"
+            className="self-start py-1 text-[0.9rem] font-bold text-muted-foreground"
+            onClick={onClose}
+            disabled={loading}
+            aria-label="Cerrar"
+          >
+            ← Volver
+          </button>
+          <h2 className="text-[1.5rem] font-black tracking-tight text-[#17211d]">Tus datos</h2>
+          <p className="text-[0.85rem] font-medium leading-snug text-muted-foreground">
+            Nos ayudan a saber quién está aprendiendo náhuat. Puedes cambiarlos cuando
+            quieras.
+          </p>
+        </header>
+
+        <div className="mt-6 flex flex-1 flex-col">
+          <RegistrationFields
+            initial={initial}
+            submitLabel="Guardar"
+            loading={loading}
+            onSubmit={onSubmit}
+          >
+            {error && (
+              <p role="alert" className="text-[0.8rem] font-semibold text-destructive">
+                {error}
+              </p>
+            )}
+            <p className="text-[0.78rem] leading-snug text-muted-foreground">
+              Usamos estos datos solo para entender quién usa la app y mejorarla. No los
+              compartimos ni los vendemos.
+            </p>
+          </RegistrationFields>
+        </div>
+      </div>
     </div>
   )
 }

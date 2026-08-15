@@ -20,7 +20,10 @@ export default function BottomNav() {
     location.pathname.startsWith('/section/') ||
     location.pathname.startsWith('/lesson/') ||
     location.pathname === '/review' ||
-    location.pathname === '/result'
+    location.pathname === '/result' ||
+    // La encuesta se responde sin distracciones: nada de barra de navegación
+    // que invite a abandonarla a media pregunta.
+    location.pathname === '/encuesta'
   if (hidden) return null
 
   const activeTab = tabs.find((tab) => tab.path === location.pathname)?.id || 'home'

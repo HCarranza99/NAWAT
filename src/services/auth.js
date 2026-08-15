@@ -56,16 +56,22 @@ export async function signInWithGoogle() {
 
 /**
  * Registra un nuevo usuario con email y contraseña.
- * @returns {{ user, error }}
+ *
+ * `session` es null cuando el proyecto exige confirmar el correo: la cuenta
+ * existe pero todavía no hay sesión, así que el progreso NO se puede subir
+ * hasta que el usuario abra el enlace. Quien llama debe decírselo en vez de
+ * dar por hecho que ya quedó guardado.
+ *
+ * @returns {{ user, session, error }}
  */
 export async function signUpWithEmail(email, password) {
   try {
     const { data, error } = await supabase.auth.signUp({ email, password })
-    if (error) return { user: null, error: error.message }
-    return { user: data.user, error: null }
+    if (error) return { user: null, session: null, error: error.message }
+    return { user: data.user, session: data.session ?? null, error: null }
   } catch (e) {
     logError('signUpWithEmail', e)
-    return { user: null, error: 'Error de conexión. Verifica tu internet.' }
+    return { user: null, session: null, error: 'Error de conexión. Verifica tu internet.' }
   }
 }
 
@@ -120,6 +126,16 @@ function gameStateToProfile(userId, state) {
   return {
     id: userId,
     participant_id: state.participantId ?? null,
+    // Identidad del registro de entrada. Se guarda con la cuenta porque
+    // `participants` no es legible desde el cliente (solo INSERT para anon),
+    // así que esta es la única forma de reconstruirla al iniciar sesión en
+    // otro dispositivo. Ver 20260815_user_profile_registration.sql.
+    first_name: state.participantName ?? null,
+    age: state.participantAge ?? null,
+    residence: state.participantResidence ?? null,
+    district: state.participantDistrict ?? null,
+    country: state.participantCountry ?? null,
+    registration_completed_at: state.registrationCompletedAt ?? null,
     xp: state.xp,
     lives: state.lives,
     lives_last_lost_at: state.livesLastLostAt ?? null,
@@ -141,6 +157,15 @@ function gameStateToProfile(userId, state) {
 function profileToGameState(row) {
   if (!row) return null
   return {
+    // Identidad: la adopta `adoptCloudIdentity` fuera del merge por XP, porque
+    // saber QUIÉN es no depende de quién tiene más progreso.
+    participantId: row.participant_id ?? null,
+    participantName: row.first_name ?? null,
+    participantAge: row.age ?? null,
+    participantResidence: row.residence ?? null,
+    participantDistrict: row.district ?? null,
+    participantCountry: row.country ?? null,
+    registrationCompletedAt: row.registration_completed_at ?? null,
     xp: row.xp ?? 0,
     lives: row.lives ?? 3,
     livesLastLostAt: row.lives_last_lost_at ?? null,

@@ -269,6 +269,75 @@ export const POSTTEST_ITEMS = [
 
 // ── Labels estándar para Likert 5 (coherente en toda la app) ────────────────
 // Versión larga: para aria-label (lectores de pantalla)
+// ── ENCUESTA DE ENTRADA ─────────────────────────────────────────────────────
+/**
+ * Cuatro preguntas que aparecen UNA vez, al terminar la primera lección.
+ *
+ * Por qué ahí y no en el registro: antes de la primera lección nadie ha
+ * invertido nada y cualquier pregunta de más es una razón para cerrar la app.
+ * Después de terminarla ya hubo una recompensa, y el que llegó hasta ahí es
+ * justo el que vale la pena describir.
+ *
+ * Todas son opcionales (`is_required: false`): el runner deja pasar en blanco.
+ *
+ * La primera y la segunda son las que de verdad importan y no se pueden
+ * responder con la telemetría: separan a quien tiene el náhuat en la familia
+ * —hablantes de herencia— de quien llega desde cero. Son dos públicos con
+ * necesidades distintas y hoy se ven idénticos en los datos.
+ *
+ * Los `code` y los `value` deben coincidir con el seed de
+ * 20260816_encuesta_entrada.sql, igual que pretest y postest.
+ */
+export const ENTRY_SURVEY_ITEMS = [
+  {
+    code: 'ent_1', phase: 'entrada', section: 'A', item_type: 'single_choice',
+    question_text: '¿Cuánto náhuat sabías antes de abrir esta app?',
+    options: [
+      { value: 'nada', label: 'Nada' },
+      { value: 'palabras', label: 'Algunas palabras sueltas' },
+      { value: 'frases', label: 'Frases sencillas' },
+      { value: 'entiendo', label: 'Lo entiendo, pero no lo hablo' },
+      { value: 'hablo', label: 'Lo hablo' },
+    ],
+    is_required: false, order_index: 1,
+  },
+  {
+    code: 'ent_2', phase: 'entrada', section: 'A', item_type: 'single_choice',
+    question_text: '¿Alguien de tu familia habla o hablaba náhuat?',
+    options: [
+      { value: 'si_vive', label: 'Sí, y todavía lo habla' },
+      { value: 'si_antes', label: 'Sí, pero ya no o falleció' },
+      { value: 'no', label: 'No' },
+      { value: 'no_se', label: 'No lo sé' },
+    ],
+    is_required: false, order_index: 2,
+  },
+  {
+    code: 'ent_3', phase: 'entrada', section: 'B', item_type: 'single_choice',
+    question_text: '¿Por qué quieres aprender náhuat?',
+    options: [
+      { value: 'raices', label: 'Por mis raíces y mi identidad' },
+      { value: 'curiosidad', label: 'Por curiosidad' },
+      { value: 'estudio_trabajo', label: 'Por estudio o trabajo' },
+      { value: 'ensenar', label: 'Para enseñárselo a alguien' },
+      { value: 'otra', label: 'Otra razón', allow_custom: true },
+    ],
+    is_required: false, order_index: 3,
+  },
+  {
+    code: 'ent_4', phase: 'entrada', section: 'B', item_type: 'single_choice',
+    question_text: '¿Cómo llegaste a esta app?',
+    options: [
+      { value: 'redes', label: 'Por redes sociales' },
+      { value: 'recomendacion', label: 'Alguien me la recomendó' },
+      { value: 'buscando', label: 'Buscando en internet' },
+      { value: 'clase', label: 'En una clase o institución' },
+      { value: 'otra', label: 'De otra forma', allow_custom: true },
+    ],
+    is_required: false, order_index: 4,
+  },
+]
+
 export const LIKERT_5_LABELS = {
   1: 'Totalmente en desacuerdo',
   2: 'En desacuerdo',

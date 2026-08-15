@@ -17,12 +17,18 @@ import { MIN_SCORE_TO_PASS } from '../data/gameConfig'
  * Crea un participante en Supabase y retorna su UUID.
  * Si falla, genera un UUID local para no bloquear el onboarding.
  *
+ * El registro de entrada (edad y residencia) viaja en el MISMO insert y no en
+ * un update posterior: `participants` solo concede INSERT a la clave anónima
+ * (ver 20260517_fix_lesson_telemetry.sql), justamente para que nadie pueda
+ * reescribir filas ajenas con la clave que va pública en el bundle.
+ *
  * @param {string|null} firstName
  * @param {string|null} lastName
  * @param {'study'|'free'} cohort - 'study' = entró por /estudio y consintió;
  *        'free' = uso general de la población (sin protocolo).
+ * @param {{ age?, residence?, district?, country? }} [registro]
  */
-export async function createParticipant(firstName, lastName, cohort = 'free') {
+export async function createParticipant(firstName, lastName, cohort = 'free', registro = {}) {
   if (DEMO_MODE) return 'demo-user'
   const participantId = crypto.randomUUID()
   try {
@@ -33,6 +39,10 @@ export async function createParticipant(firstName, lastName, cohort = 'free') {
         first_name: firstName ?? null,
         last_name: lastName ?? null,
         cohort,
+        age: registro.age ?? null,
+        residence: registro.residence ?? null,
+        district: registro.district ?? null,
+        country: registro.country ?? null,
       })
 
     if (error) throw error
@@ -44,6 +54,47 @@ export async function createParticipant(firstName, lastName, cohort = 'free') {
     // cada guardado. Sin participante, la app sigue en modo offline (App.jsx y
     // startSession ya omiten la telemetría cuando participantId es null).
     return null
+  }
+}
+
+/**
+ * Envía el registro de un participante que YA existe: quien venía usando la
+ * app desde antes de que se pidieran estos datos, quien los omitió, o quien
+ * quiere corregirlos.
+ *
+ * Va a `participant_registration_updates` y no a un UPDATE de `participants`
+ * porque esa tabla solo concede INSERT a la app: con permiso de UPDATE,
+ * cualquiera con la clave del bundle podría reescribir filas ajenas. Cada
+ * envío es una fila nueva y la vista v_participantes_registro resuelve cuál
+ * es la vigente (la más reciente). Ver la migración
+ * 20260815_participant_registration_updates.sql.
+ *
+ * @param {string} participantId
+ * @param {{ name?, age?, residence?, district?, country? }} registro
+ * @returns {Promise<boolean>} true si quedó guardado
+ */
+export async function saveParticipantRegistration(
+  participantId,
+  { name, age, residence, district, country } = {},
+) {
+  if (!participantId || DEMO_MODE) return false
+  try {
+    const { error } = await supabase
+      .from('participant_registration_updates')
+      .insert({
+        participant_id: participantId,
+        first_name: name ?? null,
+        age: age ?? null,
+        residence: residence ?? null,
+        district: district ?? null,
+        country: country ?? null,
+      })
+
+    if (error) throw error
+    return true
+  } catch (e) {
+    logError('saveParticipantRegistration', e)
+    return false
   }
 }
 

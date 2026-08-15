@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
-import { Clock3 } from 'lucide-react'
+import { Clock3, UserRoundPen, X } from 'lucide-react'
 
 import useGameStore, { PHASES } from '../store/useGameStore'
 import { INTERVENTION_MS } from '../data/questionnaires'
+import { faltanDatosDeRegistro } from '../data/registro'
 import MascotTutorial from '../components/ui/MascotTutorial'
 import { useIsDesktop } from '../hooks/useMediaQuery'
 import HomeDesktop from './HomeDesktop'
@@ -81,6 +83,43 @@ function StudyTimerBubble({ msLeft }) {
   )
 }
 
+/**
+ * Aviso para quien usa la app desde antes de que se pidieran estos datos —o
+ * los omitió—. Es la única forma de que se enteren: casi nadie entra a Perfil
+ * por su cuenta. Se puede cerrar, y cerrado no vuelve (registrationPromptDismissed).
+ */
+function CompletarPerfilBanner({ onDismiss }) {
+  const navigate = useNavigate()
+
+  return (
+    <div className="px-4 pt-4 lg:px-8 lg:pt-6" data-testid="banner-completar-perfil">
+      <div className="flex items-center gap-3 rounded-2xl border border-[#1f7a57]/25 bg-[#eef8f2] px-3.5 py-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#52b788] to-[#1f7a57] text-white">
+          <UserRoundPen className="h-[18px] w-[18px]" />
+        </span>
+        <button
+          className="min-w-0 flex-1 text-left"
+          onClick={() => navigate('/profile?completar=1')}
+        >
+          <span className="block text-[0.84rem] font-black leading-tight text-[#17211d]">
+            Cuéntanos quién eres
+          </span>
+          <span className="mt-0.5 block text-[0.72rem] font-semibold leading-snug text-[#6d756e]">
+            Tres datos, menos de un minuto.
+          </span>
+        </button>
+        <button
+          className="shrink-0 rounded-lg p-1.5 text-[#6d756e] transition hover:bg-black/5"
+          onClick={onDismiss}
+          aria-label="Ahora no"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function HomeScreen() {
   const isDesktop = useIsDesktop()
   const onboardingSeen = useGameStore((s) => s.onboardingSeen)
@@ -91,8 +130,23 @@ export default function HomeScreen() {
   const [tutorialDismissed, setTutorialDismissed] = useState(false)
   const [greeting] = useState(() => TOROGOZ_GREETINGS[Math.floor(Math.random() * TOROGOZ_GREETINGS.length)])
 
+  const participantName = useGameStore((s) => s.participantName)
+  const participantAge = useGameStore((s) => s.participantAge)
+  const participantResidence = useGameStore((s) => s.participantResidence)
+  const participantDistrict = useGameStore((s) => s.participantDistrict)
+  const participantCountry = useGameStore((s) => s.participantCountry)
+  const registrationPromptDismissed = useGameStore((s) => s.registrationPromptDismissed)
+  const dismissRegistrationPrompt = useGameStore((s) => s.dismissRegistrationPrompt)
+
   const activeLearningPhase = studyPhase === PHASES.PLAYING || studyPhase === PHASES.FREE
   const showTutorial = activeLearningPhase && !onboardingSeen && !tutorialDismissed
+  // Nunca los dos a la vez: el tutorial de la mascota es lo primero.
+  const showCompletarPerfil =
+    activeLearningPhase && !showTutorial && !registrationPromptDismissed &&
+    faltanDatosDeRegistro({
+      participantName, participantAge, participantResidence,
+      participantDistrict, participantCountry,
+    })
 
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -112,6 +166,8 @@ export default function HomeScreen() {
       animate={{ opacity: 1 }}
       className="min-h-svh bg-[#f7f5ef] text-foreground"
     >
+      {showCompletarPerfil && <CompletarPerfilBanner onDismiss={dismissRegistrationPrompt} />}
+
       {isDesktop ? <HomeDesktop greeting={greeting} /> : <HomeMobile greeting={greeting} />}
 
       {msLeft != null && <StudyTimerBubble msLeft={msLeft} />}

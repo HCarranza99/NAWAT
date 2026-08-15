@@ -2,7 +2,7 @@ import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { ArrowRight, Flame, Medal, RotateCcw, Star, Target, Zap } from 'lucide-react'
 
-import useGameStore from '../store/useGameStore'
+import useGameStore, { DEMO_MODE } from '../store/useGameStore'
 import Torogoz from '../components/ui/Torogoz'
 import { computeStars, MIN_SCORE_TO_PASS } from '../data/gameConfig'
 import { useSections } from '../hooks/useSections'
@@ -24,6 +24,8 @@ export default function ResultScreen() {
   const sections = useSections()
   const streak = useGameStore((store) => store.streak)
   const sectionProgress = useGameStore((store) => store.sectionProgress)
+  const participantId = useGameStore((store) => store.participantId)
+  const entrySurveyDismissed = useGameStore((store) => store.entrySurveyDismissed)
 
   if (!state) {
     return <Navigate to="/" replace />
@@ -33,6 +35,21 @@ export default function ResultScreen() {
   const pct = Math.round(score * 100)
   const stars = computeStars(score)
   const passed = score >= MIN_SCORE_TO_PASS
+
+  /**
+   * La encuesta de entrada se ofrece al salir de la PRIMERA lección aprobada:
+   * hubo recompensa antes de pedir nada, y quien llegó hasta aquí es el que
+   * vale la pena describir. `entrySurveyDismissed` queda puesto al pasar por
+   * ella, así que no vuelve a aparecer. Sin participante no se ofrece: las
+   * respuestas cuelgan de participant_id y quedarían huérfanas.
+   */
+  const encuestaPendiente = passed && !entrySurveyDismissed && Boolean(participantId) && !DEMO_MODE
+
+  /** Salida única: interpone la encuesta y luego sigue a donde iba el usuario. */
+  const salir = (destino) => {
+    if (encuestaPendiente) navigate('/encuesta', { state: { volverA: destino } })
+    else navigate(destino)
+  }
 
   // Acá vivía una segunda copia de findNextLesson, igual a la de lib/lessonPath
   // pero con su propia versión del desbloqueo. Se usa la compartida: con dos, la
@@ -141,7 +158,7 @@ export default function ResultScreen() {
             <button
               className="btn-3d btn-3d-primary"
               onClick={() =>
-                navigate(rutaDeLaLeccion(nextLesson.section, nextLesson.lesson, nextLesson.isBoss))
+                salir(rutaDeLaLeccion(nextLesson.section, nextLesson.lesson, nextLesson.isBoss))
               }
             >
               Siguiente lección
@@ -149,7 +166,7 @@ export default function ResultScreen() {
             </button>
             <button
               className="w-full py-2 text-sm font-bold text-[#6d756e] transition active:scale-[0.99]"
-              onClick={() => navigate('/')}
+              onClick={() => salir('/')}
             >
               Volver al inicio
             </button>
@@ -159,7 +176,7 @@ export default function ResultScreen() {
             {returnTo === '/sections' && (
               <button
                 className="btn-3d btn-3d-soft"
-                onClick={() => navigate('/sections')}
+                onClick={() => salir('/sections')}
               >
                 Ver módulos
                 <ArrowRight className="h-5 w-5" />
@@ -167,7 +184,7 @@ export default function ResultScreen() {
             )}
             <button
               className="btn-3d btn-3d-primary"
-              onClick={() => navigate('/')}
+              onClick={() => salir('/')}
             >
               Volver al inicio
               <ArrowRight className="h-5 w-5" />

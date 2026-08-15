@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import useGameStore, { PHASES, DEMO_MODE } from './store/useGameStore'
 import ErrorBoundary from './components/ErrorBoundary'
 import ConsentScreen from './screens/ConsentScreen'
+import RegistrationScreen from './screens/RegistrationScreen'
 import AboutScreen from './screens/AboutScreen'
 import PracticeScreen from './screens/PracticeScreen'
 import PretestScreen from './screens/PretestScreen'
@@ -10,6 +11,7 @@ import PosttestScreen from './screens/PosttestScreen'
 import AccountPromptScreen from './screens/AccountPromptScreen'
 import HomeScreen from './screens/HomeScreen'
 import ResultScreen from './screens/ResultScreen'
+import EntrySurveyScreen from './screens/EntrySurveyScreen'
 import SectionsScreen from './screens/SectionsScreen'
 import CurriculumLessonScreen from './screens/CurriculumLessonScreen'
 import ReviewScreen from './screens/ReviewScreen'
@@ -38,18 +40,40 @@ export default function App() {
   const setParticipant = useGameStore((s) => s.setParticipant)
   const studyThanks = useGameStore((s) => s.studyThanks)
   const dismissStudyThanks = useGameStore((s) => s.dismissStudyThanks)
+  const participantName = useGameStore((s) => s.participantName)
+  const participantAge = useGameStore((s) => s.participantAge)
+  const participantResidence = useGameStore((s) => s.participantResidence)
+  const participantDistrict = useGameStore((s) => s.participantDistrict)
+  const participantCountry = useGameStore((s) => s.participantCountry)
+  const registrationCompletedAt = useGameStore((s) => s.registrationCompletedAt)
 
-  // Modo libre: crea un participante anónimo (cohorte 'free') para registrar
-  // telemetría de la población general. Los participantes del estudio obtienen
-  // su participante en el consentimiento (cohorte 'study'), así que aquí se omiten.
+  // Modo libre: crea el participante (cohorte 'free') que ancla la telemetría de
+  // la población general, con los datos del registro de entrada. Los del estudio
+  // obtienen el suyo en el consentimiento (cohorte 'study'), así que se omiten.
+  //
+  // Espera a `registrationCompletedAt` a propósito: es lo que permite que el
+  // insert lleve nombre/edad/residencia (participants solo acepta INSERT, no
+  // UPDATE, desde la clave anónima). Si el insert falla, participantId sigue
+  // null y este efecto lo reintenta en la siguiente carga con los mismos datos,
+  // que quedaron persistidos.
   useEffect(() => {
     if (DEMO_MODE || participantId || enrolledInStudy) return
+    if (!registrationCompletedAt) return
     let cancelled = false
-    createParticipant(null, null, 'free').then((id) => {
-      if (!cancelled && id) setParticipant(id, null)
+    createParticipant(participantName, null, 'free', {
+      age: participantAge,
+      residence: participantResidence,
+      district: participantDistrict,
+      country: participantCountry,
+    }).then((id) => {
+      if (!cancelled && id) setParticipant(id, participantName)
     })
     return () => { cancelled = true }
-  }, [participantId, enrolledInStudy, setParticipant])
+  }, [
+    participantId, enrolledInStudy, setParticipant, registrationCompletedAt,
+    participantName, participantAge, participantResidence,
+    participantDistrict, participantCountry,
+  ])
 
   // Inicializar observador de sesión de Supabase Auth (skip in demo mode)
   const { isLoading: authLoading } = useAuth()
@@ -124,11 +148,16 @@ export default function App() {
   // Se ejecuta cada vez que el studyPhase cambia (hitos clave del protocolo)
   // y también cada 60 segundos mientras está jugando
   // No aplica en demo mode.
+  //
+  // Depende también de participantId: al crear cuenta recién registrado, el
+  // participante suele nacer unos ms DESPUÉS del login, y sin esta dependencia
+  // el enlace cuenta↔participante esperaba hasta el siguiente tick de 60 s
+  // (o se perdía si la persona cerraba la app antes).
   useEffect(() => {
     if (!authUserId || DEMO_MODE) return
     const state = useGameStore.getState()
     saveProgressToCloud(state)
-  }, [authUserId, studyPhase])
+  }, [authUserId, studyPhase, participantId])
 
   useEffect(() => {
     if (!authUserId || DEMO_MODE) return
@@ -144,6 +173,9 @@ export default function App() {
     <Routes>
       <Route path="/" element={<HomeScreen />} />
       <Route path="/result" element={<ResultScreen />} />
+      {/* Encuesta de entrada: se interpone una vez, al salir de la primera
+          lección aprobada (ver ResultScreen). */}
+      <Route path="/encuesta" element={<EntrySurveyScreen />} />
       {/* La ruta de aprendizaje: los módulos del currículo v2 */}
       <Route path="/sections" element={<SectionsScreen />} />
       <Route path="/curriculo/:lessonId" element={<CurriculumLessonScreen />} />
@@ -181,6 +213,18 @@ export default function App() {
     // Esperar a que Supabase resuelva la sesión antes de mostrar cualquier pantalla
     // (evita flash de ConsentScreen para usuarios ya autenticados)
     if (authLoading) return null
+
+    // Registro de entrada: primera pantalla de quien abre la app por primera
+    // vez en modo libre. Los del estudio no lo ven (sus datos los pide el
+    // consentimiento) y quien ya tiene participante tampoco: solo se pregunta
+    // una vez por dispositivo.
+    const needsRegistration =
+      !registrationCompletedAt && !participantId && !enrolledInStudy &&
+      studyPhase === PHASES.FREE
+
+    if (needsRegistration) {
+      return <div className="app-shell"><RegistrationScreen /></div>
+    }
 
     // Fases de onboarding: flujo de una sola columna (marco móvil centrado)
     const onboarding =
@@ -243,7 +287,10 @@ function AppChrome({ children }) {
   const focused = location.pathname.startsWith('/section/') ||
     location.pathname.startsWith('/lesson/') ||
     location.pathname === '/review' ||
-    location.pathname === '/result'
+    location.pathname === '/result' ||
+    // La encuesta se responde sin distracciones: nada de barra de navegación
+    // que invite a abandonarla a media pregunta.
+    location.pathname === '/encuesta'
 
   const showSidebar = isDesktop && !focused
 
@@ -267,7 +314,10 @@ function DemoBanner() {
   const hidden = location.pathname.startsWith('/section/') ||
     location.pathname.startsWith('/lesson/') ||
     location.pathname === '/review' ||
-    location.pathname === '/result'
+    location.pathname === '/result' ||
+    // La encuesta se responde sin distracciones: nada de barra de navegación
+    // que invite a abandonarla a media pregunta.
+    location.pathname === '/encuesta'
 
   if (hidden) return null
 
