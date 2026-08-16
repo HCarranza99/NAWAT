@@ -1,14 +1,21 @@
 /**
  * LoginScreen.jsx
  *
- * Pantalla de inicio de sesión con email/contraseña y Google OAuth.
- * Accesible desde el botón "¿Ya tienes cuenta?" en ConsentScreen.
+ * Inicio de sesión con correo y contraseña o con Google. Se llega desde dos
+ * lados y por eso el pie es configurable:
+ *   • RegistrationScreen — "¿Ya tienes cuenta?", antes de registrarse.
+ *   • ProfileScreen      — quien cerró sesión y quiere volver a entrar.
+ *
+ * `onSuccess` importa cuando esta pantalla se abre ENCIMA de otra (Perfil):
+ * ahí nada cambia de ruta al iniciar sesión, así que sin ese aviso el usuario
+ * se quedaría mirando el formulario ya autenticado. Con Google no hace falta:
+ * la página se va a la redirección.
  */
 import { useState } from 'react'
 import { signInWithEmail, signInWithGoogle } from '../services/auth'
 import useGameStore from '../store/useGameStore'
 
-export default function LoginScreen({ onBack }) {
+export default function LoginScreen({ onBack, onSuccess, hint }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -35,8 +42,9 @@ export default function LoginScreen({ onBack }) {
       return
     }
 
-    // El hook useAuth en App.jsx se encarga del merge y la navegación
+    // El hook useAuth en App.jsx se encarga del merge y de restaurar identidad
     setAuthUser(user.id)
+    onSuccess?.()
   }
 
   const handleGoogleLogin = async () => {
@@ -135,11 +143,11 @@ export default function LoginScreen({ onBack }) {
           </button>
         </form>
 
-        {/* El registro de entrada es la puerta de los nuevos: se crea la cuenta
-            al terminarlo, no aquí. */}
-        <p className="text-[0.82rem] text-muted-foreground text-center leading-[1.5] pt-2">
-          ¿Eres nuevo? Vuelve atrás y llena el registro: son tres datos.
-        </p>
+        {hint && (
+          <p className="text-[0.82rem] text-muted-foreground text-center leading-[1.5] pt-2">
+            {hint}
+          </p>
+        )}
       </div>
     </div>
   )

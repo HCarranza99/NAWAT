@@ -217,8 +217,11 @@ export default function AccountPromptScreen() {
         <button className="text-[0.88rem] text-muted-foreground underline py-2" onClick={goFree}>
           Continuar sin cuenta
         </button>
+        {/* Decir dónde queda el progreso no basta: hay que decir cómo se
+            pierde, que es lo que la gente no anticipa. */}
         <p className="text-[0.78rem] text-muted-foreground text-center leading-[1.5]">
-          ⚠️ Sin cuenta, tu progreso solo se guarda en este dispositivo.
+          ⚠️ Sin cuenta, tu avance queda solo en este dispositivo: si cambias de
+          teléfono, borras los datos del navegador o desinstalas la app, se pierde.
         </p>
       </div>
     </div>

@@ -193,6 +193,52 @@ const useGameStore = create(
       dismissRegistrationPrompt: () => set({ registrationPromptDismissed: true }),
 
       /**
+       * Deja el dispositivo como recién instalado, tras cerrar sesión.
+       *
+       * Antes esto solo borraba `authUserId`: el progreso, el nombre y el
+       * participante de quien se iba se quedaban ahí. Dos problemas. El de
+       * enfrente es que el siguiente en agarrar el teléfono veía el avance
+       * ajeno con su nombre; el de atrás es peor: al entrar OTRA cuenta, el
+       * merge por XP podía llevarse ese progreso prestado a la cuenta nueva.
+       *
+       * Borrar es seguro porque lo que se borra está en la nube: quien vuelva
+       * a entrar recupera todo con `adoptCloudIdentity`. Por eso ProfileScreen
+       * sincroniza ANTES de cerrar sesión.
+       *
+       * También se limpia `enrolledInStudy`: sin eso, un dispositivo que un día
+       * entró por /estudio quedaría sin registro y sin participante, y por lo
+       * tanto sin telemetría y sin puerta para volver a iniciar sesión. El
+       * historial del estudio vive en Supabase, no en este localStorage.
+       */
+      signOutLocal: () => set({
+        authUserId: null,
+        isGuestMode: true,
+        currentSessionId: null,
+        participantId: null,
+        participantName: null,
+        participantAge: null,
+        participantResidence: null,
+        participantDistrict: null,
+        participantCountry: null,
+        registrationCompletedAt: null,
+        registrationSkipped: false,
+        registrationPromptDismissed: false,
+        entrySurveyCompletedAt: null,
+        entrySurveyDismissed: false,
+        enrolledInStudy: false,
+        studyPhase: PHASES.FREE,
+        xp: 0,
+        lives: 3,
+        livesLastLostAt: null,
+        streak: 0,
+        lastPlayedDate: null,
+        lessonProgress: {},
+        sectionProgress: {},
+        srs: {},
+        onboardingSeen: false,
+      }),
+
+      /**
        * Cierra la encuesta de entrada, se haya respondido o no. En ambos casos
        * no se vuelve a ofrecer: preguntar dos veces molesta y además duplicaría
        * las respuestas de quien sí contestó.

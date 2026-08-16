@@ -44,7 +44,14 @@ export default function RegistrationScreen() {
   // Quien ya tiene cuenta se salta todo esto: al iniciar sesión, useAuth le
   // restaura nombre, edad, residencia y participante desde su perfil, y el
   // gate de App.jsx deja de mostrar esta pantalla.
-  if (showLogin) return <LoginScreen onBack={() => setShowLogin(false)} />
+  if (showLogin) {
+    return (
+      <LoginScreen
+        onBack={() => setShowLogin(false)}
+        hint="¿Eres nuevo? Vuelve atrás y llena el registro: son tres datos."
+      />
+    )
+  }
 
   return (
     <div className="screen bg-background px-6 pb-8 pt-10">

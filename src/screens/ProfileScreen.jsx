@@ -7,9 +7,11 @@ import {
   Download,
   Flame,
   Heart,
+  LogIn,
   LogOut,
   Medal,
   Pencil,
+  ShieldAlert,
   ShieldCheck,
   UserRoundPen,
   Zap,
@@ -20,6 +22,7 @@ import { DONATION_ENABLED } from '../data/donation'
 import { GAME_CONFIG } from '../data/gameConfig'
 import { distritoLabel, faltanDatosDeRegistro, paisLabel, residenciaLabel } from '../data/registro'
 import RegistrationFields from '../components/RegistrationFields'
+import LoginScreen from './LoginScreen'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import { saveParticipantRegistration } from '../services/analytics'
 import { saveProgressToCloud, signOut } from '../services/auth'
@@ -37,6 +40,8 @@ function StatCard({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
 
 export default function ProfileScreen() {
   const [loggingOut, setLoggingOut] = useState(false)
+  const [confirmandoSalida, setConfirmandoSalida] = useState(false)
+  const [mostrandoLogin, setMostrandoLogin] = useState(false)
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { canInstall, install } = usePwaInstall()
@@ -44,7 +49,7 @@ export default function ProfileScreen() {
     xp, streak, lastPlayedDate,
     participantName, participantAge, participantResidence,
     participantDistrict, participantCountry,
-    isGuestMode, setAuthUser,
+    isGuestMode,
   } = useGameStore()
 
   // ── Datos del registro ───────────────────────────────────────
@@ -102,11 +107,39 @@ export default function ProfileScreen() {
   const xpInLevel = xp % xpPerLevel
   const levelPct = Math.round((xpInLevel / xpPerLevel) * 100)
 
+  /**
+   * Cierra sesión de verdad: sube lo que falte, cierra en Supabase y deja el
+   * dispositivo limpio. El progreso no se pierde — queda en la cuenta y vuelve
+   * al iniciar sesión otra vez.
+   */
   const handleLogout = async () => {
     setLoggingOut(true)
+    // Primero sincronizar: si algo no había subido, este es el último momento
+    // en que existe localmente.
+    await saveProgressToCloud(useGameStore.getState())
     await signOut()
-    setAuthUser(null)
+    // El estado local de esta pantalla se cierra ANTES de limpiar el store:
+    // `signOutLocal` deja el dispositivo en blanco y la app salta al registro,
+    // así que a partir de esa línea este componente ya no está montado.
     setLoggingOut(false)
+    setConfirmandoSalida(false)
+    useGameStore.getState().signOutLocal()
+  }
+
+  // El login se monta ENCIMA de todo, no dentro del perfil: si no, la barra de
+  // navegación queda flotando sobre el formulario e invita a irse a medias.
+  if (mostrandoLogin) {
+    return (
+      <div className="fixed inset-0 z-[300] overflow-y-auto bg-background">
+        <div className="mx-auto w-full max-w-[480px]">
+          <LoginScreen
+            onBack={() => setMostrandoLogin(false)}
+            onSuccess={() => setMostrandoLogin(false)}
+            hint="¿No tienes cuenta? Vuelve atrás y toca “Crear una cuenta”."
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -148,16 +181,6 @@ export default function ProfileScreen() {
             {isGuestMode ? <ShieldCheck className="h-4 w-4 shrink-0" /> : <Cloud className="h-4 w-4 shrink-0" />}
             <span className="truncate">{isGuestMode ? 'Sin cuenta vinculada' : 'Cuenta vinculada'}</span>
           </div>
-
-          {isGuestMode && (
-            <button
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#1f7a57] px-3 py-2 text-xs font-extrabold text-white shadow-[0_8px_18px_rgba(31,122,87,0.2)] transition active:scale-[0.99]"
-              onClick={() => useGameStore.setState({ studyPhase: PHASES.ACCOUNT_PROMPT })}
-            >
-              <Cloud className="h-4 w-4" />
-              Crear cuenta
-            </button>
-          )}
         </div>
       </header>
 
@@ -268,26 +291,90 @@ export default function ProfileScreen() {
           <ChevronRight className="h-4 w-4 shrink-0 text-[#a8b0a8]" />
         </button>
 
-        <section className="space-y-2">
-          {canInstall && (
+        {/* Cuenta. Sin sesión, lo importante es que quede claro que el avance
+            vive solo aquí; con sesión, cómo salir. */}
+        {isGuestMode ? (
+          <section className="rounded-2xl border border-[#f4d7ad] bg-[#fff8ec] p-4" data-testid="sesion-local">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f4a261]/20 text-[#c77918]">
+                <ShieldAlert className="h-5 w-5" />
+              </span>
+              <div className="min-w-0">
+                <h2 className="text-[0.95rem] font-black leading-tight text-[#17211d]">
+                  Tu avance está solo en este dispositivo
+                </h2>
+                <p className="mt-1.5 text-[0.8rem] font-medium leading-snug text-[#8a4b12]">
+                  Si cambias de teléfono, borras los datos del navegador o desinstalas la
+                  app, se pierde. Con una cuenta lo llevas contigo y puedes seguir desde
+                  donde quedaste en cualquier dispositivo.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <button
+                className="btn-3d btn-3d-primary text-sm"
+                onClick={() => setMostrandoLogin(true)}
+                data-testid="iniciar-sesion"
+              >
+                <LogIn className="h-4 w-4" />
+                Iniciar sesión
+              </button>
+              <button
+                className="btn-3d btn-3d-soft text-sm"
+                onClick={() => useGameStore.setState({ studyPhase: PHASES.ACCOUNT_PROMPT })}
+              >
+                <Cloud className="h-4 w-4" />
+                Crear una cuenta
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section className="rounded-2xl border border-[#1f7a57]/25 bg-[#eef8f2] p-4" data-testid="sesion-en-nube">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1f7a57]/15 text-[#1f7a57]">
+                <Cloud className="h-5 w-5" />
+              </span>
+              <div className="min-w-0">
+                <h2 className="text-[0.95rem] font-black leading-tight text-[#17211d]">
+                  Tu avance se guarda en tu cuenta
+                </h2>
+                <p className="mt-1.5 text-[0.8rem] font-medium leading-snug text-[#4a6b5c]">
+                  Puedes cerrar sesión sin perder nada: al volver a entrar, tu progreso
+                  regresa contigo.
+                </p>
+              </div>
+            </div>
+
+            <button
+              className="btn-3d btn-3d-soft mt-4 text-sm"
+              onClick={() => setConfirmandoSalida(true)}
+              disabled={loggingOut}
+              data-testid="cerrar-sesion"
+            >
+              <LogOut className="h-4 w-4" />
+              Cerrar sesión
+            </button>
+          </section>
+        )}
+
+        {canInstall && (
+          <section>
             <button className="btn-3d btn-3d-primary text-sm" onClick={install}>
               <Download className="h-4 w-4" />
               Instalar app
             </button>
-          )}
-
-          {!isGuestMode && (
-            <button
-              className="btn-3d btn-3d-soft text-sm"
-              onClick={handleLogout}
-              disabled={loggingOut}
-            >
-              <LogOut className="h-4 w-4" />
-              {loggingOut ? 'Cerrando sesión...' : 'Cerrar sesión'}
-            </button>
-          )}
-        </section>
+          </section>
+        )}
       </main>
+
+      {confirmandoSalida && (
+        <ConfirmarSalida
+          loading={loggingOut}
+          onCancel={() => setConfirmandoSalida(false)}
+          onConfirm={handleLogout}
+        />
+      )}
 
       {editandoDatos && (
         <EditorDeDatos
@@ -304,6 +391,48 @@ export default function ProfileScreen() {
           onClose={cerrarEditor}
         />
       )}
+    </div>
+  )
+}
+
+/* ── Confirmación de cierre de sesión ───────────────────────────── */
+// Se confirma porque el dispositivo queda limpio: el avance sigue en la cuenta,
+// pero de aquí desaparece, y eso conviene decirlo antes y no después.
+function ConfirmarSalida({ loading, onCancel, onConfirm }) {
+  return (
+    <div
+      className="fixed inset-0 z-[300] flex items-center justify-center bg-black/45 p-5 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Cerrar sesión"
+    >
+      <div className="w-full max-w-[360px] rounded-[1.6rem] border border-hairline bg-white p-6 text-center shadow-[0_24px_60px_rgba(16,47,41,0.3)]">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eef8f2] text-[#1f7a57]">
+          <LogOut className="h-6 w-6" />
+        </div>
+        <h2 className="mt-4 text-xl font-black text-[#17211d]">¿Cerrar sesión?</h2>
+        <p className="mt-2 text-sm font-medium leading-snug text-[#6d756e]">
+          Tu progreso queda guardado en tu cuenta. Este dispositivo quedará en blanco
+          hasta que vuelvas a iniciar sesión.
+        </p>
+        <div className="mt-5 space-y-2">
+          <button
+            className="btn-3d btn-3d-primary text-sm"
+            onClick={onConfirm}
+            disabled={loading}
+            data-testid="confirmar-cerrar-sesion"
+          >
+            {loading ? 'Cerrando sesión…' : 'Sí, cerrar sesión'}
+          </button>
+          <button
+            className="btn-3d btn-3d-soft text-sm"
+            onClick={onCancel}
+            disabled={loading}
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
