@@ -16,7 +16,12 @@ export default defineConfig([
     },
     languageOptions: {
       ecmaVersion: 'latest',
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        // Lo inyecta vite (`define` en vite.config.js): el hash del commit de
+        // esta build. Viaja en cada fila de error_log.
+        __APP_VERSION__: 'readonly',
+      },
       parserOptions: {
         ecmaFeatures: { jsx: true },
         sourceType: 'module',

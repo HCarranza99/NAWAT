@@ -45,6 +45,17 @@ if (demoLocation.enabled) {
 export const DEMO_MODE = demoLocation.enabled
 
 /**
+ * Clave de localStorage donde persiste el estado. Se exporta porque
+ * `src/lib/logger.js` la necesita para leer el participantId al registrar un
+ * error: no puede importar el store entero, porque corre justo cuando algo ya
+ * falló y conviene que dependa de lo mínimo.
+ *
+ * Si esto cambia de nombre, el logger deja de saber a quién le pasó el error —
+ * en silencio. Por eso es una constante compartida y no dos literales.
+ */
+export const STORAGE_KEY = DEMO_MODE ? 'nahuat-demo-v1' : 'nahuat-game-v1'
+
+/**
  * Interruptor maestro del estudio. ABIERTO: entrar por `/estudio` (o
  * `?estudio=true`) inicia el protocolo en CONSENT y marca el dispositivo como
  * participante (cohorte 'study'); quien entra por `/` va a modo libre. Con el
@@ -449,7 +460,7 @@ const useGameStore = create(
       }),
     }),
     {
-      name: DEMO_MODE ? 'nahuat-demo-v1' : 'nahuat-game-v1',
+      name: STORAGE_KEY,
       version: 3,
       migrate: (state) => {
         // Compatibilidad: los usuarios previos (sin el flag) se consideran
