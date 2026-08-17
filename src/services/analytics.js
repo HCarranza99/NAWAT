@@ -132,13 +132,12 @@ export async function endSession(sessionId, startedAtMs) {
   if (endedSessions.has(sessionId)) return
   endedSessions.add(sessionId)
   try {
-    const endedAt = new Date().toISOString()
     const durationSeconds = Math.round((Date.now() - startedAtMs) / 1000)
 
-    const { error } = await supabase
-      .from('sessions')
-      .update({ ended_at: endedAt, duration_seconds: durationSeconds })
-      .eq('id', sessionId)
+    const { error } = await supabase.rpc('end_session', {
+      p_session_id: sessionId,
+      p_duration_seconds: durationSeconds,
+    })
 
     if (error) throw error
   } catch (e) {
@@ -188,20 +187,16 @@ export async function startLessonAttempt(participantId, sessionId, lesson) {
 export async function completeLessonAttempt(attemptId, startedAtMs, score, stars, xpEarned) {
   if (!attemptId || DEMO_MODE) return
   try {
-    const completedAt = new Date().toISOString()
     const durationSeconds = Math.round((Date.now() - startedAtMs) / 1000)
 
-    const { error } = await supabase
-      .from('lesson_attempts')
-      .update({
-        completed_at: completedAt,
-        duration_seconds: durationSeconds,
-        score,
-        stars,
-        xp_earned: xpEarned,
-        passed: score >= MIN_SCORE_TO_PASS,
-      })
-      .eq('id', attemptId)
+    const { error } = await supabase.rpc('complete_lesson_attempt', {
+      p_attempt_id: attemptId,
+      p_duration_seconds: durationSeconds,
+      p_score: score,
+      p_stars: stars,
+      p_xp_earned: xpEarned,
+      p_passed: score >= MIN_SCORE_TO_PASS,
+    })
 
     if (error) throw error
   } catch (e) {
@@ -307,20 +302,16 @@ export async function saveQuestionnaireResponse(
 ) {
   if (DEMO_MODE) return
   try {
-    const { error } = await supabase.from('questionnaire_responses').upsert(
-      {
-        participant_id: participantId,
-        session_id: sessionId,
-        phase,
-        item_code: itemCode,
-        value_numeric: valueNumeric,
-        value_text: valueText,
-        value_other: valueOther,
-        response_time_ms: responseTimeMs,
-        answered_at: new Date().toISOString(),
-      },
-      { onConflict: 'participant_id,phase,item_code' }
-    )
+    const { error } = await supabase.rpc('save_questionnaire_response', {
+      p_participant_id: participantId,
+      p_session_id: sessionId,
+      p_phase: phase,
+      p_item_code: itemCode,
+      p_value_numeric: valueNumeric,
+      p_value_text: valueText,
+      p_value_other: valueOther,
+      p_response_time_ms: responseTimeMs,
+    })
 
     if (error) throw error
   } catch (e) {
@@ -331,30 +322,34 @@ export async function saveQuestionnaireResponse(
 // ── Timeline de intervención ─────────────────────────────────────
 
 /**
- * Upsert helper para intervention_timeline — un solo row por participante.
+ * Marca un hito en intervention_timeline — un solo row por participante.
+ *
+ * El nombre del hito es un valor cerrado que la función valida en la base: el
+ * cliente no elige qué columna se escribe. La marca de tiempo la pone Postgres
+ * con now(), no el reloj del dispositivo, que puede venir corrido.
  */
-async function upsertTimeline(participantId, patch) {
+async function markMilestone(participantId, milestone) {
   if (DEMO_MODE) return
   try {
-    const { error } = await supabase.from('intervention_timeline').upsert(
-      { participant_id: participantId, ...patch },
-      { onConflict: 'participant_id' }
-    )
+    const { error } = await supabase.rpc('mark_intervention_milestone', {
+      p_participant_id: participantId,
+      p_milestone: milestone,
+    })
 
     if (error) throw error
   } catch (e) {
-    logError('upsertTimeline', e)
+    logError('markMilestone', e)
   }
 }
 
 export async function markPretestCompleted(participantId) {
-  await upsertTimeline(participantId, { pretest_completed_at: new Date().toISOString() })
+  await markMilestone(participantId, 'pretest_completed')
 }
 
 export async function markPosttestUnlocked(participantId) {
-  await upsertTimeline(participantId, { posttest_unlocked_at: new Date().toISOString() })
+  await markMilestone(participantId, 'posttest_unlocked')
 }
 
 export async function markPosttestCompleted(participantId) {
-  await upsertTimeline(participantId, { posttest_completed_at: new Date().toISOString() })
+  await markMilestone(participantId, 'posttest_completed')
 }
