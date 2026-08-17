@@ -20,6 +20,7 @@ import LogrosScreen from './screens/LogrosScreen'
 import DonateScreen from './screens/DonateScreen'
 import ThanksScreen from './screens/ThanksScreen'
 import CreditsScreen from './screens/CreditsScreen'
+import PrivacyScreen from './screens/PrivacyScreen'
 import BottomNav from './components/ui/BottomNav'
 import DesktopSidebar from './components/ui/DesktopSidebar'
 import { useIsDesktop } from './hooks/useMediaQuery'
@@ -194,6 +195,10 @@ export default function App() {
       <Route path="/gracias" element={<ThanksScreen />} />
       {/* Atribución de las fuentes del contenido (ver src/data/credits.js) */}
       <Route path="/creditos" element={<CreditsScreen />} />
+      {/* Aviso de privacidad. Quien está en el registro no llega acá: esa
+          pantalla va fuera del router y muestra el mismo texto desplegable
+          (ver components/PrivacyNotice.jsx). */}
+      <Route path="/privacidad" element={<PrivacyScreen />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

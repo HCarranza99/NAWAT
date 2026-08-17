@@ -278,10 +278,17 @@ export function isPaisValido(code) {
 }
 
 /**
- * Rango de edad aceptado. El mínimo es 5 porque abajo de eso el dato lo
- * escribe un adulto, no el usuario; el máximo evita erratas tipo 199.
+ * Rango de edad aceptado.
+ *
+ * El mínimo subió de 5 a 10 el 17-ago-2026, al abrir la app al público
+ * general. Con el consentimiento informado del estudio, pedirle nombre, edad y
+ * distrito a un niño de 5 años estaba cubierto; abierto a cualquiera, no. Diez
+ * es el piso donde la persona ya llena el formulario por su cuenta y entiende
+ * la cláusula que lo acompaña (ver src/data/privacidad.js).
+ *
+ * El máximo evita erratas tipo 199.
  */
-export const EDAD_MIN = 5
+export const EDAD_MIN = 10
 export const EDAD_MAX = 99
 
 /** Verdadero si la edad es un entero dentro del rango aceptado. */

@@ -10,6 +10,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import useGameStore, { PHASES } from '../store/useGameStore'
 import {
+  EDAD_MAX, EDAD_MIN,
   RESIDENCIAS, districtCode, distritosDe, isDistritoValido, isEdadValida,
   isPaisValido, isResidenciaValida, paises,
 } from '../data/registro'
@@ -621,11 +622,26 @@ describe('Catálogo de residencias', () => {
   })
 
   it('acepta edades del rango declarado y rechaza el resto', () => {
-    expect(isEdadValida(5)).toBe(true)
-    expect(isEdadValida(99)).toBe(true)
-    expect(isEdadValida(4)).toBe(false)
-    expect(isEdadValida(100)).toBe(false)
+    expect(isEdadValida(EDAD_MIN)).toBe(true)
+    expect(isEdadValida(EDAD_MAX)).toBe(true)
+    expect(isEdadValida(EDAD_MIN - 1)).toBe(false)
+    expect(isEdadValida(EDAD_MAX + 1)).toBe(false)
     expect(isEdadValida(24.5)).toBe(false)
     expect(isEdadValida(Number.NaN)).toBe(false)
+  })
+
+  /**
+   * El mínimo NO es un detalle de validación: es la decisión de a quién se le
+   * piden datos personales. Subió de 5 a 10 el 17-ago-2026 al abrir la app al
+   * público, y la misma cifra está en el CHECK de las tres tablas de Supabase
+   * (ver 20260817_edad_minima_10.sql) y en el texto de src/data/privacidad.js.
+   *
+   * Va con número literal a propósito: contra las constantes, esta prueba
+   * pasaría igual si alguien bajara EDAD_MIN sin querer.
+   */
+  it('la edad mínima está en 10 — bajarla es una decisión, no un ajuste', () => {
+    expect(EDAD_MIN).toBe(10)
+    expect(isEdadValida(9)).toBe(false)
+    expect(isEdadValida(10)).toBe(true)
   })
 })

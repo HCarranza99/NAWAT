@@ -291,6 +291,27 @@ export default function ProfileScreen() {
           <ChevronRight className="h-4 w-4 shrink-0 text-[#a8b0a8]" />
         </button>
 
+        {/* Privacidad: la cláusula ya se mostró en el registro, pero ahí se lee
+            con prisa. Acá queda para quien después se pregunta qué aceptó — y es
+            desde donde se pide el borrado de los datos. */}
+        <button
+          onClick={() => navigate('/privacidad')}
+          className="flex w-full items-center gap-3 rounded-2xl border border-hairline bg-white px-4 py-3 text-left transition hover:bg-[#faf9f5] active:scale-[0.99]"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eef8f2] text-[#1f7a57]">
+            <ShieldCheck className="h-[18px] w-[18px]" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[0.86rem] font-black leading-tight text-[#17211d]">
+              Privacidad
+            </span>
+            <span className="mt-0.5 block text-[0.74rem] font-semibold leading-snug text-[#6d756e]">
+              Qué guardamos, y cómo pedir que lo borremos
+            </span>
+          </span>
+          <ChevronRight className="h-4 w-4 shrink-0 text-[#a8b0a8]" />
+        </button>
+
         {/* Cuenta. Sin sesión, lo importante es que quede claro que el avance
             vive solo aquí; con sesión, cómo salir. */}
         {isGuestMode ? (

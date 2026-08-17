@@ -21,6 +21,7 @@
 import { useState } from 'react'
 import useGameStore, { PHASES } from '../store/useGameStore'
 import RegistrationFields from '../components/RegistrationFields'
+import PrivacyNotice from '../components/PrivacyNotice'
 import LoginScreen from './LoginScreen'
 import Torogoz from '../components/ui/Torogoz'
 
@@ -87,10 +88,7 @@ export default function RegistrationScreen() {
             </button>
           }
         >
-          <p className="text-[0.78rem] leading-snug text-muted-foreground">
-            Usamos estos datos solo para entender quién usa la app y mejorarla. No los
-            compartimos ni los vendemos.
-          </p>
+          <PrivacyNotice />
         </RegistrationFields>
       </div>
     </div>
