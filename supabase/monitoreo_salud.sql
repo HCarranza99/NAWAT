@@ -2,55 +2,62 @@
 --  monitoreo_salud.sql — ¿está pasando algo malo ahora mismo?
 --
 --  Una sola consulta que devuelve un veredicto. Pensada para pegarse en el SQL
---  Editor de Supabase, o para que la corra la rutina diaria.
+--  Editor de Supabase. La rutina diaria «Chequeo diario de salud - NAWAT» corre
+--  esta misma lógica y avisa al teléfono solo cuando hay algo que decir.
 --
 --  POR QUÉ NO ALCANZA CON MIRAR error_log
 --  Una tabla de errores vacía tranquiliza, y por eso engaña: puede significar
 --  que todo anda bien, o que la app entera no está llegando a la base y por eso
---  no hay ni errores que contar. Eso último fue exactamente junio de 2026 — 23
---  días sin guardar nada. Por eso el veredicto mira las dos cosas: si hay
---  errores, y si sigue entrando actividad.
+--  no hay ni errores que contar. Eso último fue junio de 2026 — 23 días sin
+--  guardar nada. Por eso el veredicto mira las dos cosas.
 --
---  ── LA CALIBRACIÓN, QUE ES LO QUE IMPORTA ──────────────────────────────────
+--  ── LAS DOS CALIBRACIONES QUE COSTARON APRENDER ────────────────────────────
 --
---  La primera versión de esto alertaba con «cero lecciones en 24 horas». Contra
---  los datos reales resultó inservible: en las tres semanas hasta el 17-ago-2026
---  hubo actividad en 8 días de 21, con huecos normales de 2 a 5 días seguidos.
---  Esa alerta habría sonado casi todos los días hasta volverse ruido, que es la
---  peor forma de fallar — una alerta que se ignora es lo mismo que no tenerla.
+--  1. LA SEÑAL DE VIDA ES `exercise_responses`, NO `lesson_attempts`.
+--     Es la más sensible: suma cada respuesta, no solo las lecciones
+--     terminadas. Y no depende de que la persona apruebe.
 --
---  Así que la ventana de silencio es de 7 DÍAS, no de 24 horas, y se compara
---  contra las 3 semanas anteriores: solo alerta si la app SOLÍA tener actividad
---  y dejó de tenerla. Con más tráfico esta ventana se puede acortar; revisar la
---  calibración con:
+--  2. LA VENTANA DE SILENCIO ES DE 7 DÍAS, NO DE 24 HORAS.
+--     La primera versión alertaba con «cero en 24 h» y era inservible: el
+--     tráfico es esporádico y habría sonado casi a diario hasta volverse ruido.
+--     Una alerta que se ignora es lo mismo que no tenerla. Con más tráfico esta
+--     ventana se puede acortar; revisar con:
 --
---    SELECT (completed_at AT TIME ZONE 'America/El_Salvador')::date AS dia,
---           count(*) FROM lesson_attempts
---     WHERE completed_at > now() - interval '21 days'
---     GROUP BY 1 ORDER BY 1 DESC;
+--       SELECT (answered_at AT TIME ZONE 'America/El_Salvador')::date AS dia,
+--              count(*) FROM exercise_responses
+--        WHERE answered_at > now() - interval '21 days'
+--        GROUP BY 1 ORDER BY 1 DESC;
 --
---  ── LOS TRES VEREDICTOS ────────────────────────────────────────────────────
+--  ── LOS CUATRO VEREDICTOS ──────────────────────────────────────────────────
 --
---   ERRORES  → hay fallos registrados en las últimas 24 h. Mirar `detalle`.
---              code 42501 = RLS rechazando algo (el fallo de junio otra vez)
---              code 23503 = llave foránea, participante huérfano
---              code 23505 = duplicado
---   SILENCIO → nadie completó una lección en 7 días, pero antes sí. O se cayó
---              algo, o el tráfico se murió. Las dos cosas hay que saberlas.
---   OK       → ni errores ni silencio. No hace falta hacer nada.
+--   ERRORES        → fallos registrados en las últimas 24 h. Mirar `detalle`.
+--                    42501 = RLS rechazando escrituras (el fallo de junio)
+--                    23503 = llave foránea · 23505 = duplicado
+--   SILENCIO       → 7 días sin una sola respuesta, habiendo actividad antes.
+--   SIN_LECCIONES  → hay ejercicios pero CERO lecciones terminadas. Es el bug
+--                    del 15 al 18 de agosto de 2026: CurriculumLessonScreen
+--                    dejó de pasarle `onStart` a LessonRunner y durante tres
+--                    días se perdieron puntaje, estrellas, XP y duración
+--                    mientras la app parecía estar midiendo. Si reaparece,
+--                    empezar por src/screens/CurriculumLessonScreen.jsx.
+--   OK             → nada que hacer.
 -- ════════════════════════════════════════════════════════════════════════════
 
 WITH errores AS (
-  SELECT scope, code, count(*) AS n, max(occurred_at) AS ultimo
+  SELECT scope, code, count(*) AS n
   FROM error_log
   WHERE occurred_at > now() - interval '24 hours'
   GROUP BY 1, 2
 ),
 actividad AS (
   SELECT
-    count(*) FILTER (WHERE completed_at > now() - interval '7 days')  AS ult_7d,
-    count(*) FILTER (WHERE completed_at > now() - interval '28 days'
-                       AND completed_at <= now() - interval '7 days') AS previos_21d
+    count(*) FILTER (WHERE answered_at > now() - interval '7 days')  AS ejercicios_7d,
+    count(*) FILTER (WHERE answered_at > now() - interval '28 days'
+                       AND answered_at <= now() - interval '7 days') AS ejercicios_previos
+  FROM exercise_responses
+),
+lecciones AS (
+  SELECT count(*) FILTER (WHERE completed_at > now() - interval '7 days') AS lecciones_7d
   FROM lesson_attempts
 ),
 registros AS (
@@ -59,20 +66,21 @@ registros AS (
 )
 SELECT
   CASE
-    WHEN (SELECT count(*) FROM errores) > 0        THEN 'ERRORES'
-    WHEN a.ult_7d = 0 AND a.previos_21d > 0        THEN 'SILENCIO'
+    WHEN (SELECT count(*) FROM errores) > 0                  THEN 'ERRORES'
+    WHEN a.ejercicios_7d = 0 AND a.ejercicios_previos > 0    THEN 'SILENCIO'
+    WHEN a.ejercicios_7d > 20 AND l.lecciones_7d = 0         THEN 'SIN_LECCIONES'
     ELSE 'OK'
-  END                                              AS veredicto,
-  (SELECT count(*) FROM errores)                   AS tipos_de_error_24h,
-  (SELECT coalesce(sum(n), 0) FROM errores)        AS errores_24h,
-  a.ult_7d                                         AS lecciones_ult_7d,
-  a.previos_21d                                    AS lecciones_21d_previos,
-  r.nuevos_7d                                      AS participantes_nuevos_7d,
+  END                                             AS veredicto,
+  (SELECT coalesce(sum(n), 0) FROM errores)       AS errores_24h,
+  a.ejercicios_7d,
+  a.ejercicios_previos,
+  l.lecciones_7d,
+  r.nuevos_7d,
   (SELECT coalesce(
      string_agg(scope || '/' || coalesce(code, '-') || ' x' || n, ', '
                 ORDER BY n DESC), '(ninguno)')
-   FROM errores)                                   AS detalle
-FROM actividad a, registros r;
+   FROM errores)                                  AS detalle
+FROM actividad a, lecciones l, registros r;
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- Si el veredicto es ERRORES, el desglose completo:
