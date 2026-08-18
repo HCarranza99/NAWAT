@@ -7,6 +7,7 @@ import Torogoz from '../components/ui/Torogoz'
 import { computeStars, MIN_SCORE_TO_PASS } from '../data/gameConfig'
 import { useSections } from '../hooks/useSections'
 import { findNextLesson, rutaDeLaLeccion } from '../lib/lessonPath'
+import { debeOfrecerCuenta } from '../lib/ofertaDeCuenta'
 
 function ResultStat({ icon: Icon, value, label, tone = 'text-[#1f7a57]' }) {
   return (
@@ -26,6 +27,8 @@ export default function ResultScreen() {
   const sectionProgress = useGameStore((store) => store.sectionProgress)
   const participantId = useGameStore((store) => store.participantId)
   const entrySurveyDismissed = useGameStore((store) => store.entrySurveyDismissed)
+  const authUserId = useGameStore((store) => store.authUserId)
+  const accountPromptDismissed = useGameStore((store) => store.accountPromptDismissed)
 
   if (!state) {
     return <Navigate to="/" replace />
@@ -45,9 +48,28 @@ export default function ResultScreen() {
    */
   const encuestaPendiente = passed && !entrySurveyDismissed && Boolean(participantId) && !DEMO_MODE
 
-  /** Salida única: interpone la encuesta y luego sigue a donde iba el usuario. */
+  /**
+   * ¿Acaba de completar su primer módulo de peso? Es cuando perder el avance
+   * empieza a doler de verdad, y por eso es cuando se ofrece la cuenta — no en
+   * el registro, donde la persona todavía no ha invertido nada. Ver
+   * lib/ofertaDeCuenta para la regla y el porqué del tamaño mínimo.
+   */
+  const cuentaPendiente = !DEMO_MODE && debeOfrecerCuenta(sections, {
+    sectionProgress,
+    authUserId,
+    accountPromptDismissed,
+  })
+
+  /**
+   * Salida única de la pantalla. Puede interponer DOS cosas, y el orden importa:
+   * primero la encuesta (que llega al aprobar la primera lección) y después la
+   * cuenta (al cerrar el primer módulo). Nunca coinciden —el primer módulo con
+   * dos o más lecciones llega bastante después de la primera— pero si algún día
+   * lo hicieran, la encuesta va antes y la cuenta espera al módulo siguiente.
+   */
   const salir = (destino) => {
     if (encuestaPendiente) navigate('/encuesta', { state: { volverA: destino } })
+    else if (cuentaPendiente) navigate('/cuenta', { state: { volverA: destino } })
     else navigate(destino)
   }
 

@@ -94,6 +94,7 @@ export const PHASES = Object.freeze({
   PLAYING: 'playing',
   POSTTEST: 'posttest',
   ACCOUNT_PROMPT: 'account_prompt',
+  INSTALL_PROMPT: 'install_prompt',
   FREE: 'free',
 })
 
@@ -109,6 +110,8 @@ const GameStateSchema = z.object({
   registrationPromptDismissed: z.boolean().catch(false),
   entrySurveyCompletedAt: z.string().nullable().catch(null),
   entrySurveyDismissed: z.boolean().catch(false),
+  installPromptDismissed: z.boolean().catch(false),
+  accountPromptDismissed: z.boolean().catch(false),
   authUserId: z.string().nullable().catch(null),
   isGuestMode: z.boolean().catch(true),
   studyPhase: z.string().catch(PHASES.FREE),
@@ -147,6 +150,11 @@ const useGameStore = create(
       // Encuesta de entrada: se ofrece al terminar la primera lección, una vez.
       entrySurveyCompletedAt: null,
       entrySurveyDismissed: false,
+      // Invitación a instalar la PWA: se muestra una vez, al terminar el registro.
+      installPromptDismissed: false,
+      // Oferta de cuenta: se muestra una vez, al completar el primer módulo
+      // con peso real (ver lib/ofertaDeCuenta).
+      accountPromptDismissed: false,
       authUserId: null,
       isGuestMode: true,
       currentSessionId: null,
@@ -236,6 +244,8 @@ const useGameStore = create(
         registrationPromptDismissed: false,
         entrySurveyCompletedAt: null,
         entrySurveyDismissed: false,
+        installPromptDismissed: false,
+        accountPromptDismissed: false,
         enrolledInStudy: false,
         studyPhase: PHASES.FREE,
         xp: 0,
@@ -258,6 +268,12 @@ const useGameStore = create(
         entrySurveyCompletedAt: dismissed ? null : new Date().toISOString(),
         entrySurveyDismissed: true,
       }),
+      /** Cierra la invitación a instalar y suelta a la persona en la app. */
+      finishInstallPrompt: () => set({ installPromptDismissed: true, studyPhase: PHASES.FREE }),
+
+      /** La oferta de cuenta ya se mostró: no se vuelve a interponer. */
+      dismissAccountPrompt: () => set({ accountPromptDismissed: true }),
+
       setAuthUser: (userId) => set({ authUserId: userId, isGuestMode: userId === null }),
       setOnboardingSeen: (seen) => set({ onboardingSeen: seen }),
 

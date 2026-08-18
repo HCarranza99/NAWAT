@@ -407,42 +407,49 @@ describe('Registro — trazabilidad', () => {
     llenarFormulario()
     fireEvent.click(screen.getByText('Continuar →'))
 
+    // La cuenta YA NO se ofrece acá. Se movió al final del primer módulo con
+    // peso real (ver lib/ofertaDeCuenta): ofrecerla antes de la primera
+    // lección era pedir que protegieran un progreso que aún no existía, y se
+    // notaba en los datos — 467 participantes, un solo perfil en la nube.
     await waitFor(() => {
-      expect(screen.getByText('Continuar con Google')).toBeInTheDocument()
+      expect(screen.queryByLabelText('Navegación principal')).toBeInTheDocument()
     })
-    expect(screen.getByText('Crear cuenta con correo')).toBeInTheDocument()
-    // Sin el postest de por medio, nada de textos del estudio.
-    expect(screen.queryByText('¡Gracias por participar!')).not.toBeInTheDocument()
+    expect(screen.queryByText('Continuar con Google')).not.toBeInTheDocument()
+    expect(screen.queryByText('Crear cuenta con correo')).not.toBeInTheDocument()
   })
 
-  it('los datos quedan persistidos ANTES de la oferta de cuenta', async () => {
-    // Crear cuenta con Google recarga la página: si el registro no estuviera
-    // ya guardado, la redirección se lo llevaría.
+  it('los datos quedan persistidos ANTES de salir del registro', async () => {
+    // Lo que sigue al registro puede recargar el documento —instalar la PWA, o
+    // crear cuenta con Google más adelante—: si los datos no estuvieran ya
+    // guardados, la recarga se los llevaría.
     render(<App />)
     await waitFor(() => expect(screen.getByText('Antes de empezar')).toBeInTheDocument())
 
     llenarFormulario({ nombre: 'Ana', edad: '19', residencia: 'ahuachapan', distrito: 'ahuachapan-tacuba' })
     fireEvent.click(screen.getByText('Continuar →'))
 
-    await waitFor(() => expect(screen.getByText('Continuar con Google')).toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByLabelText('Navegación principal')).toBeInTheDocument())
     const persistido = JSON.parse(localStorage.getItem('nahuat-game-v1')).state
     expect(persistido.participantName).toBe('Ana')
     expect(persistido.participantAge).toBe(19)
     expect(persistido.participantResidence).toBe('ahuachapan')
   })
 
-  it('desde la oferta de cuenta se puede entrar sin cuenta', async () => {
+  it('del registro se entra directo a la app', async () => {
+    // En jsdom no hay `beforeinstallprompt` ni iOS, así que la invitación a
+    // instalar no aplica y App.jsx salta esa fase sola. Es el mismo camino que
+    // sigue alguien en escritorio o en Firefox móvil: no se le muestra una
+    // pantalla que le pide algo que su navegador no puede hacer.
     render(<App />)
     await waitFor(() => expect(screen.getByText('Antes de empezar')).toBeInTheDocument())
 
     llenarFormulario()
     fireEvent.click(screen.getByText('Continuar →'))
-    await waitFor(() => expect(screen.getByText('Continuar sin cuenta')).toBeInTheDocument())
-    fireEvent.click(screen.getByText('Continuar sin cuenta'))
 
     await waitFor(() => {
       expect(screen.queryByLabelText('Navegación principal')).toBeInTheDocument()
     })
+    expect(screen.queryByText('Tenela a mano')).not.toBeInTheDocument()
   })
 
   it('quien ya tiene cuenta puede iniciar sesión desde el registro', async () => {

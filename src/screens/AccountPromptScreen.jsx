@@ -4,18 +4,28 @@
  * Oferta de cuenta. Se llega por tres caminos y el texto se adapta al que
  * corresponda, porque no es lo mismo cerrar un estudio que acabar de darse
  * de alta:
- *   1. Al terminar el registro de entrada (RegistrationScreen) — caso normal.
+ *   1. Al completar el primer módulo con peso real — caso normal, y por eso
+ *      llega como RUTA (/cuenta) desde ResultScreen. Antes se ofrecía justo
+ *      después del registro, cuando nadie había visto una lección todavía: el
+ *      resultado fueron 467 participantes y un solo perfil en la nube. Ver
+ *      lib/ofertaDeCuenta.
  *   2. Desde Perfil → "Crear cuenta".
  *   3. Al completar el postest, si el estudio se reabre (ver STUDY_OPEN).
  *
  * Ofrece Google, correo + contraseña, o seguir sin cuenta.
+ *
+ * SOBRE `onDone`
+ * La pantalla se monta de dos maneras: como FASE (fuera del router, casos 2 y
+ * 3) y como RUTA (dentro, caso 1). Por eso no puede llamar a `useNavigate` ella
+ * misma —fuera del router revienta— y recibe la salida como prop. Sin prop cae
+ * en `goFree`, que es lo que necesitan las fases.
  */
 import { useState } from 'react'
 import { signUpWithEmail, signInWithGoogle } from '../services/auth'
 import { saveProgressToCloud } from '../services/auth'
 import useGameStore from '../store/useGameStore'
 
-export default function AccountPromptScreen() {
+export default function AccountPromptScreen({ onDone }) {
   const [view, setView] = useState('prompt') // 'prompt' | 'register'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -28,6 +38,7 @@ export default function AccountPromptScreen() {
   const [needsEmailConfirm, setNeedsEmailConfirm] = useState(false)
 
   const goFree = useGameStore((s) => s.goFree)
+  const salir = onDone ?? goFree
   const setAuthUser = useGameStore((s) => s.setAuthUser)
   // Solo quien cerró el protocolo del estudio merece el texto del estudio.
   const posttestCompletedAt = useGameStore((s) => s.posttestCompletedAt)
@@ -89,7 +100,7 @@ export default function AccountPromptScreen() {
           </div>
         </div>
         <div className="onboarding-actions">
-          <button className="btn btn-primary" onClick={goFree}>
+          <button className="btn btn-primary" onClick={salir}>
             Comenzar →
           </button>
         </div>
@@ -214,7 +225,7 @@ export default function AccountPromptScreen() {
       </div>
 
       <div className="onboarding-actions">
-        <button className="text-[0.88rem] text-muted-foreground underline py-2" onClick={goFree}>
+        <button className="text-[0.88rem] text-muted-foreground underline py-2" onClick={salir}>
           Continuar sin cuenta
         </button>
         {/* Decir dónde queda el progreso no basta: hay que decir cómo se

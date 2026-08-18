@@ -32,14 +32,22 @@ export default function RegistrationScreen() {
   const skipRegistration = useGameStore((s) => s.skipRegistration)
 
   /**
-   * Guarda el registro y pasa a la oferta de cuenta (AccountPromptScreen).
-   * El guardado ocurre ANTES de ese paso a propósito: crear cuenta con Google
-   * recarga la página, y si los datos no estuvieran ya persistidos se perderían
-   * en la redirección.
+   * Guarda el registro y pasa a la invitación de instalar la app.
+   *
+   * Antes acá se ofrecía la CUENTA, y era demasiado pronto: nadie había visto
+   * una lección todavía, así que no había progreso que valiera la pena
+   * proteger. El resultado se veía en los datos — 467 participantes y un solo
+   * perfil en la nube. La cuenta ahora se ofrece al completar el primer módulo
+   * con peso real (ver lib/ofertaDeCuenta); acá va lo que sí se gana desde el
+   * primer día, que es tener la app en el teléfono.
+   *
+   * El guardado ocurre ANTES de cambiar de pantalla a propósito: instalar la
+   * PWA puede recargar el documento, y si los datos no estuvieran ya
+   * persistidos se perderían.
    */
   const cerrarRegistro = (accion) => {
     accion()
-    useGameStore.setState({ studyPhase: PHASES.ACCOUNT_PROMPT })
+    useGameStore.setState({ studyPhase: PHASES.INSTALL_PROMPT })
   }
 
   // Quien ya tiene cuenta se salta todo esto: al iniciar sesión, useAuth le

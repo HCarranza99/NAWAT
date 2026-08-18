@@ -21,6 +21,8 @@ import DonateScreen from './screens/DonateScreen'
 import ThanksScreen from './screens/ThanksScreen'
 import CreditsScreen from './screens/CreditsScreen'
 import PrivacyScreen from './screens/PrivacyScreen'
+import InstallPromptScreen from './screens/InstallPromptScreen'
+import AccountOfferRoute from './screens/AccountOfferRoute'
 import BottomNav from './components/ui/BottomNav'
 import DesktopSidebar from './components/ui/DesktopSidebar'
 import { useIsDesktop } from './hooks/useMediaQuery'
@@ -28,6 +30,8 @@ import { esModoEnfocado } from './lib/modoEnfocado'
 import { startSession, endSession, createParticipant } from './services/analytics'
 import { saveProgressToCloud } from './services/auth'
 import { useAuth } from './hooks/useAuth'
+import { usePwaInstall } from './hooks/usePwaInstall'
+import { esIOS, puedeInvitarAInstalar } from './lib/instalacion'
 import { INTERVENTION_MS } from './data/questionnaires'
 
 export default function App() {
@@ -48,6 +52,7 @@ export default function App() {
   const participantDistrict = useGameStore((s) => s.participantDistrict)
   const participantCountry = useGameStore((s) => s.participantCountry)
   const registrationCompletedAt = useGameStore((s) => s.registrationCompletedAt)
+  const finishInstallPrompt = useGameStore((s) => s.finishInstallPrompt)
 
   // Modo libre: crea el participante (cohorte 'free') que ancla la telemetría de
   // la población general, con los datos del registro de entrada. Los del estudio
@@ -79,6 +84,18 @@ export default function App() {
 
   // Inicializar observador de sesión de Supabase Auth (skip in demo mode)
   const { isLoading: authLoading } = useAuth()
+
+  // La invitación a instalar solo se muestra donde instalar es posible: Chrome
+  // la ofrece por `beforeinstallprompt`, y en iOS se explica el gesto a mano.
+  // En escritorio, en Firefox móvil o si la app YA está instalada no hay nada
+  // que pedir, así que la fase se salta sin que la persona vea una pantalla
+  // muerta. Pedir algo que no se puede hacer es peor que no pedir nada.
+  const { canInstall, isInstalled } = usePwaInstall()
+  useEffect(() => {
+    if (studyPhase !== PHASES.INSTALL_PROMPT) return
+    if (puedeInvitarAInstalar({ canInstall, isInstalled, ios: esIOS() })) return
+    finishInstallPrompt()
+  }, [studyPhase, canInstall, isInstalled, finishInstallPrompt])
 
   // Guardamos el ms de inicio para calcular duración al cerrar
   const sessionStartRef = useRef(null)
@@ -199,6 +216,9 @@ export default function App() {
           pantalla va fuera del router y muestra el mismo texto desplegable
           (ver components/PrivacyNotice.jsx). */}
       <Route path="/privacidad" element={<PrivacyScreen />} />
+      {/* Oferta de cuenta al completar el primer módulo con peso real. Es ruta
+          y no fase porque se interpone DENTRO de la app, igual que /encuesta. */}
+      <Route path="/cuenta" element={<AccountOfferRoute />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
@@ -240,6 +260,7 @@ export default function App() {
       studyPhase === PHASES.PRETEST ? <PretestScreen /> :
       studyPhase === PHASES.POSTTEST ? <PosttestScreen /> :
       studyPhase === PHASES.ACCOUNT_PROMPT ? <AccountPromptScreen /> :
+      studyPhase === PHASES.INSTALL_PROMPT ? <InstallPromptScreen /> :
       null
 
     if (onboarding) return <div className="app-shell">{onboarding}</div>
