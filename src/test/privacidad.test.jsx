@@ -22,9 +22,9 @@ import {
 } from '../data/privacidad'
 
 describe('el texto del aviso', () => {
-  it('cubre los seis temas que la persona necesita saber', () => {
+  it('cubre los siete temas que la persona necesita saber', () => {
     expect(SECCIONES.map((s) => s.id)).toEqual([
-      'que', 'que_no', 'para_que', 'cuanto', 'derechos', 'menores',
+      'que', 'que_no', 'para_que', 'cuanto', 'clasificacion', 'derechos', 'menores',
     ])
     // Ninguna sección vacía: una sección con título y sin cuerpo es peor que
     // no tenerla, porque aparenta cubrir algo.
@@ -86,5 +86,45 @@ describe('la cláusula dentro del registro', () => {
     for (const s of SECCIONES) {
       expect(screen.getByText(s.titulo)).toBeInTheDocument()
     }
+  })
+})
+
+/**
+ * La tabla de clasificación publica el nombre de pila de gente que NUNCA
+ * eligió aparecer: se pobló con los nombres que ya estaban guardados. Eso
+ * obliga a que el aviso lo diga con todas las letras y a que la salida sea
+ * fácil de encontrar. Si algún día se quita esta sección sin quitar la tabla,
+ * el aviso pasa a mentir.
+ */
+describe('lo que el aviso dice de la tabla de clasificación', () => {
+  const texto = () =>
+    SECCIONES.find((s) => s.id === 'clasificacion').parrafos.join(' ')
+
+  it('dice exactamente qué se publica', () => {
+    expect(texto()).toMatch(/nombre de pila/i)
+    expect(texto()).toMatch(/XP/)
+  })
+
+  it('promete que NO se publica nada más', () => {
+    expect(texto()).toMatch(/ni tu edad/i)
+    expect(texto()).toMatch(/ni d[óo]nde viv[ií]s/i)
+    expect(texto()).toMatch(/ni tu apellido/i)
+  })
+
+  it('explica cómo salirse, y dónde', () => {
+    expect(texto()).toMatch(/perfil/i)
+    expect(texto()).toMatch(/apag/i)
+  })
+
+  it('deja claro que los del estudio nunca aparecen', () => {
+    // El filtro real vive en la BASE (leaderboard_top10), no en el cliente.
+    // Esta prueba cuida la PROMESA; el SQL cuida el cumplimiento.
+    expect(texto()).toMatch(/estudio/i)
+    expect(texto()).toMatch(/nunca/i)
+  })
+
+  it('la cláusula corta del registro también lo menciona', () => {
+    // Es lo único que mucha gente lee, y es donde se entrega el nombre.
+    expect(CLAUSULA_CORTA).toMatch(/tabla de clasificaci[óo]n/i)
   })
 })

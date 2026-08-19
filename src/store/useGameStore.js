@@ -112,6 +112,7 @@ const GameStateSchema = z.object({
   entrySurveyDismissed: z.boolean().catch(false),
   installPromptDismissed: z.boolean().catch(false),
   accountPromptDismissed: z.boolean().catch(false),
+  leaderboardOptOut: z.boolean().catch(false),
   authUserId: z.string().nullable().catch(null),
   isGuestMode: z.boolean().catch(true),
   studyPhase: z.string().catch(PHASES.FREE),
@@ -155,6 +156,10 @@ const useGameStore = create(
       // Oferta de cuenta: se muestra una vez, al completar el primer módulo
       // con peso real (ver lib/ofertaDeCuenta).
       accountPromptDismissed: false,
+      // Tabla de clasificación: se aparece por defecto (la tabla se pobló con
+      // los nombres que ya estaban). El espejo real vive en la columna
+      // participants.leaderboard_opt_out; esto solo pinta el interruptor.
+      leaderboardOptOut: false,
       authUserId: null,
       isGuestMode: true,
       currentSessionId: null,
@@ -246,6 +251,7 @@ const useGameStore = create(
         entrySurveyDismissed: false,
         installPromptDismissed: false,
         accountPromptDismissed: false,
+        leaderboardOptOut: false,
         enrolledInStudy: false,
         studyPhase: PHASES.FREE,
         xp: 0,
@@ -270,6 +276,9 @@ const useGameStore = create(
       }),
       /** Cierra la invitación a instalar y suelta a la persona en la app. */
       finishInstallPrompt: () => set({ installPromptDismissed: true, studyPhase: PHASES.FREE }),
+
+      /** Refleja el interruptor de la tabla. La verdad está en la base. */
+      setLeaderboardOptOut: (optOut) => set({ leaderboardOptOut: Boolean(optOut) }),
 
       /** La oferta de cuenta ya se mostró: no se vuelve a interponer. */
       dismissAccountPrompt: () => set({ accountPromptDismissed: true }),

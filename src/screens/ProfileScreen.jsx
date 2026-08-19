@@ -13,11 +13,13 @@ import {
   Pencil,
   ShieldAlert,
   ShieldCheck,
+  Trophy,
   UserRoundPen,
   Zap,
 } from 'lucide-react'
 
 import useGameStore, { PHASES } from '../store/useGameStore'
+import { setLeaderboardOptOut } from '../services/leaderboard'
 import { DONATION_ENABLED } from '../data/donation'
 import { GAME_CONFIG } from '../data/gameConfig'
 import { distritoLabel, faltanDatosDeRegistro, paisLabel, residenciaLabel } from '../data/registro'
@@ -312,6 +314,12 @@ export default function ProfileScreen() {
           <ChevronRight className="h-4 w-4 shrink-0 text-[#a8b0a8]" />
         </button>
 
+        {/* Salir de la tabla de clasificación.
+            Nadie eligió aparecer: la tabla se pobló con los nombres que ya
+            estaban guardados. Este interruptor es lo que hace reversible esa
+            decisión, y por eso vive aquí y no escondido en un submenú. */}
+        <InterruptorClasificacion />
+
         {/* Cuenta. Sin sesión, lo importante es que quede claro que el avance
             vive solo aquí; con sesión, cómo salir. */}
         {isGuestMode ? (
@@ -504,6 +512,65 @@ function EditorDeDatos({ initial, loading, error, onSubmit, onClose }) {
           </RegistrationFields>
         </div>
       </div>
+    </div>
+  )
+}
+
+/* ── Aparecer o no en la tabla de clasificación ──────────────────── */
+function InterruptorClasificacion() {
+  const participantId = useGameStore((s) => s.participantId)
+  const leaderboardOptOut = useGameStore((s) => s.leaderboardOptOut)
+  const setLocalOptOut = useGameStore((s) => s.setLeaderboardOptOut)
+  const [guardando, setGuardando] = useState(false)
+
+  // Sin participante no hay nada que apagar: esa persona no está en la tabla.
+  if (!participantId) return null
+
+  const aparece = !leaderboardOptOut
+
+  const alternar = async () => {
+    if (guardando) return
+    const nuevoOptOut = aparece
+    setGuardando(true)
+    // Optimista: el interruptor responde al instante y se revierte si falla.
+    setLocalOptOut(nuevoOptOut)
+    const ok = await setLeaderboardOptOut(participantId, nuevoOptOut)
+    if (!ok) setLocalOptOut(!nuevoOptOut)
+    setGuardando(false)
+  }
+
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-hairline bg-white px-4 py-3">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#fff6dd] text-[#d89a1d]">
+        <Trophy className="h-[18px] w-[18px]" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[0.86rem] font-black leading-tight text-[#17211d]">
+          Aparecer en la tabla de clasificación
+        </span>
+        <span className="mt-0.5 block text-[0.74rem] font-semibold leading-snug text-[#6d756e]">
+          {aparece
+            ? 'Tu nombre de pila y tu XP pueden verse en Logros'
+            : 'No aparecés en la tabla'}
+        </span>
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={aparece}
+        aria-label="Aparecer en la tabla de clasificación"
+        onClick={alternar}
+        disabled={guardando}
+        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-60 ${
+          aparece ? 'bg-[#1f7a57]' : 'bg-[#cfd6cf]'
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+            aparece ? 'translate-x-[22px]' : 'translate-x-0.5'
+          }`}
+        />
+      </button>
     </div>
   )
 }

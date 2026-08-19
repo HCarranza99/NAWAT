@@ -6,6 +6,7 @@ import {
 import useGameStore from '../store/useGameStore'
 import { GAME_CONFIG } from '../data/gameConfig'
 import TorogozBadge from '../components/ui/TorogozBadge'
+import Leaderboard from '../components/ui/Leaderboard'
 import { useIsDesktop } from '../hooks/useMediaQuery'
 import { useSections } from '../hooks/useSections'
 import { seccionCompleta } from '../lib/lessonPath'
@@ -99,6 +100,10 @@ export default function LogrosScreen() {
           <SummaryStat icon={BookOpen} value={totalLessons} label="Lecciones" tone="text-[#2f6fb2]" />
           <SummaryStat icon={Crown} value={totalSections} label="Módulos" tone="text-[#8d4ac3]" />
         </section>
+
+        {/* Tabla de clasificación. Va acá arriba a propósito: es lo que más
+            invita a volver, y debajo de los trofeos quedaría enterrada. */}
+        <Leaderboard />
 
         {/* Insignias por sección */}
         {totalSections > 0 && (

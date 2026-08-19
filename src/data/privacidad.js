@@ -42,7 +42,9 @@ export const VERSION_AVISO = '2026-08-17'
 export const CLAUSULA_CORTA =
   'Guardamos tu nombre, tu edad y dónde vives para saber quién está aprendiendo ' +
   'náhuat, junto con tu avance en la app. No pedimos correo ni teléfono, no ' +
-  'compartimos ni vendemos nada, y podés pedir que borremos todo cuando querás.'
+  'compartimos ni vendemos nada, y podés pedir que borremos todo cuando querás. '  +
+  'Tu nombre de pila puede aparecer en la tabla de clasificación de la app; se '  +
+  'apaga desde Perfil.'
 
 /** Las secciones de la pantalla completa. */
 export const SECCIONES = [
@@ -69,7 +71,7 @@ export const SECCIONES = [
     titulo: 'Para qué lo usamos',
     parrafos: [
       'Para mejorar el curso y para poder responder una pregunta sencilla: quién está aprendiendo náhuat en El Salvador. Esa respuesta es parte del sentido del proyecto.',
-      'Cuando se publican resultados, se publican siempre agrupados — «tantas personas de tal departamento» —, nunca de forma que se pueda saber quién sos.',
+      'Cuando se publican resultados de investigación, se publican siempre agrupados — «tantas personas de tal departamento» —, nunca de forma que se pueda saber quién sos.',
     ],
   },
   {
@@ -79,6 +81,15 @@ export const SECCIONES = [
       `Mientras sigas usando la app, tus datos se conservan sin fecha de vencimiento: son los que sostienen tu avance y tu racha.`,
       `Si dejás de entrar durante ${MESES_INACTIVIDAD_PARA_BORRADO} meses seguidos, borramos todo lo tuyo.`,
       'Y si querés que lo borremos antes, no hace falta explicar por qué: se borra y ya.',
+    ],
+  },
+  {
+    id: 'clasificacion',
+    titulo: 'La tabla de clasificación',
+    parrafos: [
+      'Dentro de Logros hay una tabla con los diez primeros por XP. Ahí aparece tu nombre de pila y cuánto XP llevás — nada más: ni tu edad, ni dónde vivís, ni tu apellido.',
+      'Si preferís no salir, apagalo en Perfil → «Aparecer en la tabla de clasificación». Salís al instante y podés volver a entrar cuando querás.',
+      'Quienes participaron en el estudio de investigación NO aparecen nunca en la tabla, sin importar su puntaje: su nombre lo dieron bajo un consentimiento que promete confidencialidad.',
     ],
   },
   {
