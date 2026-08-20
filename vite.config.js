@@ -40,6 +40,11 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      // El registro lo hace src/lib/actualizacion.js, NO el script que inyecta
+      // el plugin. Aquel solo preguntaba por una versión nueva al cargar el
+      // documento, y una PWA instalada casi nunca carga el documento de cero:
+      // se quedaba con el build viejo indefinidamente. Ver ese archivo.
+      injectRegister: false,
       devOptions: {
         enabled: true,
       },
@@ -85,6 +90,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,ico,png,webp}'],
+        // Sin esto, las precachés de builds anteriores se acumulan en el
+        // teléfono de la gente para siempre.
+        cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/api/],
       },
