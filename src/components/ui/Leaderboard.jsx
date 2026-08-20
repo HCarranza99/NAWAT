@@ -16,7 +16,20 @@ import useGameStore from '../../store/useGameStore'
  *
  * Nunca bloquea la pantalla: si la red falla, se muestra el estado vacío y los
  * logros de abajo siguen funcionando.
+ *
+ * CUÁNDO SE REFRESCA
+ * Al montar, cada minuto mientras la pantalla está a la vista, y al volver al
+ * frente. No es tiempo real —eso pediría websockets para algo que no los
+ * necesita— pero sí lo bastante seguido para que terminar una lección y venir a
+ * ver la tabla muestre el número nuevo.
+ *
+ * El sondeo solo corre en esta pantalla, porque el componente solo vive acá; y
+ * solo con la pestaña visible, para no gastarle datos a quien la dejó abierta
+ * en segundo plano.
  */
+/** Cada cuánto se vuelve a pedir la tabla, con la pantalla a la vista. */
+const REFRESCO_MS = 60 * 1000
+
 export default function Leaderboard() {
   const participantId = useGameStore((s) => s.participantId)
   const [top, setTop] = useState(null) // null = cargando
@@ -24,19 +37,30 @@ export default function Leaderboard() {
 
   useEffect(() => {
     let cancelado = false
-    fetchTop10().then((filas) => {
-      if (!cancelado) setTop(filas)
-    })
-    return () => { cancelado = true }
-  }, [])
 
-  useEffect(() => {
-    if (!participantId) return
-    let cancelado = false
-    fetchMiPosicion(participantId).then((p) => {
-      if (!cancelado) setMi(p)
-    })
-    return () => { cancelado = true }
+    const traer = () => {
+      fetchTop10().then((filas) => { if (!cancelado) setTop(filas) })
+      if (participantId) {
+        fetchMiPosicion(participantId).then((p) => { if (!cancelado) setMi(p) })
+      }
+    }
+
+    traer()
+    const reloj = setInterval(() => {
+      // Sin esto, una pestaña olvidada en segundo plano sigue consultando toda
+      // la noche a costa de los datos de quien la dejó abierta.
+      if (document.visibilityState === 'visible') traer()
+    }, REFRESCO_MS)
+
+    // Volver al frente es justo cuando la persona quiere ver el número nuevo.
+    const alVolver = () => { if (document.visibilityState === 'visible') traer() }
+    document.addEventListener('visibilitychange', alVolver)
+
+    return () => {
+      cancelado = true
+      clearInterval(reloj)
+      document.removeEventListener('visibilitychange', alVolver)
+    }
   }, [participantId])
 
   // Si ya sale en el top no hace falta repetir su posición abajo.

@@ -11,7 +11,7 @@
  * estudio quedan fuera es del SQL y se verificó llamando a la RPC con la clave
  * anónima real.
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 
 const fetchTop10 = vi.fn()
@@ -114,5 +114,69 @@ describe('salirse de la tabla', () => {
     expect(useGameStore.getState().leaderboardOptOut).toBe(true)
     useGameStore.getState().setLeaderboardOptOut(false)
     expect(useGameStore.getState().leaderboardOptOut).toBe(false)
+  })
+})
+
+/**
+ * La tabla tiene que refrescarse sola. Antes solo se pedía al montar, así que
+ * quien se quedaba viendo la pantalla no veía subir a nadie —ni a sí mismo—
+ * hasta salir y volver a entrar.
+ */
+describe('cuándo se vuelve a pedir la tabla', () => {
+  beforeEach(() => { vi.useFakeTimers() })
+  afterEach(() => { vi.useRealTimers() })
+
+  const visible = (estado) =>
+    Object.defineProperty(document, 'visibilityState', { value: estado, configurable: true })
+
+  it('se refresca sola cada minuto', async () => {
+    visible('visible')
+    render(<Leaderboard />)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(fetchTop10).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(60_000)
+    expect(fetchTop10).toHaveBeenCalledTimes(2)
+
+    await vi.advanceTimersByTimeAsync(60_000)
+    expect(fetchTop10).toHaveBeenCalledTimes(3)
+  })
+
+  it('no consulta con la pestaña en segundo plano', async () => {
+    // Una pestaña olvidada no debe gastar los datos de nadie toda la noche.
+    visible('visible')
+    render(<Leaderboard />)
+    await vi.advanceTimersByTimeAsync(0)
+    const alMontar = fetchTop10.mock.calls.length
+
+    visible('hidden')
+    await vi.advanceTimersByTimeAsync(180_000)
+    expect(fetchTop10).toHaveBeenCalledTimes(alMontar)
+  })
+
+  it('pide de nuevo al volver al frente', async () => {
+    visible('visible')
+    render(<Leaderboard />)
+    await vi.advanceTimersByTimeAsync(0)
+    const antes = fetchTop10.mock.calls.length
+
+    visible('hidden')
+    document.dispatchEvent(new Event('visibilitychange'))
+    visible('visible')
+    document.dispatchEvent(new Event('visibilitychange'))
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(fetchTop10.mock.calls.length).toBeGreaterThan(antes)
+  })
+
+  it('deja de consultar al salir de la pantalla', async () => {
+    visible('visible')
+    const { unmount } = render(<Leaderboard />)
+    await vi.advanceTimersByTimeAsync(0)
+    const antes = fetchTop10.mock.calls.length
+
+    unmount()
+    await vi.advanceTimersByTimeAsync(300_000)
+    expect(fetchTop10).toHaveBeenCalledTimes(antes)
   })
 })
