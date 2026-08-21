@@ -144,6 +144,21 @@ async function recuperarParticipanteHuerfano() {
 /** Postgres 23503: llave foránea. Acá siempre significa participante ausente. */
 const esParticipanteAusente = (e) => e?.code === '23503'
 
+/**
+ * La sesión que abrió la recuperación, compartida por todas las llamadas que
+ * venían fallando a la vez.
+ *
+ * SIN ESTO SALEN SESIONES DE MÁS: el 21-ago una sola recuperación produjo OCHO
+ * sesiones en nueve segundos. El candado de `recuperando` impedía crear ocho
+ * participantes, pero cada llamada en vuelo reintentaba su propia sesión. No se
+ * pierden datos, pero el conteo de sesiones —que es una de las métricas del
+ * análisis— deja de ser confiable.
+ *
+ * Compartir una sesión por carga de página es además lo semánticamente
+ * correcto: una apertura de la app es una sesión.
+ */
+let sesionTrasRecuperar = null
+
 // ── Sesiones ─────────────────────────────────────────────────────
 
 /**
@@ -167,7 +182,16 @@ export async function startSession(participantId, reintento = false) {
       const nuevoId = await recuperarParticipanteHuerfano()
       // Un solo reintento. Si el participante nuevo también falla, algo más
       // está roto y hay que verlo en error_log, no seguir insistiendo.
-      if (nuevoId) return startSession(nuevoId, true)
+      if (nuevoId) {
+        // Todas las llamadas que fallaron juntas comparten esta sesión.
+        if (sesionTrasRecuperar?.participantId !== nuevoId) {
+          sesionTrasRecuperar = {
+            participantId: nuevoId,
+            promesa: startSession(nuevoId, true),
+          }
+        }
+        return sesionTrasRecuperar.promesa
+      }
     }
     logError('startSession', e)
     return null

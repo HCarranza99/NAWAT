@@ -132,3 +132,80 @@ describe('cuando el error es otro', () => {
     expect(useGameStore.getState().participantId).toBe('viejo-borrado')
   })
 })
+
+/**
+ * LO QUE NUNCA DEBE PASAR
+ *
+ * La recuperación crea un participante nuevo. Si se disparara cuando no debe,
+ * o si de paso tocara el progreso, alguien perdería su avance sin motivo. Estas
+ * pruebas fijan las tres propiedades que lo hacen imposible.
+ */
+describe('la recuperación no puede costarle el avance a nadie', () => {
+  it('NO toca el progreso local: XP, lecciones, racha y repaso quedan igual', async () => {
+    useGameStore.setState({
+      xp: 1200,
+      streak: 9,
+      sectionProgress: { m1: { lessonsCompleted: { 'm1-l1': { completed: true, stars: 3 } } } },
+      lessonProgress: { 'm1-l1': true },
+      srs: { 'tzaput': { ease: 2.5 } },
+    })
+
+    insert
+      .mockResolvedValueOnce({ error: FK })
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: null })
+
+    await startSession('viejo-borrado')
+
+    const s = useGameStore.getState()
+    expect(s.xp).toBe(1200)
+    expect(s.streak).toBe(9)
+    expect(s.sectionProgress.m1.lessonsCompleted['m1-l1'].completed).toBe(true)
+    expect(s.lessonProgress['m1-l1']).toBe(true)
+    expect(s.srs.tzaput.ease).toBe(2.5)
+  })
+
+  it('NO se dispara por un fallo de red', async () => {
+    // Sin señal el error es un TypeError, no un código de Postgres. Si la
+    // recuperación se activara acá, cada bajón de red crearía un participante.
+    insert.mockRejectedValue(new TypeError('Failed to fetch'))
+
+    await startSession('participante-sano')
+
+    expect(from.mock.calls.map((c) => c[0])).toEqual(['sessions'])
+    expect(useGameStore.getState().participantId).toBe('viejo-borrado')
+  })
+
+  it('NO se dispara por un rechazo de RLS', async () => {
+    // 42501 significa que la policy bloqueó la escritura, no que falte el
+    // participante. Crear uno nuevo no arreglaría nada y ensuciaría la base.
+    insert.mockResolvedValue({ error: { code: '42501', message: 'row-level security' } })
+
+    await startSession('participante-sano')
+
+    expect(from.mock.calls.map((c) => c[0])).toEqual(['sessions'])
+  })
+})
+
+describe('una recuperación, una sola sesión', () => {
+  it('ocho llamadas fallando juntas abren UNA sesión, no ocho', async () => {
+    // Pasó de verdad el 21-ago: ocho sesiones en nueve segundos por una sola
+    // recuperación. El conteo de sesiones es una métrica del análisis.
+    insert.mockImplementation(async (fila) => {
+      if (fila?.cohort) return { error: null }                        // participants
+      return { error: fila?.participant_id === 'viejo-borrado' ? FK : null }
+    })
+
+    const resultados = await Promise.all(
+      Array.from({ length: 8 }, () => startSession('viejo-borrado')),
+    )
+
+    const sesionesCreadas = from.mock.calls.filter((c) => c[0] === 'sessions').length
+    // 8 intentos fallidos + 1 sola sesión buena
+    expect(sesionesCreadas).toBe(9)
+
+    // Y todas las llamadas reciben la MISMA sesión.
+    const unicas = new Set(resultados.filter(Boolean))
+    expect(unicas.size).toBe(1)
+  })
+})
