@@ -8,7 +8,7 @@
 
 import { supabase } from '../lib/supabase'
 import { logError } from '../lib/logger'
-import { DEMO_MODE } from '../store/useGameStore'
+import useGameStore, { DEMO_MODE } from '../store/useGameStore'
 import { MIN_SCORE_TO_PASS } from '../data/gameConfig'
 
 // ── Participantes ────────────────────────────────────────────────
@@ -98,12 +98,58 @@ export async function saveParticipantRegistration(
   }
 }
 
+// ── Recuperación de un participante que ya no existe ─────────────
+
+/** Evita que dos llamadas simultáneas creen dos participantes. */
+let recuperando = null
+
+/**
+ * El participante guardado en este dispositivo ya no está en la base.
+ *
+ * PASA DE VERDAD: el 20-ago-2026 se limpiaron 306 participantes de prueba
+ * anteriores al lanzamiento. Quien vuelva con uno de esos identificadores
+ * guardado se queda mudo — cada escritura choca contra la llave foránea y la
+ * app no guarda nada suyo, sin que se note desde su lado. Se detectó porque
+ * `error_log` acumuló 27 fallos de una misma persona en día y medio.
+ *
+ * La salida es crear un participante nuevo con los datos que sí siguen en el
+ * dispositivo (nombre, edad, residencia) y seguir de largo. Se pierde el
+ * historial viejo —que ya no existe— pero el nombre vuelve solo, porque nunca
+ * se fue del teléfono: solo de nuestra base.
+ *
+ * @returns {Promise<string|null>} el id nuevo, o null si tampoco se pudo crear
+ */
+async function recuperarParticipanteHuerfano() {
+  if (recuperando) return recuperando
+
+  recuperando = (async () => {
+    try {
+      const s = useGameStore.getState()
+      const id = await createParticipant(s.participantName, null, 'free', {
+        age: s.participantAge,
+        residence: s.participantResidence,
+        district: s.participantDistrict,
+        country: s.participantCountry,
+      })
+      if (id) s.setParticipant(id, s.participantName)
+      return id
+    } finally {
+      recuperando = null
+    }
+  })()
+
+  return recuperando
+}
+
+/** Postgres 23503: llave foránea. Acá siempre significa participante ausente. */
+const esParticipanteAusente = (e) => e?.code === '23503'
+
 // ── Sesiones ─────────────────────────────────────────────────────
 
 /**
  * Crea una sesión nueva y retorna su ID.
  */
-export async function startSession(participantId) {
+export async function startSession(participantId, reintento = false) {
   if (DEMO_MODE) return null
   const sessionId = crypto.randomUUID()
   try {
@@ -114,6 +160,15 @@ export async function startSession(participantId) {
     if (error) throw error
     return sessionId
   } catch (e) {
+    // Es la PRIMERA escritura de cada apertura de la app, así que es donde
+    // conviene detectar el identificador huérfano: recuperarlo acá deja
+    // arreglado todo lo que venga después en esa sesión.
+    if (esParticipanteAusente(e) && !reintento) {
+      const nuevoId = await recuperarParticipanteHuerfano()
+      // Un solo reintento. Si el participante nuevo también falla, algo más
+      // está roto y hay que verlo en error_log, no seguir insistiendo.
+      if (nuevoId) return startSession(nuevoId, true)
+    }
     logError('startSession', e)
     return null
   }
