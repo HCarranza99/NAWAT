@@ -17,7 +17,7 @@ const from = vi.fn(() => ({ insert }))
 vi.mock('../lib/supabase', () => ({ supabase: { from: (...a) => from(...a) } }))
 vi.mock('../lib/logger', () => ({ logError: vi.fn() }))
 
-const { startSession } = await import('../services/analytics')
+const { startSession, startLessonAttempt, logExerciseResponse } = await import('../services/analytics')
 const useGameStore = (await import('../store/useGameStore')).default
 
 const FK = { code: '23503', message: 'violates foreign key constraint' }
@@ -207,5 +207,78 @@ describe('una recuperación, una sola sesión', () => {
     // Y todas las llamadas reciben la MISMA sesión.
     const unicas = new Set(resultados.filter(Boolean))
     expect(unicas.size).toBe(1)
+  })
+})
+
+/**
+ * Red de seguridad en los otros dos puntos de escritura.
+ *
+ * Lo normal es que `startSession` repare el participante al abrir la app. Pero
+ * el 21-ago los errores llegaron por los tres caminos a la vez, así que si esa
+ * primera llamada no repara —no llegó a correr, o falló por red en ese
+ * instante— la lección se pierde igual. Con 305 identificadores huérfanos que
+ * pueden volver, conviene cubrir los tres.
+ */
+describe('el intento de lección también se repara', () => {
+  it('salva la lección con un participante nuevo', async () => {
+    insert
+      .mockResolvedValueOnce({ error: FK })      // intento con el id muerto
+      .mockResolvedValueOnce({ error: null })    // participante nuevo
+      .mockResolvedValueOnce({ error: null })    // intento otra vez
+
+    const id = await startLessonAttempt('viejo-borrado', 'sesion-muerta',
+      { id: 'm1-l1', title: 'Saludar' })
+
+    expect(id).toBeTruthy()
+    expect(from.mock.calls.map((c) => c[0]))
+      .toEqual(['lesson_attempts', 'participants', 'lesson_attempts'])
+  })
+
+  it('suelta la sesión muerta en vez de perder el intento', async () => {
+    // La sesión vieja murió con el participante. Reintentar con ella daría
+    // otro 23503 y se perdería la lección entera.
+    insert
+      .mockResolvedValueOnce({ error: FK })
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: null })
+
+    await startLessonAttempt('viejo-borrado', 'sesion-muerta',
+      { id: 'm1-l1', title: 'Saludar' })
+
+    const reintento = insert.mock.calls[2][0]
+    expect(reintento.session_id).toBeNull()
+    expect(reintento.participant_id).not.toBe('viejo-borrado')
+    expect(reintento.lesson_id).toBe('m1-l1')
+  })
+})
+
+describe('la respuesta de ejercicio también se repara', () => {
+  it('conserva acierto y tiempo, que es lo que alimenta el análisis', async () => {
+    insert
+      .mockResolvedValueOnce({ error: FK })
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: null })
+
+    await logExerciseResponse('viejo-borrado', 'sesion-muerta', 'intento-muerto',
+      { id: 'ej-1', type: 'active_recall' }, true, Date.now() - 5000)
+
+    const reintento = insert.mock.calls[2][0]
+    expect(reintento.session_id).toBeNull()
+    expect(reintento.lesson_attempt_id).toBeNull()
+    expect(reintento.is_correct).toBe(true)
+    expect(reintento.exercise_type).toBe('active_recall')
+    expect(reintento.response_time_sec).toBeGreaterThan(4)
+  })
+
+  it('tampoco insiste más de una vez', async () => {
+    insert.mockImplementation(async (fila) => (
+      fila?.cohort ? { error: null } : { error: FK }
+    ))
+
+    await logExerciseResponse('viejo-borrado', null, null,
+      { id: 'ej-1', type: 'matching' }, false, Date.now())
+
+    expect(from.mock.calls.map((c) => c[0]))
+      .toEqual(['exercise_responses', 'participants', 'exercise_responses'])
   })
 })

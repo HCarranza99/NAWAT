@@ -232,7 +232,7 @@ export async function endSession(sessionId, startedAtMs) {
  * @param {string|null} sessionId
  * @param {{ id: string|number, title: string }} lesson
  */
-export async function startLessonAttempt(participantId, sessionId, lesson) {
+export async function startLessonAttempt(participantId, sessionId, lesson, reintento = false) {
   if (DEMO_MODE) return null
   const attemptId = crypto.randomUUID()
   try {
@@ -250,6 +250,15 @@ export async function startLessonAttempt(participantId, sessionId, lesson) {
     if (error) throw error
     return attemptId
   } catch (e) {
+    // Red de seguridad. Lo normal es que `startSession` ya haya reparado el
+    // participante al abrir la app; esto cubre el caso en que aquella llamada
+    // no llegó a correr o falló por red justo en ese instante.
+    if (esParticipanteAusente(e) && !reintento) {
+      const nuevoId = await recuperarParticipanteHuerfano()
+      // La sesión vieja también murió con el participante, así que se suelta:
+      // vale más el intento sin su enlace de sesión que perder la lección.
+      if (nuevoId) return startLessonAttempt(nuevoId, null, lesson, true)
+    }
     logError('startLessonAttempt', e)
     return null
   }
@@ -300,7 +309,8 @@ export async function logExerciseResponse(
   lessonAttemptId,
   exercise,
   isCorrect,
-  exerciseStartedAtMs
+  exerciseStartedAtMs,
+  reintento = false
 ) {
   if (!participantId || DEMO_MODE) return
   try {
@@ -320,6 +330,17 @@ export async function logExerciseResponse(
 
     if (error) throw error
   } catch (e) {
+    if (esParticipanteAusente(e) && !reintento) {
+      const nuevoId = await recuperarParticipanteHuerfano()
+      // Sesión e intento viejos murieron con el participante. La respuesta
+      // suelta vale más que nada: conserva acierto y tiempo, que es lo que
+      // alimenta el análisis de dificultad.
+      if (nuevoId) {
+        return logExerciseResponse(
+          nuevoId, null, null, exercise, isCorrect, exerciseStartedAtMs, true,
+        )
+      }
+    }
     logError('logExerciseResponse', e)
   }
 }
