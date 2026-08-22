@@ -52,7 +52,7 @@ export default defineConfig({
       manifest: {
         name: 'Aprende Nawat',
         short_name: 'Aprende Nawat',
-        description: 'Aprende el idioma Náhuat del pueblo Pipil de El Salvador',
+        description: 'Aprende náhuat, el idioma ancestral de El Salvador',
         theme_color: '#2D6A4F',
         background_color: '#FFF8F0',
         display: 'standalone',

@@ -5,7 +5,7 @@ const SLIDES = [
   {
     icon: '🌿',
     title: 'Sobre el náhuat',
-    body: 'El náhuat es el idioma ancestral del pueblo Pipil de El Salvador. Hoy lo hablan apenas unos pocos cientos de personas, y se considera en riesgo de desaparecer. Aprender sus palabras es ayudar a mantener viva una cultura milenaria.',
+    body: 'El náhuat es el idioma ancestral de El Salvador. Hoy lo hablan apenas unos pocos cientos de personas, y se considera en riesgo de desaparecer. Aprender sus palabras es ayudar a mantener viva una cultura milenaria.',
   },
   {
     icon: '🔬',

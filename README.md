@@ -1,6 +1,6 @@
-# Aprende Nawat — Learn the Pipil Language
+# Aprende Nawat — Learn the Náhuat Language
 
-A gamified mobile-first web app for learning **Náhuat**, the ancestral language of the Pipil people of El Salvador. Built as an MVP for a university thesis research project on language-learning engagement, designed to collect usage analytics from 100+ participants for statistical analysis in R.
+A gamified mobile-first web app for learning **Náhuat**, the ancestral language of El Salvador. Built as an MVP for a university thesis research project on language-learning engagement, designed to collect usage analytics from 100+ participants for statistical analysis in R.
 
 ## What it does
 
@@ -102,4 +102,4 @@ src/
 
 ## License
 
-Educational / research use. The Náhuat vocabulary is the cultural heritage of the Pipil people of El Salvador.
+Educational / research use. The Náhuat vocabulary is the cultural heritage of the Náhuat-speaking communities of El Salvador.
