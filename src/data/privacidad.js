@@ -6,11 +6,15 @@
  * tienen que decir lo MISMO — si se escriben por separado se separan —, y
  * porque los plazos deben poder cambiarse en un solo lugar.
  *
- * Qué se recoge hoy (17-ago-2026), para que esta lista no se desactualice sin
- * que nadie lo note: nombre, edad, departamento, distrito o país (tabla
- * `participants`), y el uso de la app — sesiones, intentos de lección y
- * respuestas a ejercicios. Todo cuelga de un identificador aleatorio: no se
- * pide correo ni teléfono, y la cuenta es opcional.
+ * Qué se recoge hoy (1-nov-2026), para que esta lista no se desactualice sin
+ * que nadie lo note: el avance (localStorage, y `user_profiles` si hay cuenta),
+ * el correo de quien crea cuenta (Supabase Auth), el uso de la app de quien ya
+ * tenía participante (sesiones, intentos de lección y respuestas a ejercicios,
+ * ligados a un identificador aleatorio) y `error_log`. Nombre, edad y lugar ya
+ * no se piden (ver data/funciones.js) y se borraron de Supabase.
+ *
+ * CLAUSULA_CORTA describe el registro, que hoy está apagado: solo se muestra si
+ * se vuelve a encender REGISTRO_ACTIVO.
  *
  * ⚠️ Si cambia lo que se recoge, cambiar TAMBIÉN este archivo. Es lo que se le
  * promete a la persona, y es lo único que ella llega a leer.
@@ -33,7 +37,7 @@ export const CONTACTO_DATOS = 'chugo9974@gmail.com'
 export const MESES_INACTIVIDAD_PARA_BORRADO = 24
 
 /** Versión del aviso. Subirla cuando cambie algo de fondo, no una coma. */
-export const VERSION_AVISO = '2026-08-17'
+export const VERSION_AVISO = '2026-11-01'
 
 /**
  * La cláusula corta: lo que se muestra DENTRO del registro, junto a los campos.
@@ -52,60 +56,52 @@ export const SECCIONES = [
     id: 'que',
     titulo: 'Qué guardamos',
     parrafos: [
-      'Lo que nos das en el registro: tu nombre (o como quieras que te llamemos), tu edad y dónde vivís — departamento y distrito, o el país si estás fuera de El Salvador.',
-      'Lo que hacés en la app: cuándo entrás, qué lecciones completás, cuánto tardás y qué respondés en los ejercicios. Eso es lo que nos deja ver qué partes del curso funcionan y cuáles hay que arreglar.',
-      'Si contestás alguna encuesta dentro de la app, también se guarda lo que respondas.',
+      'Tu avance en la app —lecciones, XP, racha y repasos— se guarda en este dispositivo. Si creás una cuenta, también se guarda en la nube junto con el correo con el que entrás, para que no lo perdás al cambiar de teléfono.',
+      'Si usaste la app antes de noviembre de 2026, seguimos guardando cómo la usaste —qué lecciones completaste y qué respondiste en los ejercicios— ligado a un identificador aleatorio que no dice quién sos. Quien llega ahora ya no genera estos registros.',
+      'Cuando algo falla, guardamos un aviso técnico del error —qué parte de la app falló y en qué versión— para poder arreglarlo.',
     ],
   },
   {
     id: 'que_no',
     titulo: 'Qué NO guardamos',
     parrafos: [
-      'No pedimos correo ni teléfono. No usamos rastreadores de publicidad ni vendemos datos a nadie.',
+      'Ya no pedimos tu nombre, tu edad ni dónde vivís. Los que se habían dado en el registro los borramos en noviembre de 2026, y también se borran de este dispositivo al abrir la app.',
+      'No usamos rastreadores de publicidad ni vendemos datos a nadie.',
       'Si donás, el pago lo maneja PayPal en su propia página: nosotros nunca vemos tu tarjeta ni tus datos bancarios.',
-      'Si le escribís al tutor de IA, tu mensaje se manda a Anthropic para poder responderte, pero no lo guardamos junto a tu nombre.',
+      'Si le escribís al tutor de IA, tu mensaje se manda a Anthropic para poder responderte, pero no lo guardamos.',
     ],
   },
   {
     id: 'para_que',
     titulo: 'Para qué lo usamos',
     parrafos: [
-      'Para mejorar el curso y para poder responder una pregunta sencilla: quién está aprendiendo náhuat en El Salvador. Esa respuesta es parte del sentido del proyecto.',
-      'Cuando se publican resultados de investigación, se publican siempre agrupados — «tantas personas de tal departamento» —, nunca de forma que se pueda saber quién sos.',
+      'Para que puedas seguir tu curso donde lo dejaste y para saber qué partes del curso funcionan y cuáles hay que arreglar.',
+      'Cuando se publican resultados de investigación, se publican siempre agrupados y anonimizados, nunca de forma que se pueda saber quién sos.',
     ],
   },
   {
     id: 'cuanto',
     titulo: 'Cuánto tiempo',
     parrafos: [
-      `Mientras sigas usando la app, tus datos se conservan sin fecha de vencimiento: son los que sostienen tu avance y tu racha.`,
+      'Mientras sigas usando la app, tu avance se conserva sin fecha de vencimiento: es lo que sostiene tu progreso y tu racha.',
       `Si dejás de entrar durante ${MESES_INACTIVIDAD_PARA_BORRADO} meses seguidos, borramos todo lo tuyo.`,
       'Y si querés que lo borremos antes, no hace falta explicar por qué: se borra y ya.',
-    ],
-  },
-  {
-    id: 'clasificacion',
-    titulo: 'La tabla de clasificación',
-    parrafos: [
-      'Dentro de Logros hay una tabla con los diez primeros por XP. Ahí aparece tu nombre de pila y cuánto XP llevás — nada más: ni tu edad, ni dónde vivís, ni tu apellido.',
-      'Si preferís no salir, apagalo en Perfil → «Aparecer en la tabla de clasificación». Salís al instante y podés volver a entrar cuando querás.',
-      'Quienes participaron en el estudio de investigación NO aparecen nunca en la tabla, sin importar su puntaje: su nombre lo dieron bajo un consentimiento que promete confidencialidad.',
     ],
   },
   {
     id: 'derechos',
     titulo: 'Cómo pedir que borremos tus datos',
     parrafos: [
-      `Escribí a ${CONTACTO_DATOS} y decinos el nombre con el que te registraste. Te confirmamos cuando esté hecho.`,
-      'También podés pedir una copia de lo que tenemos tuyo, o corregir algo que esté mal — el nombre y el lugar los podés cambiar vos desde Perfil.',
+      `Si tenés cuenta, escribí a ${CONTACTO_DATOS} desde el correo con el que entrás y borramos la cuenta y tu avance. Te confirmamos cuando esté hecho.`,
+      'Si no tenés cuenta, tu avance solo vive en este dispositivo: se borra al limpiar los datos del navegador o desinstalar la app.',
     ],
   },
   {
     id: 'menores',
     titulo: 'Si tenés menos de 18',
     parrafos: [
-      'La app pide 10 años como mínimo para registrarse.',
-      'Si tenés entre 10 y 17, contale a tu mamá, papá o a quien te cuide que estás usando la app y qué datos diste. Si esa persona prefiere que borremos todo, que nos escriba y lo hacemos sin preguntar nada más.',
+      'La app no te pide ningún dato personal para aprender. Si querés crear una cuenta con tu correo, contale primero a tu mamá, papá o a quien te cuide.',
+      'Si esa persona prefiere que borremos tu cuenta, que nos escriba y lo hacemos sin preguntar nada más.',
     ],
   },
 ]

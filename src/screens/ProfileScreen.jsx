@@ -21,6 +21,7 @@ import {
 import useGameStore, { PHASES } from '../store/useGameStore'
 import { setLeaderboardOptOut } from '../services/leaderboard'
 import { DONATION_ENABLED } from '../data/donation'
+import { CLASIFICACION_VISIBLE, REGISTRO_ACTIVO } from '../data/funciones'
 import { GAME_CONFIG } from '../data/gameConfig'
 import { distritoLabel, faltanDatosDeRegistro, paisLabel, residenciaLabel } from '../data/registro'
 import RegistrationFields from '../components/RegistrationFields'
@@ -58,7 +59,10 @@ export default function ProfileScreen() {
   // El aviso del inicio entra por aquí (/profile?completar=1) y abre el
   // formulario de una, sin obligar a buscar el botón. Se lee al montar en vez
   // de sincronizarlo con un efecto: es el estado inicial, no una suscripción.
-  const [editandoDatos, setEditandoDatos] = useState(() => searchParams.get('completar') === '1')
+  // Con el registro apagado (ver data/funciones.js) el parámetro no abre nada.
+  const [editandoDatos, setEditandoDatos] = useState(
+    () => REGISTRO_ACTIVO && searchParams.get('completar') === '1',
+  )
   const [guardandoDatos, setGuardandoDatos] = useState(false)
   const [errorDatos, setErrorDatos] = useState('')
   const faltanDatos = faltanDatosDeRegistro({
@@ -207,8 +211,8 @@ export default function ProfileScreen() {
 
         {/* Datos del registro. Dos caras del mismo botón: invitación cuando
             faltan (los 463 participantes que ya existían nunca los dieron) y
-            resumen editable cuando ya están. */}
-        {faltanDatos ? (
+            resumen editable cuando ya están. Apagado: ver data/funciones.js. */}
+        {!REGISTRO_ACTIVO ? null : faltanDatos ? (
           <button
             onClick={() => setEditandoDatos(true)}
             className="flex w-full items-center gap-3 rounded-2xl border border-[#1f7a57]/30 bg-[#eef8f2] p-4 text-left transition active:scale-[0.99]"
@@ -318,7 +322,7 @@ export default function ProfileScreen() {
             Nadie eligió aparecer: la tabla se pobló con los nombres que ya
             estaban guardados. Este interruptor es lo que hace reversible esa
             decisión, y por eso vive aquí y no escondido en un submenú. */}
-        <InterruptorClasificacion />
+        {CLASIFICACION_VISIBLE && <InterruptorClasificacion />}
 
         {/* Cuenta. Sin sesión, lo importante es que quede claro que el avance
             vive solo aquí; con sesión, cómo salir. */}
@@ -405,7 +409,7 @@ export default function ProfileScreen() {
         />
       )}
 
-      {editandoDatos && (
+      {REGISTRO_ACTIVO && editandoDatos && (
         <EditorDeDatos
           initial={{
             nombre: participantName ?? '',

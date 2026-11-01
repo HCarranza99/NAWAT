@@ -33,6 +33,7 @@ import { useAuth } from './hooks/useAuth'
 import { usePwaInstall } from './hooks/usePwaInstall'
 import { esIOS, puedeInvitarAInstalar } from './lib/instalacion'
 import { INTERVENTION_MS } from './data/questionnaires'
+import { REGISTRO_ACTIVO } from './data/funciones'
 
 export default function App() {
   const studyPhase = useGameStore((s) => s.studyPhase)
@@ -63,9 +64,12 @@ export default function App() {
   // UPDATE, desde la clave anónima). Si el insert falla, participantId sigue
   // null y este efecto lo reintenta en la siguiente carga con los mismos datos,
   // que quedaron persistidos.
+  //
+  // Con el registro apagado (ver data/funciones.js) no se crean participantes
+  // nuevos: quien llega por primera vez aprende sin generar telemetría.
   useEffect(() => {
     if (DEMO_MODE || participantId || enrolledInStudy) return
-    if (!registrationCompletedAt) return
+    if (!REGISTRO_ACTIVO || !registrationCompletedAt) return
     let cancelled = false
     createParticipant(participantName, null, 'free', {
       age: participantAge,
@@ -245,7 +249,7 @@ export default function App() {
     // consentimiento) y quien ya tiene participante tampoco: solo se pregunta
     // una vez por dispositivo.
     const needsRegistration =
-      !registrationCompletedAt && !participantId && !enrolledInStudy &&
+      REGISTRO_ACTIVO && !registrationCompletedAt && !participantId && !enrolledInStudy &&
       studyPhase === PHASES.FREE
 
     if (needsRegistration) {

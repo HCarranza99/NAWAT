@@ -51,9 +51,9 @@ describe('cuando el participante guardado ya no existe', () => {
       .toEqual(['sessions', 'participants', 'sessions'])
   })
 
-  it('conserva el nombre y los datos del registro', async () => {
-    // El nombre nunca se fue del teléfono, solo de la base: el participante
-    // nuevo tiene que nacer con él.
+  it('el participante nuevo nace sin datos personales', async () => {
+    // Con el registro apagado (ver data/funciones.js), ni el nombre ni la edad
+    // ni el lugar vuelven a la base, aunque siguieran en el teléfono.
     insert
       .mockResolvedValueOnce({ error: FK })
       .mockResolvedValueOnce({ error: null })
@@ -62,10 +62,12 @@ describe('cuando el participante guardado ya no existe', () => {
     await startSession('viejo-borrado')
 
     const nuevoParticipante = insert.mock.calls[1][0]
-    expect(nuevoParticipante.first_name).toBe('Daniela')
-    expect(nuevoParticipante.age).toBe(30)
-    expect(nuevoParticipante.residence).toBe('sonsonate')
-    expect(nuevoParticipante.district).toBe('sonsonate-izalco')
+    expect(nuevoParticipante.first_name).toBeNull()
+    expect(nuevoParticipante.last_name).toBeNull()
+    expect(nuevoParticipante.age).toBeNull()
+    expect(nuevoParticipante.residence).toBeNull()
+    expect(nuevoParticipante.district).toBeNull()
+    expect(nuevoParticipante.country).toBeNull()
     expect(nuevoParticipante.cohort).toBe('free')
   })
 
