@@ -152,11 +152,12 @@ describe('Cerrar sesión', () => {
     fireEvent.click(screen.getByTestId('cerrar-sesion'))
     fireEvent.click(screen.getByTestId('confirmar-cerrar-sesion'))
 
-    // Al quedar limpio, la app vuelve al registro, que sí ofrece iniciar sesión.
-    await waitFor(() => {
-      expect(screen.getByText('Antes de empezar')).toBeInTheDocument()
-    })
-    fireEvent.click(screen.getByText('¿Ya tienes cuenta? Iniciar sesión'))
+    // Al quedar limpio, la app abre directo (ya no hay registro) y Perfil
+    // ofrece iniciar sesión otra vez.
+    await waitFor(() => expect(useGameStore.getState().authUserId).toBeNull())
+    await irAPerfil()
+    await waitFor(() => expect(screen.getByTestId('iniciar-sesion')).toBeInTheDocument())
+    fireEvent.click(screen.getByTestId('iniciar-sesion'))
     expect(screen.getByText('Bienvenido de nuevo')).toBeInTheDocument()
   })
 })

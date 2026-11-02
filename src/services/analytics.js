@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabase'
 import { logError } from '../lib/logger'
 import useGameStore, { DEMO_MODE } from '../store/useGameStore'
 import { MIN_SCORE_TO_PASS } from '../data/gameConfig'
+import { REGISTRO_ACTIVO } from '../data/funciones'
 
 // ── Participantes ────────────────────────────────────────────────
 
@@ -30,6 +31,13 @@ import { MIN_SCORE_TO_PASS } from '../data/gameConfig'
  */
 export async function createParticipant(firstName, lastName, cohort = 'free', registro = {}) {
   if (DEMO_MODE) return 'demo-user'
+  // Registro apagado (ver data/funciones.js): si llega a crearse un
+  // participante —p. ej. al recuperar uno huérfano—, nace sin datos personales.
+  if (!REGISTRO_ACTIVO) {
+    firstName = null
+    lastName = null
+    registro = {}
+  }
   const participantId = crypto.randomUUID()
   try {
     const { error } = await supabase
@@ -77,7 +85,7 @@ export async function saveParticipantRegistration(
   participantId,
   { name, age, residence, district, country } = {},
 ) {
-  if (!participantId || DEMO_MODE) return false
+  if (!participantId || DEMO_MODE || !REGISTRO_ACTIVO) return false
   try {
     const { error } = await supabase
       .from('participant_registration_updates')

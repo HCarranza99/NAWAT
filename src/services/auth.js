@@ -9,6 +9,7 @@
 import { supabase } from '../lib/supabase'
 import { logError } from '../lib/logger'
 import { PHASES, STUDY_OPEN } from '../store/useGameStore'
+import { REGISTRO_ACTIVO } from '../data/funciones'
 
 // ── Autenticación ─────────────────────────────────────────────────
 
@@ -119,6 +120,20 @@ export function onAuthStateChange(callback) {
 
 // ── Sincronización de progreso ────────────────────────────────────
 
+/** Nombre, edad y lugar para user_profiles; todo null con el registro apagado. */
+function datosDeRegistro(state) {
+  if (!REGISTRO_ACTIVO) {
+    return { first_name: null, age: null, residence: null, district: null, country: null }
+  }
+  return {
+    first_name: state.participantName ?? null,
+    age: state.participantAge ?? null,
+    residence: state.participantResidence ?? null,
+    district: state.participantDistrict ?? null,
+    country: state.participantCountry ?? null,
+  }
+}
+
 /**
  * Mapea el estado de useGameStore al esquema de user_profiles en Supabase.
  */
@@ -130,11 +145,10 @@ function gameStateToProfile(userId, state) {
     // `participants` no es legible desde el cliente (solo INSERT para anon),
     // así que esta es la única forma de reconstruirla al iniciar sesión en
     // otro dispositivo. Ver 20260815_user_profile_registration.sql.
-    first_name: state.participantName ?? null,
-    age: state.participantAge ?? null,
-    residence: state.participantResidence ?? null,
-    district: state.participantDistrict ?? null,
-    country: state.participantCountry ?? null,
+    //
+    // Con el registro apagado se mandan null a propósito: el upsert limpia lo
+    // que hubiera quedado en la nube en vez de volver a subirlo.
+    ...datosDeRegistro(state),
     registration_completed_at: state.registrationCompletedAt ?? null,
     xp: state.xp,
     lives: state.lives,
@@ -160,11 +174,11 @@ function profileToGameState(row) {
     // Identidad: la adopta `adoptCloudIdentity` fuera del merge por XP, porque
     // saber QUIÉN es no depende de quién tiene más progreso.
     participantId: row.participant_id ?? null,
-    participantName: row.first_name ?? null,
-    participantAge: row.age ?? null,
-    participantResidence: row.residence ?? null,
-    participantDistrict: row.district ?? null,
-    participantCountry: row.country ?? null,
+    participantName: REGISTRO_ACTIVO ? (row.first_name ?? null) : null,
+    participantAge: REGISTRO_ACTIVO ? (row.age ?? null) : null,
+    participantResidence: REGISTRO_ACTIVO ? (row.residence ?? null) : null,
+    participantDistrict: REGISTRO_ACTIVO ? (row.district ?? null) : null,
+    participantCountry: REGISTRO_ACTIVO ? (row.country ?? null) : null,
     registrationCompletedAt: row.registration_completed_at ?? null,
     xp: row.xp ?? 0,
     lives: row.lives ?? 3,

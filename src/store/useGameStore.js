@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import { z } from 'zod'
 import { gradeCard } from '../lib/srs'
 import { computeStars, MIN_SCORE_TO_PASS } from '../data/gameConfig'
+import { REGISTRO_ACTIVO } from '../data/funciones'
 
 /**
  * Demo mode has a canonical /demo route. The explicit ?demo=true entry
@@ -131,6 +132,13 @@ const GameStateSchema = z.object({
   onboardingSeen: z.boolean().catch(false),
 }).passthrough()
 
+/** ¿Quedó algo del registro (nombre, edad o lugar) en este estado? */
+function tieneDatosDeRegistro(state) {
+  return state.participantName != null || state.participantAge != null ||
+    state.participantResidence != null || state.participantDistrict != null ||
+    state.participantCountry != null
+}
+
 const useGameStore = create(
   persist(
     (set) => ({
@@ -211,6 +219,21 @@ const useGameStore = create(
       skipRegistration: () => set({
         registrationCompletedAt: new Date().toISOString(),
         registrationSkipped: true,
+      }),
+
+      /**
+       * Borra del dispositivo el nombre, la edad y el lugar del registro.
+       *
+       * Con el registro apagado (ver data/funciones.js) corre en cada carga:
+       * si esto se quedara en localStorage, `saveProgressToCloud` lo volvería a
+       * subir a `user_profiles` después de haberlo borrado de Supabase.
+       */
+      borrarDatosDeRegistro: () => set({
+        participantName: null,
+        participantAge: null,
+        participantResidence: null,
+        participantDistrict: null,
+        participantCountry: null,
       }),
 
       /** Oculta para siempre el aviso de completar el perfil. */
@@ -308,6 +331,15 @@ const useGameStore = create(
         const patch = {}
         if (!state.participantId && cloudState.participantId) {
           patch.participantId = cloudState.participantId
+        }
+        // Con el registro apagado solo se adopta el participante y la marca de
+        // registro hecho; nombre, edad y lugar ya no se traen de la nube.
+        if (!REGISTRO_ACTIVO) {
+          if (!state.registrationCompletedAt) {
+            patch.registrationCompletedAt =
+              cloudState.registrationCompletedAt ?? new Date().toISOString()
+          }
+          return patch
         }
         if (!state.participantName && cloudState.participantName) {
           patch.participantName = cloudState.participantName
@@ -506,6 +538,11 @@ const useGameStore = create(
         // tiempo) por si el estudio se reabre.
         if (!STUDY_OPEN && state && state.studyPhase !== PHASES.FREE) {
           state.goFree()
+        }
+        // Registro apagado: lo que quedó guardado de antes se borra del
+        // dispositivo. El modo demo no lleva datos reales y conserva su nombre.
+        if (!REGISTRO_ACTIVO && !DEMO_MODE && state && tieneDatosDeRegistro(state)) {
+          state.borrarDatosDeRegistro()
         }
       },
       partialize: (state) => {

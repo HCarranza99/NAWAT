@@ -49,6 +49,26 @@ describe('saveProgressToCloud', () => {
     expect(upsert).toHaveBeenCalledTimes(1)
   })
 
+  it('manda null en nombre, edad y lugar aunque sigan en el estado', async () => {
+    // Registro apagado: el upsert limpia la nube en vez de volver a llenarla.
+    upsert.mockResolvedValueOnce({ error: null })
+
+    await saveProgressToCloud({
+      participantId: 'valido', xp: 10,
+      participantName: 'María', participantAge: 24,
+      participantResidence: 'sonsonate', participantDistrict: 'sonsonate-nahuizalco',
+      participantCountry: 'MX',
+    })
+
+    const perfil = upsert.mock.calls[0][0]
+    expect(perfil.first_name).toBeNull()
+    expect(perfil.age).toBeNull()
+    expect(perfil.residence).toBeNull()
+    expect(perfil.district).toBeNull()
+    expect(perfil.country).toBeNull()
+    expect(perfil.xp).toBe(10)
+  })
+
   it('no hace nada si no hay usuario autenticado', async () => {
     getUser.mockResolvedValue({ data: { user: null }, error: null })
 

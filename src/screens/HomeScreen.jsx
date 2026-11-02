@@ -6,6 +6,7 @@ import { Clock3, UserRoundPen, X } from 'lucide-react'
 import useGameStore, { PHASES } from '../store/useGameStore'
 import { INTERVENTION_MS } from '../data/questionnaires'
 import { faltanDatosDeRegistro } from '../data/registro'
+import { REGISTRO_ACTIVO } from '../data/funciones'
 import MascotTutorial from '../components/ui/MascotTutorial'
 import { useIsDesktop } from '../hooks/useMediaQuery'
 import HomeDesktop from './HomeDesktop'
@@ -122,7 +123,7 @@ export default function HomeScreen() {
   const showTutorial = activeLearningPhase && !onboardingSeen && !tutorialDismissed
   // Nunca los dos a la vez: el tutorial de la mascota es lo primero.
   const showCompletarPerfil =
-    activeLearningPhase && !showTutorial && !registrationPromptDismissed &&
+    REGISTRO_ACTIVO && activeLearningPhase && !showTutorial && !registrationPromptDismissed &&
     faltanDatosDeRegistro({
       participantName, participantAge, participantResidence,
       participantDistrict, participantCountry,

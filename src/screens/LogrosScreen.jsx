@@ -7,6 +7,7 @@ import useGameStore from '../store/useGameStore'
 import { GAME_CONFIG } from '../data/gameConfig'
 import TorogozBadge from '../components/ui/TorogozBadge'
 import Leaderboard from '../components/ui/Leaderboard'
+import { CLASIFICACION_VISIBLE } from '../data/funciones'
 import { useIsDesktop } from '../hooks/useMediaQuery'
 import { useSections } from '../hooks/useSections'
 import { seccionCompleta } from '../lib/lessonPath'
@@ -102,8 +103,9 @@ export default function LogrosScreen() {
         </section>
 
         {/* Tabla de clasificación. Va acá arriba a propósito: es lo que más
-            invita a volver, y debajo de los trofeos quedaría enterrada. */}
-        <Leaderboard />
+            invita a volver, y debajo de los trofeos quedaría enterrada.
+            Oculta mientras no tenga alias: ver data/funciones.js. */}
+        {CLASIFICACION_VISIBLE && <Leaderboard />}
 
         {/* Insignias por sección */}
         {totalSections > 0 && (

@@ -15,6 +15,11 @@ import {
   isPaisValido, isResidenciaValida, paises,
 } from '../data/registro'
 
+// El registro está apagado en la app (ver data/funciones.js), pero su código
+// sigue ahí por si se vuelve a encender. Estas pruebas lo cuidan encendido; el
+// comportamiento apagado vive en minimizacion.test.jsx.
+vi.mock('../data/funciones', () => ({ REGISTRO_ACTIVO: true, CLASIFICACION_VISIBLE: true }))
+
 const createParticipant = vi.fn().mockResolvedValue('nuevo-participante-id')
 const saveParticipantRegistration = vi.fn().mockResolvedValue(true)
 
